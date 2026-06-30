@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.aljun.zombiegamereborn.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "mixins.zombiegamereborn.refmap.json",
+  "mixins": [
+    "entity.EntityMixin",
+    "entity.ZombieMixin",
+    "entity.goal.TargetGoalMixin",
+    "musketmod.GunItemFireMixin"
+  ],
+  "client": [],
+  "minVersion": "0.8"
+}

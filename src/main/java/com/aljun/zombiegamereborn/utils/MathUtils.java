@@ -1,0 +1,13 @@
+package com.aljun.zombiegamereborn.utils;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+
+public class MathUtils {
+
+    public static Vec3 blockPosToVec3(BlockPos pos) {
+        return new Vec3(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d);
+    }
+
+
+}
