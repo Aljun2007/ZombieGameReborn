@@ -30,11 +30,12 @@ public class RandomUtils {
     public static class RandomPool<T> {
         private final List<T> VAR;
         private final List<Double> WEIGHT;
-        private double weightTotal;
+        private final double weightTotal;
 
         public RandomPool(List<T> var, List<Double> weight, double weightTotal) {
             this.VAR = var;
             this.WEIGHT = weight;
+            this.weightTotal = weightTotal;
         }
 
         public static <T> Builder<T> builder(Class<T> directionClass) {
@@ -42,6 +43,7 @@ public class RandomUtils {
         }
 
         public T nextValue() {
+            if (weightTotal==0d) return null;
             double random = RANDOM.nextDouble(0d, weightTotal);
             double before = 0d;
             double after = 0d;

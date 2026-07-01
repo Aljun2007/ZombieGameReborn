@@ -1,9 +1,12 @@
 package com.aljun.zombiegamereborn.common.events.handler;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
+import com.aljun.zombiegamereborn.common.config.ZombieSpawnChooser;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
+import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieTypeManager;
+import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.Zombie;
@@ -27,12 +30,9 @@ public class ZombieSpawnHandler {
 
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
         if (data.isTypeInitialized()) {
-            return; // 已初始化则跳过
+            return;
         }
-        ResourceLocation typeId = ZGRZombieAttributesAPI.getTypeID(data);
-        if (zombie.getSpawnType() != null) {
-            typeId = selectTypeBySpawnReason(zombie.getSpawnType());
-        }
+        ResourceLocation typeId = selectType(zombie, zombie.getSpawnType());
         ZombieTypeManager.initializeZombie(zombie, typeId);
     }
 
@@ -48,22 +48,27 @@ public class ZombieSpawnHandler {
 
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
         if (data.isTypeInitialized()) {
-            return; // 已初始化则跳过
+            return;
         }
-        ResourceLocation typeId = ZGRZombieAttributesAPI.getTypeID(data);
-        if (zombie.getSpawnType() != null) {
-            typeId = selectTypeBySpawnReason(zombie.getSpawnType());
-        }
+        ResourceLocation typeId = selectType(zombie, zombie.getSpawnType());
         ZombieTypeManager.initializeZombie(zombie, typeId);
     }
 
+    private static ResourceLocation selectType(Zombie zombie, MobSpawnType spawnType) {
+        ZombieSpawnChooser.SpawnType chooserType;
+        if (spawnType != null) {
+            chooserType = switch (spawnType) {
+                case CONVERSION -> ZombieSpawnChooser.SpawnType.DROWNED;
+                default -> ZombieSpawnChooser.SpawnType.NORMAL;
+            };
+        } else {
+            chooserType = ZombieSpawnChooser.SpawnType.NORMAL;
+        }
 
-    //这个是以后处理僵尸生成类型的，目前只处理了刷怪蛋和命令生成
-
-    private static ResourceLocation selectTypeBySpawnReason(MobSpawnType spawnType) {
-        return switch (spawnType) {
-            case SPAWN_EGG, COMMAND, CONVERSION -> ZGRZombieTypes.IDs.VANILLA_ID;
-            default -> ZGRZombieTypes.IDs.VANILLA_ID;
-        };
+        ZombieType type = ZGRGame.getGameProperty()
+                .getStageProperty(zombie.getServer())
+                .zombieSpawnChooser
+                .randomType(chooserType);
+        return type != null ? type.getId() : ZGRZombieTypes.DUMMY.getId();
     }
 }

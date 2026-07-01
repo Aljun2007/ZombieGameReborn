@@ -1,4 +1,4 @@
-package com.aljun.zombiegamereborn.mixins.entity.goal;
+package com.aljun.zombiegamereborn.mixins.minecraft.entity.goal;
 
 import com.aljun.zombiegamereborn.common.entity.goal.target.accessor.ITargetGoalAccessor;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;

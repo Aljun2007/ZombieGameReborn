@@ -1,4 +1,4 @@
-package com.aljun.zombiegamereborn.mixins.entity;
+package com.aljun.zombiegamereborn.mixins.minecraft.entity;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.common.config.ZombieProperty;

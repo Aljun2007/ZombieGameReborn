@@ -1,7 +1,6 @@
 package com.aljun.zombiegamereborn.common.events.handler;
 
 import com.aljun.zombiegamereborn.common.config.StageProperty;
-import com.aljun.zombiegamereborn.common.config.ZombieProperty;
 import com.aljun.zombiegamereborn.common.entity.sense.ZombieSenseManager;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;

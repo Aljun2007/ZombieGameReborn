@@ -54,6 +54,8 @@ public class ZombieSpawnChooser {
     private transient Map<SpawnType, RandomUtils.RandomPool<ZombieType>> allPools = new HashMap<>();
 
     public ZombieSpawnChooser() {
+        zombieTypes.add(new WrappedZombieType(SpawnType.NORMAL,1.0,ZGRZombieTypes.VANILLA));
+        zombieTypes.add(new WrappedZombieType(SpawnType.DROWNED,1.0,ZGRZombieTypes.VANILLA));
     }
 
     public ZombieSpawnChooser(ArrayList<WrappedZombieType> zombieTypes) {

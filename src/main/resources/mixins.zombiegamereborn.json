@@ -4,9 +4,9 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "mixins.zombiegamereborn.refmap.json",
   "mixins": [
-    "entity.EntityMixin",
-    "entity.ZombieMixin",
-    "entity.goal.TargetGoalMixin",
+    "minecraft.entity.EntityMixin",
+    "minecraft.entity.ZombieMixin",
+    "minecraft.entity.goal.TargetGoalMixin",
     "musketmod.GunItemFireMixin",
     "pointblank.MainHeldSimplifiedStateSyncRequestMixin"
   ],

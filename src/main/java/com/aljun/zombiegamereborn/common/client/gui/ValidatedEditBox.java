@@ -60,7 +60,11 @@ public class ValidatedEditBox extends EditBox {
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.lastValidValue = defaultValue;
-        
+
+        if (type == EditType.STRING) {
+            this.setMaxLength(1024);
+        }
+
         setValue(String.valueOf(defaultValue));
         setupValidation();
     }
@@ -113,15 +117,15 @@ public class ValidatedEditBox extends EditBox {
             switch (type) {
                 case STRING:
                     return true; // String 类型总是有效
-                    
+
                 case INTEGER:
                     int intValue = Integer.parseInt(input.trim());
                     return intValue >= minValue && intValue <= maxValue;
-                    
+
                 case DOUBLE:
                     double doubleValue = Double.parseDouble(input.trim());
                     return doubleValue >= minValue && doubleValue <= maxValue;
-                    
+
                 default:
                     return false;
             }
