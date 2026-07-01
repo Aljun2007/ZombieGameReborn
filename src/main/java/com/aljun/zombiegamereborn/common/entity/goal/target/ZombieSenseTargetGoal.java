@@ -109,6 +109,11 @@ public class ZombieSenseTargetGoal extends TargetGoal {
             return;
         }
 
+        double radius = senseType.radius();
+        if (radius < Double.MAX_VALUE && this.mob.distanceToSqr(entity) > radius * radius) {
+            return;
+        }
+
         LivingEntity current = this.activePoint != null ? this.activePoint.creator : null;
 
         if (current != null && current != entity

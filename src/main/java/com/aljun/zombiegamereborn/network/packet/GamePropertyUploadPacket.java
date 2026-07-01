@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -51,18 +52,12 @@ public class GamePropertyUploadPacket {
             
             if (player != null && player.getServer() != null) {
                 MinecraftServer server = player.getServer();
-                
                 GameProperty gameProperty = GameProperty.fromJsonObject(settings);
-                
                 ZGRConfigFileManager.saveConfig(server, gameProperty);
-                
                 ZGRGame.newGameProperty(gameProperty);
-                
-                if (player != null) {
-                    player.displayClientMessage(
-                        net.minecraft.network.chat.Component.literal("§a配置已保存到服务器"), false
-                    );
-                }
+                player.displayClientMessage(
+                    Component.literal("§a配置已保存到服务器"), false
+                );
             }
         });
         
