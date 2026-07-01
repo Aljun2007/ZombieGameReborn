@@ -14,8 +14,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import static com.aljun.zombiegamereborn.debug.ZGRDebug.testConfigGui;
-
 public class ZGRDebugCommand implements Command<CommandSourceStack> {
 
     public static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
@@ -28,17 +26,6 @@ public class ZGRDebugCommand implements Command<CommandSourceStack> {
         command.then(Commands.literal("debug_items").executes((context -> {
             ServerPlayer player = context.getSource().getPlayerOrException();
             debugItems(player);
-
-            return 0;
-        })));
-        command.then(Commands.literal("test_gui")
-                .then(Commands.argument("guiID", StringArgumentType.string())
-                        .executes((context -> {
-                            testGUI(context.getSource().getPlayerOrException(),context.getArgument("guiID",String.class));
-                            return 0;
-                        }))));
-        command.then(Commands.literal("test_config_gui").executes((context -> {
-            testConfigGui(context.getSource().getPlayerOrException());
             return 0;
         })));
     }
@@ -75,11 +62,6 @@ public class ZGRDebugCommand implements Command<CommandSourceStack> {
         test.getOrCreateTag().put(ZombieGameReborn.MOD_ID + ".debug.itemtype", StringTag.valueOf("test"));
         player.addItem(test);
 
-    }
-
-    //添加DEBUG调试激活GUI命令
-    private static void testGUI(ServerPlayer player,String guiID) {
-        ZGRDebug.testGUI(player,guiID);
     }
 
     @Override

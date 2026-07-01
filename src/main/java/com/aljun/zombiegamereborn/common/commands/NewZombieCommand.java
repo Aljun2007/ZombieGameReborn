@@ -34,7 +34,7 @@ public class NewZombieCommand {
                                 .executes(NewZombieCommand::executeWithPosition)
                         )
                         .then(Commands.literal("count")
-                                .then(Commands.argument("count", IntegerArgumentType.integer(1, 50))
+                                .then(Commands.argument("count", IntegerArgumentType.integer(1, 256))
                                         .executes(NewZombieCommand::executeWithCount)
                                 )
                         )

@@ -12,7 +12,7 @@ public class ZGRCommands {
     public static LiteralArgumentBuilder<CommandSourceStack> ROOT = Commands.literal(ZombieGameReborn.MOD_ID);
 
     public static LiteralCommandNode<CommandSourceStack> registry(CommandDispatcher<CommandSourceStack> dispatcher) {
-        //ZombieCommand.register(ROOT);
+        ConfigCommand.register(ROOT);
         ZGRDebugCommand.register(ROOT);
         NewZombieCommand.register(ROOT);
         return dispatcher.register(ROOT);
