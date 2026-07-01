@@ -50,6 +50,10 @@ public class ZombieMeleeAttackGoal extends Goal {
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
 
+    public ZombieMeleeAttackGoal(Mob zombie ) {
+        this(zombie, 1.0D, false);
+    }
+
     @Override
     public boolean canUse() {
         long gameTime = this.zombie.level().getGameTime();

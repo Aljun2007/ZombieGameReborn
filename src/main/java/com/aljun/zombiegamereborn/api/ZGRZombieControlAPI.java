@@ -58,7 +58,15 @@ public class ZGRZombieControlAPI {
     public static boolean startPlaceBlock(IZombieData data, BlockPos blockPos, BlockState blockState) {
         ZombiePlaceBlockGoal placeGoal = data.getZombiePlaceBlockGoal();
         if (placeGoal != null) {
-            return placeGoal.place(blockPos, blockState);
+            return placeGoal.placeIgnoreCoolDown(blockPos, blockState);
+        }
+        return false;
+    }
+
+    public static boolean startPlaceBlock(IZombieData data, BlockPos blockPos ) {
+        ZombiePlaceBlockGoal placeGoal = data.getZombiePlaceBlockGoal();
+        if (placeGoal != null) {
+            return placeGoal.placeIgnoreCoolDown(blockPos, placeGoal.getPlaceBlock());
         }
         return false;
     }
@@ -84,12 +92,12 @@ public class ZGRZombieControlAPI {
 
     public static boolean startPlaceBlock(Zombie zombie, BlockPos blockPos, BlockState blockState) {
         ZombiePlaceBlockGoal placeGoal = getPlaceBlockGoal(zombie);
-        return placeGoal != null && placeGoal.place(blockPos, blockState);
+        return placeGoal != null && placeGoal.placeIgnoreCoolDown(blockPos, blockState);
     }
 
     public static boolean startPlaceBlock(Zombie zombie, BlockPos blockPos) {
         ZombiePlaceBlockGoal placeGoal = getPlaceBlockGoal(zombie);
-        return placeGoal != null && placeGoal.place(blockPos, placeGoal.getPlaceBlock());
+        return placeGoal != null && placeGoal.placeIgnoreCoolDown(blockPos, placeGoal.getPlaceBlock());
     }
 
     public static ZombieBreakBlockGoal getBreakPlaceGoal(Zombie zombie) {

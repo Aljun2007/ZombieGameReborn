@@ -16,7 +16,9 @@ public class EntityMixin {
         Entity entity = (Entity) (Object) this;
         if (entity instanceof Zombie zombie) {
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-            cir.setReturnValue(ZGRZombieAttributesAPI.fireImmune(data) || cir.getReturnValue());
+            if (data!=null) {
+                cir.setReturnValue(ZGRZombieAttributesAPI.fireImmune(data) || cir.getReturnValue());
+            }
         }
     }
 }

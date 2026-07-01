@@ -174,6 +174,8 @@ dependencies {
     implementation fg.deobf("blank:spartanshields:3.1.1")
     implementation fg.deobf("blank:spartanweaponry:3.2.1")
     implementation fg.deobf("blank:tacz:1.1.7")
+    implementation fg.deobf("blank:geckolib:4.8.4")
+    implementation fg.deobf("blank:pointblank:1.11.1")
 //    implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
 //    implementation fg.deobf("curse.maven:ui-lib-933200:5207688")
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings

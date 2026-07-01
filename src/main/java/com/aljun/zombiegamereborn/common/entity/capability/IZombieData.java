@@ -8,10 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 
-/**
- * 僵尸数据接口
- * 存储僵尸的类型和 tick 状态
- */
 public interface IZombieData {
 
     @Nullable
@@ -48,32 +44,14 @@ public interface IZombieData {
     boolean canSwim();
     void enableSwim(boolean canSwim);
 
-    /**
-     * 检查是否已初始化类型
-     * @return 如果已初始化返回 true
-     */
     boolean isTypeInitialized();
-
-    /**
-     * 标记类型已初始化
-     * @param initialized 是否已初始化
-     */
     void setTypeInitialized(boolean initialized);
 
-    /**
-     * 获取 tick 计数器
-     * @return 当前 tick 数
-     */
     int getTickCount();
-
-    /**
-     * 增加 tick 计数
-     */
     void incrementTick();
 
     boolean isEmpowered();
-
-    void setEmpowered( boolean value);
+    void setEmpowered(boolean value);
 
     void setMovementSpeedModify(double modify);
     double getMovementSpeedModify();

@@ -99,7 +99,7 @@ public class ZombieSenseTargetGoal extends TargetGoal {
             return;
         }
         LivingEntity creator = this.activePoint.creator;
-        if (creator != null && this.mob.getTarget() != creator) {
+        if (this.mob.getTarget() != creator) {
             this.mob.setTarget(creator);
         }
     }

@@ -1,6 +1,8 @@
 package com.aljun.zombiegamereborn.common.entity.goal.behavior;
 
+import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
+import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
@@ -8,12 +10,14 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class ClearHeadBlockGoal extends Goal {
     private final Zombie zombie;
+    private final IZombieData data;
     private ZombieBreakBlockGoal breakBlockGoal;
     private boolean tried = false;
     private BlockPos targetBlockPos;
 
     public ClearHeadBlockGoal(Zombie zombie) {
         this.zombie = zombie;
+        this.data = ZGRZombieAttributesAPI.getZombieData(zombie);
         //this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
 
@@ -39,7 +43,7 @@ public class ClearHeadBlockGoal extends Goal {
         BlockPos headPos = this.zombie.blockPosition().above();
         BlockState headBlock = this.zombie.level().getBlockState(headPos);
 
-        // 如果头部已经是空气或液体，不需要破坏
+        // 如果头部已经是空气或流体，不需要破坏
         if (headBlock.isAir() || !headBlock.getFluidState().isEmpty()) {
             return false;
         }

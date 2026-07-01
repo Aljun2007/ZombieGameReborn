@@ -39,6 +39,15 @@ public class ZombiePlaceBlockGoal extends Goal {
         }
     }
 
+    public boolean placeIgnoreCoolDown(BlockPos blockPos, BlockState blockState) {
+        if (this.checkState(blockState) && this.checkPos(blockPos)) {
+            this.succeedPlace(blockPos, blockState);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private boolean checkState(BlockState blockState) {
         return (!blockState.isAir() && blockState.getFluidState().isEmpty());
     }

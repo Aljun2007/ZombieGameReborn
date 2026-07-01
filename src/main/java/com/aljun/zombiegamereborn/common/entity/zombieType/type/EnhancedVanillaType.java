@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.common.entity.zombieType.type;
 
 import com.aljun.zombiegamereborn.common.entity.goal.attack.ZombieMeleeAndPathBuildGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.attack.ZombieMeleeAttackGoal;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
@@ -14,6 +15,6 @@ public class EnhancedVanillaType  extends ZombieType {
 
     @Override
     public void onInitializeZombieGoals(Zombie zombie) {
-        ZombieType.replaceGoal(zombie.goalSelector,goal-> goal instanceof ZombieAttackGoal, ()->new ZombieMeleeAndPathBuildGoal(zombie),2);
+        ZombieType.replaceGoal(zombie.goalSelector,goal-> goal instanceof ZombieAttackGoal, ()->new ZombieMeleeAttackGoal(zombie),2);
     }
 }

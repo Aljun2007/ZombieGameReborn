@@ -88,6 +88,9 @@ public class ZombieData implements IZombieData {
 
     @Override
     public ResourceLocation getTypeID() {
+        if (this.type == null) {
+            this.type = ZGRZombieTypes.DUMMY.getId();
+        }
         return type;
     }
 
@@ -145,14 +148,11 @@ public class ZombieData implements IZombieData {
         this.tickCount++;
     }
 
-    // 这个是激活方块挖掘AI、方块放置AI的关键
     @Override
     public boolean isEmpowered() {
         return this.isEmpowered;
     }
 
-
-    // 这个是激活方块挖掘AI、方块放置AI的关键
     @Override
     public void setEmpowered(boolean value) {
         this.isEmpowered = value;
@@ -187,6 +187,4 @@ public class ZombieData implements IZombieData {
     public void setFollowMustSee(boolean value) {
         this.followMustSee = value;
     }
-
-
 }

@@ -5,6 +5,7 @@ import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombiePlaceBlockGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieWaterBridgeBuildGoal;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.utils.MathUtils;
 import com.aljun.zombiegamereborn.utils.PathConstructor;
@@ -40,6 +41,8 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     protected final int attackInterval = 20;
     public ZombieBreakBlockGoal breakGoal = null;
     public ZombiePlaceBlockGoal placeGoal = null;
+    private ZombieWaterBridgeBuildGoal bridgeGoal = null;
+
     protected double speedModifier = 1;
     protected Path path;
     protected double pathedTargetX;
@@ -94,6 +97,17 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
         }
     }
 
+    protected void setBuild(BlockPos target) {
+        long gameTime = this.zombie.level().getGameTime();
+        if (gameTime - this.lastSetMeleeTime >= BUILD_COOLDOWN &&
+                gameTime - this.lastHurtAndCanReachPlayerTime >= HURT_BUILD_COOLDOWN) {
+            this.state = State.BUILD;
+            this.buildTargetPos = target;
+            this.selfPos = this.zombie.blockPosition();
+            this.zombie.getNavigation().stop();
+        }
+    }
+
     protected void setMelee() {
         this.state = State.MELEE;
         this.buildTargetPos = null;
@@ -144,6 +158,8 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
         if (!this.isTried) {
             this.breakGoal = ZGRZombieControlAPI.getBreakPlaceGoal(zombie);
             this.placeGoal = ZGRZombieControlAPI.getPlaceBlockGoal(zombie);
+            this.bridgeGoal = (ZombieWaterBridgeBuildGoal) ZGRZombieControlAPI.getGoal(
+                    this.zombie, goal -> goal instanceof ZombieWaterBridgeBuildGoal);
             this.isTried = true;
         }
     }
@@ -252,22 +268,31 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                 Path path = this.zombie.getNavigation().createPath(livingentity, 0);
                 boolean moved = false;
                 if (path != null) {
-                    moved = this.zombie.getNavigation().moveTo(path, this.speedModifier);
+
                     if (this.canPathConstruct()) {
-                        Node finalPathPoint = path.getEndNode();
-                        if (finalPathPoint != null) {
-                            if (this.zombie.distanceToSqr(finalPathPoint.x, finalPathPoint.y, finalPathPoint.z) <= FORCE_BUILD_DISTANCE_TO_SQRT &&
-                                    livingentity.distanceToSqr(finalPathPoint.x, finalPathPoint.y, finalPathPoint.z) > FORCE_BUILD_DISTANCE_TO_SQRT) {
-                                this.setBuild(livingentity.blockPosition());
-                            } else if (livingentity.distanceToSqr(this.zombie) <= 3) {
+                        if ((this.bridgeGoal != null &&this.bridgeGoal.isPathBuildCooldown())) {
+                            moved = this.zombie.getNavigation().moveTo(path, this.speedModifier/data.getMovementSpeedModify());
+                        } else {
+                            moved = this.zombie.getNavigation().moveTo(path, this.speedModifier);
+                            Node finalPathPoint = path.getEndNode();
+                            if (finalPathPoint != null) {
+                                if (this.zombie.distanceToSqr(finalPathPoint.x, finalPathPoint.y, finalPathPoint.z) <= FORCE_BUILD_DISTANCE_TO_SQRT &&
+                                        livingentity.distanceToSqr(finalPathPoint.x, finalPathPoint.y, finalPathPoint.z) > FORCE_BUILD_DISTANCE_TO_SQRT) {
+                                    this.setBuild(livingentity.blockPosition());
+                                } else if (livingentity.distanceToSqr(this.zombie) <= 3) {
+                                    this.setBuild(livingentity.blockPosition());
+                                }
+                            } else {
                                 this.setBuild(livingentity.blockPosition());
                             }
-                        } else {
-                            this.setBuild(livingentity.blockPosition());
                         }
+                    } else {
+                        moved = this.zombie.getNavigation().moveTo(path, this.speedModifier);
                     }
+
+
                 } else {
-                    if (this.canPathConstruct()) {
+                    if (this.canPathConstruct() && (this.bridgeGoal == null || !this.bridgeGoal.isPathBuildCooldown())) {
                         this.setBuild(livingentity.blockPosition());
                     }
                 }
@@ -371,6 +396,8 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                 Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
                 if (path1 != null) {
                     this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getMovementSpeedModify());
+                } else {
+                    this.setMelee();
                 }
             }
         }
@@ -418,17 +445,6 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
     protected boolean canPathConstruct() {
         return this.pathConstructor != null && (this.canBreak() || this.canPlace()) && this.data.isEmpowered();
-    }
-
-    protected void setBuild(BlockPos target) {
-        long gameTime = this.zombie.level().getGameTime();
-        if (gameTime - this.lastSetMeleeTime >= BUILD_COOLDOWN &&
-                gameTime - this.lastHurtAndCanReachPlayerTime >= HURT_BUILD_COOLDOWN) {
-            this.state = State.BUILD;
-            this.buildTargetPos = target;
-            this.selfPos = this.zombie.blockPosition();
-            this.zombie.getNavigation().stop();
-        }
     }
 
     protected boolean checkAndPerformAttack(LivingEntity livingEntity, double distance) {
@@ -519,6 +535,10 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
     protected void resetAttackCooldown() {
         this.ticksUntilNextAttack = this.adjustedTickDelay(20);
+    }
+
+    public boolean isInBuildState() {
+        return this.state.is(State.BUILD);
     }
 
     protected boolean isEmpty(BlockState blockState) {
