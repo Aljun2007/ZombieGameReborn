@@ -32,7 +32,7 @@ public class StagePropertyScreen extends AbstractBranchConfigScreen {
         ConfigTab zombieTab = new ConfigTab("僵尸设置", this::initializeZombieTab);
         this.tabs.add(zombieTab);
 
-        ConfigTab elseTab = new ConfigTab("僵尸设置", this::initializeElseTab);
+        ConfigTab elseTab = new ConfigTab("其他设置", this::initializeElseTab);
         this.tabs.add(elseTab);
     }
 
@@ -46,7 +46,7 @@ public class StagePropertyScreen extends AbstractBranchConfigScreen {
         panel.addCallbackabeScreen("僵尸属性", this, "zombie_property",
                 (screen, callback) -> new ZombiePropertyScreen("", this.localJson.getAsJsonObject("zombie_property"),
                         callback, screen));
-        panel.addCallbackabeScreen("僵尸种类", this, "zombie_type",
+        panel.addCallbackabeScreen("僵尸种类", this, "zombie_spawn_chooser",
                 (screen, callback) -> new ZombieSpawnChooserScreen("", this.localJson.getAsJsonObject("zombie_spawn_chooser"),
                         callback, screen));
 

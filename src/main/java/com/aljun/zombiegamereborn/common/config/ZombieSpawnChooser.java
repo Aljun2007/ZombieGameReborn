@@ -103,7 +103,7 @@ public class ZombieSpawnChooser {
 
         @Override
         public String toString() {
-            return this.type.name + " 几率: " + this.chance+  " 类型 : " + this.zombieType.toString();
+            return  this.zombieType.toString()+ " 权重: " + this.chance+  " 类型 : " + this.type.name;
         }
 
         @SerializedName("spawn_type")
@@ -113,7 +113,7 @@ public class ZombieSpawnChooser {
         public double chance = 1.0d;
 
         @SerializedName("zombie_type")
-        public ZombieType zombieType = ZGRZombieTypes.DUMMY;
+        public ZombieType zombieType = ZGRZombieTypes.VANILLA;
 
         public WrappedZombieType() {
         }

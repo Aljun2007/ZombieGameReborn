@@ -1,12 +1,16 @@
 package com.aljun.zombiegamereborn.common.client.gui.config.stage;
 
+import com.aljun.zombiegamereborn.common.client.gui.ValidatedEditBox;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.AbstractBranchConfigScreen;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.SimpleSettingsPanel;
 import com.aljun.zombiegamereborn.common.config.ZombieSpawnChooser;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
+import com.aljun.zombiegamereborn.register.ZGRRegistries;
 import com.google.gson.*;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class WrappedZombieTypeScreen extends AbstractBranchConfigScreen {
@@ -34,6 +38,16 @@ public class WrappedZombieTypeScreen extends AbstractBranchConfigScreen {
 
     private void initializeExclusiveTab(SimpleSettingsPanel panel) {
         panel.addEditBox("僵尸类型", "zombie_type", ZGRZombieTypes.DUMMY.getId().toString());
+        panel.setEditBoxSuggestionProvider("zombie_type", input -> {
+            if (ZGRRegistries.ZOMBIE_TYPE == null || ZGRRegistries.ZOMBIE_TYPE.get() == null) {
+                return List.of();
+            }
+            return ZGRRegistries.ZOMBIE_TYPE.get().getKeys().stream()
+                    .map(ResourceLocation::toString)
+                    .filter(id -> id.contains(input))
+                    .sorted()
+                    .toList();
+        });
         panel.addDoubleEditBox("权重", "chance", 1.0, 0.0, Double.MAX_VALUE);
         panel.addEnumCycleButton(
                 "生成类型",

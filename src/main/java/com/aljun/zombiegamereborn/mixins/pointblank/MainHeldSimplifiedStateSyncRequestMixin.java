@@ -14,7 +14,6 @@ import java.util.function.Supplier;
 @Pseudo
 @Mixin(targets = "com.vicmatskiv.pointblank.network.MainHeldSimplifiedStateSyncRequest")
 public class MainHeldSimplifiedStateSyncRequestMixin {
-
     @Inject(
             method = "handleEnqueued",
             at = @At("HEAD")

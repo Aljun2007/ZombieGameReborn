@@ -570,6 +570,31 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
     @Override
     public void updateNarration(NarrationElementOutput output) {}
 
+    // ==================== 事件处理 ====================
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // 优先处理下拉补全——绕过子控件反序迭代导致的劫持
+        for (ValidatedEditBox eb : editBoxes.values()) {
+            if (eb.handleSuggestionClick(mouseX, mouseY)) {
+                return true;
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    // ==================== 工具方法 ====================
+
+    /**
+     * 为指定 key 的 EditBox 设置下拉补全提供者
+     */
+    public void setEditBoxSuggestionProvider(String key, ValidatedEditBox.SuggestionProvider provider) {
+        ValidatedEditBox editBox = editBoxes.get(key);
+        if (editBox != null) {
+            editBox.setSuggestionProvider(provider);
+        }
+    }
+
     // ==================== 内部类 ====================
 
     /**
