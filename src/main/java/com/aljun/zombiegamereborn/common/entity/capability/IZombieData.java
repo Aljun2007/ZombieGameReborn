@@ -2,6 +2,7 @@ package com.aljun.zombiegamereborn.common.entity.capability;
 
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombiePlaceBlockGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieShieldGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import net.minecraft.resources.ResourceLocation;
@@ -24,6 +25,11 @@ public interface IZombieData {
     ZombiePlaceBlockGoal getZombiePlaceBlockGoal();
 
     void setZombiePlaceBlockGoal(ZombiePlaceBlockGoal goal);
+
+    @Nullable
+    ZombieShieldGoal getZombieShieldGoal();
+
+    void setZombieShieldGoal(ZombieShieldGoal goal);
 
     boolean enhancedSense();
     void setEnhancedSense(boolean value);
@@ -53,8 +59,9 @@ public interface IZombieData {
     boolean isEmpowered();
     void setEmpowered(boolean value);
 
-    void setMovementSpeedModify(double modify);
-    double getMovementSpeedModify();
+    void setAttributesMovementSpeedModify(double modify);
+    double getTotalMovementSpeedModify();
+
 
     boolean canJumpAttack();
     void enableJumpAttack(boolean value);

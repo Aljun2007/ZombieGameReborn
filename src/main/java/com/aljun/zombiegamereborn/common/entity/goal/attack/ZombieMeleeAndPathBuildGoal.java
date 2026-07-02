@@ -25,6 +25,8 @@ import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumSet;
+
 public class ZombieMeleeAndPathBuildGoal extends Goal {
     protected static final long COOLDOWN_BETWEEN_CAN_USE_CHECKS = 20L;
     private static final int BUILD_COOLDOWN = 10;
@@ -41,8 +43,6 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     protected final int attackInterval = 20;
     public ZombieBreakBlockGoal breakGoal = null;
     public ZombiePlaceBlockGoal placeGoal = null;
-    private ZombieWaterBridgeBuildGoal bridgeGoal = null;
-
     protected double speedModifier = 1;
     protected Path path;
     protected double pathedTargetX;
@@ -58,6 +58,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     protected BlockPos buildTargetPos = null;
     protected PathConstructor.PathPack pathPack;
     protected BlockPos selfPos;
+    private ZombieWaterBridgeBuildGoal bridgeGoal = null;
     private long lastSetMeleeTime = 0L;
     private long lastGiveUpBuildTime = 0L;
     private boolean isTried = false;
@@ -66,11 +67,12 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     private Boolean cachedCanBreak = null;
     private Boolean cachedCanPlace = null;
     private IZombieData data;
+
     public ZombieMeleeAndPathBuildGoal(Zombie zombie) {
         this.zombie = zombie;
-
         this.pathConstructor = new PathConstructor();
         this.data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
 
     private BlockState getPlaceBlock() {
@@ -97,17 +99,6 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
         }
     }
 
-    protected void setBuild(BlockPos target) {
-        long gameTime = this.zombie.level().getGameTime();
-        if (gameTime - this.lastSetMeleeTime >= BUILD_COOLDOWN &&
-                gameTime - this.lastHurtAndCanReachPlayerTime >= HURT_BUILD_COOLDOWN) {
-            this.state = State.BUILD;
-            this.buildTargetPos = target;
-            this.selfPos = this.zombie.blockPosition();
-            this.zombie.getNavigation().stop();
-        }
-    }
-
     protected void setMelee() {
         this.state = State.MELEE;
         this.buildTargetPos = null;
@@ -119,6 +110,17 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
         this.lastSetMeleeTime = this.zombie.level().getGameTime();
         this.cachedCanBreak = null;
         this.cachedCanPlace = null;
+    }
+
+    protected void setBuild(BlockPos target) {
+        long gameTime = this.zombie.level().getGameTime();
+        if (gameTime - this.lastSetMeleeTime >= BUILD_COOLDOWN &&
+                gameTime - this.lastHurtAndCanReachPlayerTime >= HURT_BUILD_COOLDOWN) {
+            this.state = State.BUILD;
+            this.buildTargetPos = target;
+            this.selfPos = this.zombie.blockPosition();
+            this.zombie.getNavigation().stop();
+        }
     }
 
     @Override
@@ -270,8 +272,8 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                 if (path != null) {
 
                     if (this.canPathConstruct()) {
-                        if ((this.bridgeGoal != null &&this.bridgeGoal.isPathBuildCooldown())) {
-                            moved = this.zombie.getNavigation().moveTo(path, this.speedModifier/data.getMovementSpeedModify());
+                        if ((this.bridgeGoal != null && this.bridgeGoal.isPathBuildCooldown())) {
+                            moved = this.zombie.getNavigation().moveTo(path, this.speedModifier / data.getTotalMovementSpeedModify());
                         } else {
                             moved = this.zombie.getNavigation().moveTo(path, this.speedModifier);
                             Node finalPathPoint = path.getEndNode();
@@ -370,7 +372,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
                         if ((Math.sqrt(pathEnd.distSqr(livingentity.blockPosition()) + 10) < Math.sqrt(buildEnd.distSqr(livingentity.blockPosition())))) {
                             this.setMelee();
-                            this.zombie.getNavigation().moveTo(path, this.speedModifier / this.data.getMovementSpeedModify());
+                            this.zombie.getNavigation().moveTo(path, this.speedModifier / this.data.getTotalMovementSpeedModify());
                             this.lastGiveUpBuildTime = this.zombie.level().getGameTime();
                             return;
                         }
@@ -387,7 +389,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
             Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
             if (path1 != null) {
-                this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getMovementSpeedModify());
+                this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getTotalMovementSpeedModify());
             }
         } else if (distToSelf >= RETURN_TO_SELF_MAX_DIST_SQR) {
             this.setMelee();
@@ -395,7 +397,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
             if (this.zombie.getNavigation().isDone()) {
                 Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
                 if (path1 != null) {
-                    this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getMovementSpeedModify());
+                    this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getTotalMovementSpeedModify());
                 } else {
                     this.setMelee();
                 }
@@ -499,7 +501,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                             if (this.zombie.getNavigation().isDone()) {
                                 Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
                                 if (path1 != null) {
-                                    this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getMovementSpeedModify());
+                                    this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getTotalMovementSpeedModify());
                                 } else {
                                     return false;
                                 }

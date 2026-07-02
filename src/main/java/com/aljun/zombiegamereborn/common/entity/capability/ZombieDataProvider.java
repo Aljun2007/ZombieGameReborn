@@ -45,7 +45,7 @@ public class ZombieDataProvider implements ICapabilityProvider, INBTSerializable
         tag.putBoolean("isTypeInitialized",zombieData.isTypeInitialized());
         tag.putBoolean("fireImmune", zombieData.fireImmune());
         tag.putBoolean("isEmpowered", zombieData.isEmpowered());
-        tag.putDouble("movement_speed_modify",zombieData.getMovementSpeedModify());
+        tag.putDouble("movement_speed_modify",zombieData.getTotalMovementSpeedModify());
         tag.putBoolean("canJumpAttack", zombieData.canJumpAttack());
         tag.putBoolean("enhancedSense",zombieData.enhancedSense());
         tag.putBoolean("followMustSee", zombieData.followMustSee());
@@ -62,7 +62,7 @@ public class ZombieDataProvider implements ICapabilityProvider, INBTSerializable
         zombieData.setTypeInitialized(tag.getBoolean("isTypeInitialized"));
         zombieData.setFireImmune(tag.getBoolean("fireImmune"));
         zombieData.setEmpowered(tag.getBoolean("isEmpowered"));
-        zombieData.setMovementSpeedModify(tag.getDouble("movementSpeedModify"));
+        zombieData.setAttributesMovementSpeedModify(tag.getDouble("movementSpeedModify"));
         zombieData.enableJumpAttack(tag.getBoolean("canJumpAttack"));
         zombieData.setEnhancedSense(tag.getBoolean("enhancedSense"));
         zombieData.setFollowMustSee(tag.getBoolean("followMustSee"));

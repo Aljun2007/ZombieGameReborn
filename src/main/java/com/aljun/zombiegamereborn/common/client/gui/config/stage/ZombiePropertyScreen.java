@@ -43,7 +43,8 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
 
     private void initElseTab(SimpleSettingsPanel panel) {
         panel.addLabel("§6§l火枪模组联动");
-        panel.addDoubleEditBox("枪械伤害修正比","musket_mod_gun_damage_modify", 0.5, 0.0, Double.MAX_VALUE);
+        panel.addDoubleEditBox("子弹伤害修正比","musket_mod_gun_damage_modify", 0.5, 0.0, Double.MAX_VALUE);
+        panel.addIntEditBox("攻击半径","musket_mod_gun_fire_radius", 15, 0, Integer.MAX_VALUE);
     }
 
     private void initTargetTab(SimpleSettingsPanel panel) {

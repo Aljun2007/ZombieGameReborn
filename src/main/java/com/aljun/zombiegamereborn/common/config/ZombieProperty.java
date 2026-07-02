@@ -85,6 +85,9 @@ public class ZombieProperty {
     @SerializedName("musket_mod_gun_damage_modify")
     public double musketModGunDamageModify = 0.5d;
 
+    @SerializedName("musket_mod_gun_fire_radius")
+    public int musketModGunFireRadius = 15;
+
 
     private static final double DEFAULT_MOVEMENT_SPEED = 1.0;
     private static final double DEFAULT_ATTACK_DAMAGE = 1.0;
@@ -157,6 +160,7 @@ public class ZombieProperty {
         property.senseGunShotSilencedLifespan = getIntOrDefault(obj, "sense_gun_shot_silenced_lifespan", 100);
         property.enhancedSense = getBooleanOrDefault(obj, "enhanced_sense", false);
         property.musketModGunDamageModify = getDoubleOrDefault(obj, "musket_mod_gun_damage_modify", 0.5d);
+        property.musketModGunFireRadius = getIntOrDefault(obj, "musket_mod_gun_fire_radius", 15);
         return property;
 
     }
@@ -194,7 +198,7 @@ public class ZombieProperty {
         obj.addProperty("sense_gun_shot_silenced_lifespan", senseGunShotSilencedLifespan);
         obj.addProperty("enhanced_sense", enhancedSense);
         obj.addProperty("musket_mod_gun_damage_modify", musketModGunDamageModify);
-
+        obj.addProperty("musket_mod_gun_fire_radius", musketModGunFireRadius);
         return obj;
 
     }
@@ -219,7 +223,7 @@ public class ZombieProperty {
         
         double baseMovementSpeed = ZGRZombieAttributesAPI.getMovementSpeedOptional(zombie).orElse(0.23);
         ZGRZombieAttributesAPI.setMovementSpeed(zombie, this.movementSpeedModify * baseMovementSpeed);
-        data.setMovementSpeedModify(this.movementSpeedModify);
+        data.setAttributesMovementSpeedModify(this.movementSpeedModify);
         
         double baseMiningSpeed = ZGRZombieAttributesAPI.getMiningSpeed(data);
         ZGRZombieAttributesAPI.setMiningSpeed(data, this.miningSpeedModify * baseMiningSpeed);

@@ -17,10 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ZombieSmartBreakAttackGoal extends Goal {
     protected static final long COOLDOWN_BETWEEN_CAN_USE_CHECKS = 20L;
@@ -57,6 +54,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
         this.data = ZGRZombieAttributesAPI.getZombieData(zombie);
         this.speedModifier = 1.0d;
         this.followingTargetEvenIfNotSeen = true;
+        this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
 
     @Override

@@ -15,12 +15,16 @@ import java.util.EnumSet;
  * 僵尸近战攻击目标
  * 基于原版 MeleeAttackGoal 优化，增强近距离追踪能力
  */
-public class ZombieMeleeAttackGoal extends Goal {
+public class EnhancedZombieAttackGoal extends Goal {
     
     protected static final long COOLDOWN_BETWEEN_CAN_USE_CHECKS = 20L;
     
     protected final Mob zombie;
-    protected final double speedModifier;
+    protected double speedModifier;
+
+    protected double getSpeedModifier() {
+        return speedModifier;
+    }
     protected final boolean followingTargetEvenIfNotSeen;
     
     protected Path path;
@@ -43,14 +47,14 @@ public class ZombieMeleeAttackGoal extends Goal {
      * @param speedModifier 移动速度倍数
      * @param followingTargetEvenIfNotSeen 是否在看不见目标时也跟随
      */
-    public ZombieMeleeAttackGoal(Mob zombie, double speedModifier, boolean followingTargetEvenIfNotSeen) {
+    public EnhancedZombieAttackGoal(Mob zombie, double speedModifier, boolean followingTargetEvenIfNotSeen) {
         this.zombie = zombie;
         this.speedModifier = speedModifier;
         this.followingTargetEvenIfNotSeen = followingTargetEvenIfNotSeen;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
 
-    public ZombieMeleeAttackGoal(Mob zombie ) {
+    public EnhancedZombieAttackGoal(Mob zombie ) {
         this(zombie, 1.0D, false);
     }
 
@@ -121,7 +125,7 @@ public class ZombieMeleeAttackGoal extends Goal {
 
     @Override
     public void start() {
-        this.zombie.getNavigation().moveTo(this.path, this.speedModifier);
+        this.zombie.getNavigation().moveTo(this.path, this.getSpeedModifier());
         this.zombie.setAggressive(true);
         this.ticksUntilNextPathRecalculation = 0;
         this.ticksUntilNextAttack = 0;
@@ -196,7 +200,7 @@ public class ZombieMeleeAttackGoal extends Goal {
                 this.ticksUntilNextPathRecalculation += 5;
             }
 
-            if (!this.zombie.getNavigation().moveTo(target, this.speedModifier)) {
+            if (!this.zombie.getNavigation().moveTo(target, this.getSpeedModifier())) {
                 this.ticksUntilNextPathRecalculation += 15;
             }
 
