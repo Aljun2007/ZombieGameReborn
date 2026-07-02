@@ -32,11 +32,8 @@ public abstract class BulletEntityMixin {
     @Inject(method = "onHitEntity", at = @At("HEAD"), cancellable = true)
     private void onHitMixin(EntityHitResult hitResult, CallbackInfo ci) {
         Entity target = hitResult.getEntity();
-
         if (!(target instanceof Zombie zombie)) return;
-
         boolean isUsingShield = zombie.isUsingItem() && zombie.getUseItem().getItem() instanceof ShieldItem;
-
         if (isUsingShield) {
             ci.cancel();
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
