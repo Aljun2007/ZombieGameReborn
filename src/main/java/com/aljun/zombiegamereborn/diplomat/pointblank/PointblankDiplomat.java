@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.diplomat.pointblank;
 
 import com.aljun.zombiegamereborn.diplomat.Diplomat;
+import net.minecraft.world.item.ItemStack;
 
 public class PointblankDiplomat extends Diplomat {
 
@@ -25,5 +26,12 @@ public class PointblankDiplomat extends Diplomat {
                 // 反射加载失败，provider 保持 null
             }
         }
+    }
+
+    public boolean isGunLoaded(ItemStack stack) {
+        if (provider != null) {
+            return provider.isGunLoaded(stack);
+        }
+        return false;
     }
 }

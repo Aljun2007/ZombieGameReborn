@@ -133,7 +133,7 @@ public class ZombieWaterBridgeBuildGoal extends Goal {
 
     @Override
     public void stop() {
-        this.data.setMovementSpeedModify(1.0d);
+        this.data.setAttributesMovementSpeedModify(1.0d);
     }
 
     @Override

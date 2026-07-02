@@ -27,6 +27,14 @@ public class PointblankProviderImpl implements IPointblankProvider {
         PointblankCallback.setHandler(this::handleGunSync);
     }
 
+    @Override
+    public boolean isGunLoaded(ItemStack stack) {
+        if (stack.getItem() instanceof GunItem) {
+            return stack.getOrCreateTag().getInt("ammo") > 0;
+        }
+        return false;
+    }
+
     private void handleGunSync(ServerPlayer sender, Object packetObj) {
         MainHeldSimplifiedStateSyncRequest packet = (MainHeldSimplifiedStateSyncRequest) packetObj;
 

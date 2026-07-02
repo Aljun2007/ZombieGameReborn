@@ -1,10 +1,14 @@
 package com.aljun.zombiegamereborn.diplomat.musketmod;
 
+import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import ewewukek.musketmod.Config;
+import ewewukek.musketmod.GunItem;
 import ewewukek.musketmod.RangedGunAttackGoal;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.item.ItemStack;
 
 public class MusketmodProviderImpl implements IMusketmodProvider {
 
@@ -42,6 +46,14 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
                 LivingEntity target = this.mob.getTarget();
                 if (target == null) return;
 
+                int currentRadius = 15;
+                if (this.mob.level() instanceof ServerLevel serverLevel) {
+                    currentRadius = ZGRGame.getGameProperty()
+                            .getStageProperty(serverLevel.getServer())
+                            .zombieProperty.musketModGunFireRadius;
+                }
+                float fireRadiusF = (float) Math.max(1, currentRadius);
+
                 boolean canSee = this.mob.getSensing().hasLineOfSight(target);
                 boolean wasSeeing = this.seeTime > 0;
                 if (canSee != wasSeeing) {
@@ -54,7 +66,7 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
                 }
 
                 float dist = this.mob.distanceTo(target);
-                if (dist < 15.0F && this.seeTime >= 20) {
+                if (dist < fireRadiusF && this.seeTime >= 20) {
                     this.mob.getNavigation().stop();
                     ++this.strafingTime;
                 } else {
@@ -73,9 +85,9 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
                 }
 
                 if (this.strafingTime > -1) {
-                    if (dist > 11.25F) {
+                    if (dist > fireRadiusF * 0.75F) {
                         this.strafingBackwards = false;
-                    } else if (dist < 3.75F) {
+                    } else if (dist < fireRadiusF * 0.25F) {
                         this.strafingBackwards = true;
                     }
                     this.mob.getMoveControl().strafe(
@@ -111,5 +123,23 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
     @Override
     public void setMobDamageMultiplier(float multiplier) {
         Config.mobDamageMultiplier = multiplier;
+    }
+
+    @Override
+    public ItemStack getGunStack() {
+        return new ItemStack(ewewukek.musketmod.Items.MUSKET);
+    }
+
+    @Override
+    public ItemStack getAmmoStack() {
+        return new ItemStack(ewewukek.musketmod.Items.CARTRIDGE);
+    }
+
+    @Override
+    public boolean isGunLoaded(ItemStack stack) {
+        if (stack.getItem() instanceof GunItem) {
+            return GunItem.isLoaded(stack);
+        }
+        return false;
     }
 }

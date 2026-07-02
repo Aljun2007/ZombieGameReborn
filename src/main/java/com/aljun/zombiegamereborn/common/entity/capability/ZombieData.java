@@ -2,6 +2,7 @@ package com.aljun.zombiegamereborn.common.entity.capability;
 
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombiePlaceBlockGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieShieldGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
@@ -24,6 +25,7 @@ public class ZombieData implements IZombieData {
     private @Nullable ZombieSenseTargetGoal zombieSenseTargetGoal = null;
     private @Nullable ZombieBreakBlockGoal zombieBreakBlockGoal = null;
     private @Nullable ZombiePlaceBlockGoal zombiePlaceBlockGoal = null;
+    private @Nullable ZombieShieldGoal zombieShieldGoal = null;
     private boolean enhancedSense = false;
 
     @Override
@@ -54,6 +56,16 @@ public class ZombieData implements IZombieData {
     @Override
     public void setZombiePlaceBlockGoal(ZombiePlaceBlockGoal goal) {
         this.zombiePlaceBlockGoal = goal;
+    }
+
+    @Override
+    public @Nullable ZombieShieldGoal getZombieShieldGoal() {
+        return this.zombieShieldGoal;
+    }
+
+    @Override
+    public void setZombieShieldGoal(ZombieShieldGoal goal) {
+        this.zombieShieldGoal = goal;
     }
 
     @Override
@@ -159,12 +171,12 @@ public class ZombieData implements IZombieData {
     }
 
     @Override
-    public void setMovementSpeedModify(double modify) {
+    public void setAttributesMovementSpeedModify(double modify) {
         this.movementSpeedModify = modify;
     }
 
     @Override
-    public double getMovementSpeedModify() {
+    public double getTotalMovementSpeedModify() {
         return this.movementSpeedModify;
     }
 

@@ -61,7 +61,7 @@ public class ZombiePlaceBlockGoal extends Goal {
         ServerLevel level = (ServerLevel) this.zombie.level();
         level.setBlock(blockPos, blockState, 3);
         SoundType soundType = blockState.getSoundType();
-        this.zombie.level().playSound(null, blockPos, soundType.getPlaceSound(), SoundSource.BLOCKS,
+        this.zombie.level().playSound(null, blockPos, soundType.getBreakSound(), SoundSource.BLOCKS,
                 (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
         if (!this.zombie.swinging) {
             this.zombie.swing(InteractionHand.MAIN_HAND);

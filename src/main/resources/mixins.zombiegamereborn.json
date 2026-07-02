@@ -5,8 +5,10 @@
   "refmap": "mixins.zombiegamereborn.refmap.json",
   "mixins": [
     "minecraft.entity.EntityMixin",
+    "minecraft.entity.LivingEntityMixin",
     "minecraft.entity.ZombieMixin",
     "minecraft.entity.goal.TargetGoalMixin",
+    "musketmod.BulletEntityMixin",
     "musketmod.GunItemFireMixin",
     "pointblank.MainHeldSimplifiedStateSyncRequestMixin"
   ],
