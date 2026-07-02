@@ -33,10 +33,8 @@ public abstract class BulletEntityMixin {
     private void onHitMixin(EntityHitResult hitResult, CallbackInfo ci) {
         Entity target = hitResult.getEntity();
 
-        // 只处理僵尸实体
         if (!(target instanceof Zombie zombie)) return;
-        
-        // 检查是否正在使用盾牌
+
         boolean isUsingShield = zombie.isUsingItem() && zombie.getUseItem().getItem() instanceof ShieldItem;
 
         if (isUsingShield) {
