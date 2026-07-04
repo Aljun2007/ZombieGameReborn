@@ -1,11 +1,11 @@
 package com.aljun.zombiegamereborn.common.entity.zombieType;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
+import com.aljun.zombiegamereborn.common.entity.accessor.ITargetGoalAccessor;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.capability.ZombieDataProvider;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.*;
 import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
-import com.aljun.zombiegamereborn.common.entity.goal.target.accessor.ITargetGoalAccessor;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.common.game.ZombieStatic;
 import com.aljun.zombiegamereborn.network.ZGRNetwork;
@@ -79,35 +79,7 @@ public class ZombieTypeManager {
             int tickCount = data.getTickCount();
             if (tickCount == 0) {
                 ZombieStatic.incrementZombieCount(zombie, data);
-                type.onInitializeZombieGoals(zombie, data);
-                if (type.canBreakBlocks()) {
-                    ZombieBreakBlockGoal breakBlockGoal = new ZombieBreakBlockGoal(zombie, data);
-                    data.setZombieBreakBlockGoal(breakBlockGoal);
-                    zombie.goalSelector.addGoal(1, breakBlockGoal);
-                    zombie.goalSelector.addGoal(2, new ClearHeadBlockGoal(zombie, data));
-                    zombie.goalSelector.addGoal(3, new ZombieWaterBridgeBuildGoal(zombie, data));
-                }
-                if (type.canPlaceBlock()) {
-                    ZombiePlaceBlockGoal placeBlockGoal = new ZombiePlaceBlockGoal(zombie, data);
-                    data.setZombiePlaceBlockGoal(placeBlockGoal);
-                    zombie.goalSelector.addGoal(1, placeBlockGoal);
-                }
-                if (data.canSwim()) {
-                    zombie.goalSelector.addGoal(1, new ZombieFloatGoal(zombie));
-                }
-                if (data.canJumpAttack()) {
-                    zombie.goalSelector.addGoal(3, new JumpAttackGoal(zombie));
-                }
-                zombie.targetSelector.getRunningGoals().forEach(wrappedGoal -> {
-                    if (wrappedGoal.getGoal() instanceof ITargetGoalAccessor targetGoal) {
-                        targetGoal.set_mustSee(data.followMustSee() && targetGoal.get_mustSee());
-                    }
-                });
-                if (data.enhancedSense()) {
-                    ZombieSenseTargetGoal senseGoal = new ZombieSenseTargetGoal(zombie);
-                    data.setZombieSenseTargetGoalGoal(senseGoal);
-                    zombie.targetSelector.addGoal(4, senseGoal);
-                }
+                initialGoal(zombie, data, type);
             }
 
             // 每 tick 触发感知衰减
@@ -118,6 +90,42 @@ public class ZombieTypeManager {
 
             type.onTick(zombie, data, tickCount);
             data.incrementTick();
+        }
+    }
+
+    private static void initialGoal(Zombie zombie, IZombieData data, ZombieType type) {
+        type.onInitializeZombieGoals(zombie, data);
+        if (type.canBreakBlocks()) {
+            ZombieBreakBlockGoal breakBlockGoal = new ZombieBreakBlockGoal(zombie, data);
+            data.setZombieBreakBlockGoal(breakBlockGoal);
+            zombie.goalSelector.addGoal(1, breakBlockGoal);
+            zombie.goalSelector.addGoal(2, new ClearHeadBlockGoal(zombie, data));
+            zombie.goalSelector.addGoal(3, new ZombieWaterBridgeBuildGoal(zombie, data));
+        }
+        if (type.canPlaceBlock()) {
+            ZombiePlaceBlockGoal placeBlockGoal = new ZombiePlaceBlockGoal(zombie, data);
+            data.setZombiePlaceBlockGoal(placeBlockGoal);
+            zombie.goalSelector.addGoal(1, placeBlockGoal);
+        }
+        if (data.canSwim()) {
+            zombie.goalSelector.addGoal(1, new ZombieFloatGoal(zombie));
+        }
+        if (data.canJumpAttack()) {
+            zombie.goalSelector.addGoal(3, new JumpAttackGoal(zombie));
+        }
+        zombie.targetSelector.getRunningGoals().forEach(wrappedGoal -> {
+            if (wrappedGoal.getGoal() instanceof ITargetGoalAccessor targetGoal) {
+                targetGoal.set_mustSee(data.followMustSee() && targetGoal.get_mustSee());
+            }
+        });
+        if (data.enhancedSense()) {
+            ZombieSenseTargetGoal senseGoal = new ZombieSenseTargetGoal(zombie);
+            data.setZombieSenseTargetGoalGoal(senseGoal);
+            zombie.targetSelector.addGoal(4, senseGoal);
+        }
+        if (data.fleeSun()) {
+            zombie.goalSelector.addGoal(2, new ZombieRestrictSunGoal(zombie));
+            zombie.goalSelector.addGoal(3, new ZombieFleeSunGoal(zombie));
         }
     }
 

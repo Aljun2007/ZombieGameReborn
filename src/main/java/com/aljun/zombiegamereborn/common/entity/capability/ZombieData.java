@@ -27,6 +27,7 @@ public class ZombieData implements IZombieData {
     private @Nullable ZombiePlaceBlockGoal zombiePlaceBlockGoal = null;
     private @Nullable ZombieShieldGoal zombieShieldGoal = null;
     private boolean enhancedSense = false;
+    private boolean fleeSun = false;
 
     @Override
     public @Nullable ZombieSenseTargetGoal getZombieSenseTargetGoalGoal() {
@@ -210,5 +211,15 @@ public class ZombieData implements IZombieData {
     @Override
     public void setZombieContinueUseWeaponsInHand(boolean value) {
         this.canZombieContinueUseWeaponsInHand = value;
+    }
+
+    @Override
+    public boolean fleeSun() {
+        return this.fleeSun;
+    }
+
+    @Override
+    public void setFleeSun(boolean value) {
+        this.fleeSun = value;
     }
 }

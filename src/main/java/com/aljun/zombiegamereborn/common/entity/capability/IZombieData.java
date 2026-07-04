@@ -71,4 +71,7 @@ public interface IZombieData {
 
     boolean canZombieContinueUseWeaponsInHand();
     void setZombieContinueUseWeaponsInHand(boolean value);
+
+    boolean fleeSun();
+    void setFleeSun(boolean value);
 }

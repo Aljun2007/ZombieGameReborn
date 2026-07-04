@@ -66,6 +66,7 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
         panel.addCheckBox("能跳跃攻击", "can_jump_attack", false);
         panel.addDoubleEditBox("阳光免疫概率", "sun_immunity_probability", 0.0d, 0.0, 1.0);
         panel.addDoubleEditBox("火焰免疫概率", "fire_immunity_probability", 0.0d, 0.0, 1.0);
+        panel.addCheckBox("敏感时避免阳光", "flee_sun", false);
         panel.addDoubleEditBox("幼体概率", "baby_probability", 0.05d, 0.0d, 1.0);
         panel.addDoubleEditBox("捡物品计算系数", "can_pick_up_loot_coefficient", 0.55d, 0.0, Double.MAX_VALUE);
 

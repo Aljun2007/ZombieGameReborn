@@ -11,119 +11,78 @@ import java.lang.reflect.Type;
 
 public class ZombieProperty {
 
-    @SerializedName("movement_speed_modify")
-    public double movementSpeedModify = 1.0d;
-
-    @SerializedName("attack_damage_modify")
-    public double attackDamageModify = 1.0d;
-
-    @SerializedName("max_health")
-    public double maxHealth = 20.0d;
-
-    @SerializedName("knockback_resistance")
-    public double knockbackResistance = 0.0d;
-
-    @SerializedName("armor")
-    public double armor = 2.0d;
-
-    @SerializedName("armor_toughness")
-    public double armorToughness = 0.0d;
-
-    @SerializedName("mining_speed_modify")
-    public double miningSpeedModify = 1.0d;
-
-    @SerializedName("can_swim_probability")
-    public double canSwimProbability = 0.0d;
-
-    @SerializedName("sun_immunity_probability")
-    public double sunImmunityProbability = 0.0d;
-
-    @SerializedName("fire_immune_probability")
-    public double fireImmuneProbability = 0.0d;
-
-    @SerializedName("baby_probability")
-    public double babyProbability = 0.05d;
-
-    @SerializedName("can_pick_up_loot_probability")
-    public double canPickUpLootCoefficient = 0.55d;
-
-    @SerializedName("max_empowered_zombie_builder_count")
-    public int maxEmpoweredZombieBuilderCount = 100;
-
-    @SerializedName("max_empowered_zombie_miner_count")
-    public int maxEmpoweredZombieMinerCount = 100;
-
-    @SerializedName("follow_range")
-    public double followRange = 40.0d;
-
-    @SerializedName("follow_must_see")
-    public boolean followMustSee = true;
-
-    @SerializedName("sense_bleeding_radius")
-    public double senseBleedingRadius = 64d;
-    @SerializedName("sense_bleeding_lifespan")
-    public int senseBleedingLifespan = 400;
-
-    @SerializedName("sense_block_radius")
-    public double senseBlockRadius = 16.0d;
-    @SerializedName("sense_block_lifespan")
-    public int senseBlockLifespan = 100;
-
-    @SerializedName("sense_gun_shot_radius")
-    public double senseGunShotRadius = 64.0d;
-    @SerializedName("sense_gun_shot_lifespan")
-    public int senseGunShotLifespan = 400;
-
-    @SerializedName("sense_gun_shot_silenced_radius")
-    public double senseGunShotSilencedRadius = 16.0d;
-    @SerializedName("sense_gun_shot_silenced_lifespan")
-    public int senseGunShotSilencedLifespan = 100;
-
-    @SerializedName("enhanced_sense")
-    public boolean enhancedSense = false;
-
-    @SerializedName("musket_mod_gun_damage_modify")
-    public double musketModGunDamageModify = 0.5d;
-
-
     private static final double DEFAULT_MOVEMENT_SPEED = 1.0;
     private static final double DEFAULT_ATTACK_DAMAGE = 1.0;
     private static final double DEFAULT_MAX_HEALTH = 20.0;
     private static final double DEFAULT_ARMOR = 2.0;
     private static final double DEFAULT_MINING_SPEED = 1.0;
     private static final double DEFAULT_PROBABILITY = 0.0;
-
+    @SerializedName("movement_speed_modify")
+    public double movementSpeedModify = 1.0d;
+    @SerializedName("attack_damage_modify")
+    public double attackDamageModify = 1.0d;
+    @SerializedName("max_health")
+    public double maxHealth = 20.0d;
+    @SerializedName("knockback_resistance")
+    public double knockbackResistance = 0.0d;
+    @SerializedName("armor")
+    public double armor = 2.0d;
+    @SerializedName("armor_toughness")
+    public double armorToughness = 0.0d;
+    @SerializedName("mining_speed_modify")
+    public double miningSpeedModify = 1.0d;
+    @SerializedName("can_swim_probability")
+    public double canSwimProbability = 0.0d;
+    @SerializedName("sun_immunity_probability")
+    public double sunImmunityProbability = 0.0d;
+    @SerializedName("fire_immune_probability")
+    public double fireImmuneProbability = 0.0d;
+    @SerializedName("baby_probability")
+    public double babyProbability = 0.05d;
+    @SerializedName("can_pick_up_loot_probability")
+    public double canPickUpLootCoefficient = 0.55d;
+    @SerializedName("max_empowered_zombie_builder_count")
+    public int maxEmpoweredZombieBuilderCount = 100;
+    @SerializedName("max_empowered_zombie_miner_count")
+    public int maxEmpoweredZombieMinerCount = 100;
+    @SerializedName("follow_range")
+    public double followRange = 40.0d;
+    @SerializedName("follow_must_see")
+    public boolean followMustSee = true;
+    @SerializedName("sense_bleeding_radius")
+    public double senseBleedingRadius = 64d;
+    @SerializedName("sense_bleeding_lifespan")
+    public int senseBleedingLifespan = 400;
+    @SerializedName("sense_block_radius")
+    public double senseBlockRadius = 16.0d;
+    @SerializedName("sense_block_lifespan")
+    public int senseBlockLifespan = 100;
+    @SerializedName("sense_gun_shot_radius")
+    public double senseGunShotRadius = 64.0d;
+    @SerializedName("sense_gun_shot_lifespan")
+    public int senseGunShotLifespan = 400;
+    @SerializedName("sense_gun_shot_silenced_radius")
+    public double senseGunShotSilencedRadius = 16.0d;
+    @SerializedName("sense_gun_shot_silenced_lifespan")
+    public int senseGunShotSilencedLifespan = 100;
+    @SerializedName("enhanced_sense")
+    public boolean enhancedSense = false;
+    @SerializedName("musket_mod_gun_damage_modify")
+    public double musketModGunDamageModify = 0.5d;
     @SerializedName("do_swimming_zombie_convert")
     public boolean doSwimmingZombieConvert = false;
 
     @SerializedName("can_jump_attack")
     public boolean canJumpAttack = false;
 
+    @SerializedName("flee_sun")
+    public boolean fleeSun = false;
+
     @SerializedName("can_zombie_guard_continue_use_weapons")
     public boolean canZombieGuardContinueUseWeapons = false;
 
+
     public ZombieProperty() {
-    }
-
-    private static double getDoubleOrDefault(JsonObject obj, String key, double defaultValue) {
-        if (obj.has(key)) {
-            return obj.get(key).getAsDouble();
-        }
-        return defaultValue;
-    }
-
-    private static boolean getBooleanOrDefault(JsonObject obj, String key, boolean defaultValue) {
-        if (obj.has(key)) {
-            return obj.get(key).getAsBoolean();
-        }
-        return defaultValue;
-    }
-
-    private static int getIntOrDefault(JsonObject obj, String key, int defaultValue) {
-        if (obj.has(key)) {
-            return obj.get(key).getAsInt();
-        }
-        return defaultValue;
     }
 
     /**
@@ -161,9 +120,31 @@ public class ZombieProperty {
         property.enhancedSense = getBooleanOrDefault(obj, "enhanced_sense", false);
         property.musketModGunDamageModify = getDoubleOrDefault(obj, "musket_mod_gun_damage_modify", 0.5d);
         property.canZombieGuardContinueUseWeapons = getBooleanOrDefault(obj, "can_zombie_guard_continue_use_weapons", false);
+        property.fleeSun = getBooleanOrDefault(obj, "flee_sun", false);
 
         return property;
 
+    }
+
+    private static double getDoubleOrDefault(JsonObject obj, String key, double defaultValue) {
+        if (obj.has(key)) {
+            return obj.get(key).getAsDouble();
+        }
+        return defaultValue;
+    }
+
+    private static int getIntOrDefault(JsonObject obj, String key, int defaultValue) {
+        if (obj.has(key)) {
+            return obj.get(key).getAsInt();
+        }
+        return defaultValue;
+    }
+
+    private static boolean getBooleanOrDefault(JsonObject obj, String key, boolean defaultValue) {
+        if (obj.has(key)) {
+            return obj.get(key).getAsBoolean();
+        }
+        return defaultValue;
     }
 
     /**
@@ -200,6 +181,7 @@ public class ZombieProperty {
         obj.addProperty("enhanced_sense", enhancedSense);
         obj.addProperty("musket_mod_gun_damage_modify", musketModGunDamageModify);
         obj.addProperty("can_zombie_guard_continue_use_weapons", canZombieGuardContinueUseWeapons);
+        obj.addProperty("flee_sun", fleeSun);
 
         return obj;
 
@@ -208,8 +190,32 @@ public class ZombieProperty {
     @SuppressWarnings("all")
     public void loadZombieAttributes(Zombie zombie) {
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-        applyProbabilisticTraits(zombie,data);
+        applyProbabilisticTraits(zombie, data);
         applyAttributeModifiers(zombie, data);
+    }
+
+    private void applyProbabilisticTraits(Zombie zombie, IZombieData data) {
+
+        ZGRZombieAttributesAPI.setCanSwim(data, RandomUtils.booleanByChance(this.canSwimProbability));
+        ZGRZombieAttributesAPI.setSunSensitive(data, !RandomUtils.booleanByChance(this.sunImmunityProbability));
+        ZGRZombieAttributesAPI.setFireImmune(data, RandomUtils.booleanByChance(this.fireImmuneProbability));
+
+        ZGRZombieAttributesAPI.setEnhancedSense(data,this.enhancedSense);
+        ZGRZombieAttributesAPI.setFleeSun(data,this.fleeSun);
+
+        if (this.babyProbability > 0.05d) {
+            if (!zombie.isBaby()) {
+                zombie.setBaby(RandomUtils.booleanByChance((this.babyProbability - 0.05d) / 0.95d));
+            }
+        } else if (this.babyProbability < 0.05d) {
+            if (zombie.isBaby()) {
+                if (!RandomUtils.booleanByChance(this.babyProbability / 0.05d)) {
+                    zombie.setBaby(false);
+                }
+            }
+        }
+
+
     }
 
     private void applyAttributeModifiers(Zombie zombie, IZombieData data) {
@@ -219,43 +225,18 @@ public class ZombieProperty {
         ZGRZombieAttributesAPI.setMaxHealth(zombie, this.maxHealth);
         ZGRZombieAttributesAPI.setFollowRange(zombie, this.followRange);
         data.setFollowMustSee(this.followMustSee);
-        
+
         double baseAttackDamage = ZGRZombieAttributesAPI.getAttackDamageOptional(zombie).orElse(3.0);
         ZGRZombieAttributesAPI.setAttackDamage(zombie, this.attackDamageModify * baseAttackDamage);
-        
+
         double baseMovementSpeed = ZGRZombieAttributesAPI.getMovementSpeedOptional(zombie).orElse(0.23);
         ZGRZombieAttributesAPI.setMovementSpeed(zombie, this.movementSpeedModify * baseMovementSpeed);
         data.setAttributesMovementSpeedModify(this.movementSpeedModify);
-        
+
         double baseMiningSpeed = ZGRZombieAttributesAPI.getMiningSpeed(data);
         ZGRZombieAttributesAPI.setMiningSpeed(data, this.miningSpeedModify * baseMiningSpeed);
 
         data.enableJumpAttack(this.canJumpAttack);
-
-    }
-
-    private void applyProbabilisticTraits(Zombie zombie,IZombieData data) {
-
-        ZGRZombieAttributesAPI.setCanSwim(data, RandomUtils.booleanByChance(this.canSwimProbability));
-        ZGRZombieAttributesAPI.setSunSensitive(data, !RandomUtils.booleanByChance(this.sunImmunityProbability));
-        ZGRZombieAttributesAPI.setFireImmune(data, RandomUtils.booleanByChance(this.fireImmuneProbability));
-
-        data.setEnhancedSense(this.enhancedSense);
-
-        if (this.babyProbability > 0.05d) {
-            if (!zombie.isBaby()) {
-                zombie.setBaby(RandomUtils.booleanByChance((this.babyProbability-0.05d)/0.95d));
-            }
-        } else if (this.babyProbability < 0.05d) {
-            if (zombie.isBaby()) {
-                if (!RandomUtils.booleanByChance(this.babyProbability / 0.05d)){
-                    zombie.setBaby(false);
-                }
-            }
-        }
-
-
-
 
     }
 

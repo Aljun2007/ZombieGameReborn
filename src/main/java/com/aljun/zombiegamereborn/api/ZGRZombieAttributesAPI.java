@@ -351,8 +351,20 @@ public class ZGRZombieAttributesAPI {
         data.setFireImmune(value);
     }
 
+    public static boolean enhancedSense(IZombieData data) {
+        return data.enhancedSense();
+    }
+
     public static void setEnhancedSense(IZombieData data, boolean value) {
         data.setEnhancedSense(value);
+    }
+
+    public static boolean fleeSun(IZombieData data) {
+        return data.fleeSun();
+    }
+
+    public static void setFleeSun(IZombieData data, boolean value) {
+        data.setFleeSun(value);
     }
 
     // ==================== Helper Methods ====================

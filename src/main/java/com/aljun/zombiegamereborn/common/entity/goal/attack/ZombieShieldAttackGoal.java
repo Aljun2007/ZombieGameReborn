@@ -5,6 +5,7 @@ import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
@@ -111,6 +112,9 @@ public class ZombieShieldAttackGoal extends EnhancedZombieAttackGoal {
     }
 
     private boolean isEnemyThreatening(LivingEntity enemy, ItemStack stack) {
+        if (enemy instanceof AbstractVillager) {
+            return false;
+        }
         if (stack.getItem() instanceof BowItem) {
             if (enemy.isUsingItem() && enemy.getUseItem().equals(stack)) {
                 return true;
