@@ -244,7 +244,7 @@ public abstract class AbstractConfigScreen extends Screen {
         int buttonY = bottomBarY + 10;
         int padding = 10;
         int rightPadding = 10;
-        int buttonWidth = 100;
+        int buttonWidth = 55;
         int spacing = 5;
 
         String cancelButtonText = hasUnsavedChanges ? "§7✗ 取消" : "§7✓ 退出";
@@ -252,7 +252,7 @@ public abstract class AbstractConfigScreen extends Screen {
                         Component.literal(cancelButtonText),
                         btn -> onClose()
                 )
-                .bounds(padding, buttonY, 80, 20)
+                .bounds(padding, buttonY, buttonWidth, 20)
                 .build();
         backButton.render(guiGraphics, mouseX, mouseY, partialTick);
 
@@ -264,7 +264,7 @@ public abstract class AbstractConfigScreen extends Screen {
             ButtonInfo buttonInfo = customButtons.get(i);
             int buttonX = startX + i * (buttonWidth + spacing);
 
-            boolean active = buttonInfo.isActive() != null ? buttonInfo.isActive().getAsBoolean() : true;
+            boolean active = buttonInfo.isActive() == null || buttonInfo.isActive().getAsBoolean();
             
             Button button = Button.builder(
                             Component.literal(buttonInfo.text()),

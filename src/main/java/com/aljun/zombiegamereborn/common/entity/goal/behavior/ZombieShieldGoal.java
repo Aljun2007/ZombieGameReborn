@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.common.entity.goal.behavior;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
+import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -20,8 +21,9 @@ public class ZombieShieldGoal extends Goal {
     private long shieldBrokenTime = -1L;
     public double speedModify = 1.0d;
 
-    public ZombieShieldGoal(Zombie zombie) {
+    public ZombieShieldGoal(Zombie zombie, IZombieData data) {
         this.zombie = zombie;
+        data.setZombieShieldGoal(this);
     }
 
     @Override

@@ -3,14 +3,18 @@ package com.aljun.zombiegamereborn.common.client.gui.config.stage;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.AbstractBranchConfigScreen;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.SimpleSettingsPanel;
 import com.aljun.zombiegamereborn.common.config.StageProperty;
+import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.Consumer;
 
+@OnlyIn(Dist.CLIENT)
 public class StagePropertyScreen extends AbstractBranchConfigScreen {
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -36,13 +40,8 @@ public class StagePropertyScreen extends AbstractBranchConfigScreen {
         this.tabs.add(elseTab);
     }
 
-    private void initializeElseTab(SimpleSettingsPanel panel) {
-        panel.addLabel("月亮事件联动");
-        panel.addDoubleEditBox("覆盖版血月概率", "blood_moon_chance", 0.0, 0.0, 1.0);
-    }
-
     private void initializeZombieTab(SimpleSettingsPanel panel) {
-        panel.addDoubleEditBox("天数","day", 1.0, 1.0, Double.MAX_VALUE);
+        panel.addDoubleEditBox("天数", "day", 1.0, 1.0, Double.MAX_VALUE);
         panel.addCallbackabeScreen("僵尸属性", this, "zombie_property",
                 (screen, callback) -> new ZombiePropertyScreen("", this.localJson.getAsJsonObject("zombie_property"),
                         callback, screen));
@@ -50,5 +49,14 @@ public class StagePropertyScreen extends AbstractBranchConfigScreen {
                 (screen, callback) -> new ZombieSpawnChooserScreen("", this.localJson.getAsJsonObject("zombie_spawn_chooser"),
                         callback, screen));
 
+    }
+
+    private void initializeElseTab(SimpleSettingsPanel panel) {
+        if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isLoaded()) {
+            panel.addLabel("月亮事件联动");
+        } else {
+            panel.addLabel("月亮事件联动§8【未安装】");
+        }
+        panel.addDoubleEditBox("覆盖版血月概率", "blood_moon_chance", 0.0, 0.0, 1.0);
     }
 }

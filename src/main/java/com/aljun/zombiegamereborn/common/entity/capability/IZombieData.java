@@ -68,4 +68,7 @@ public interface IZombieData {
 
     boolean followMustSee();
     void setFollowMustSee(boolean value);
+
+    boolean canZombieContinueUseWeaponsInHand();
+    void setZombieContinueUseWeaponsInHand(boolean value);
 }

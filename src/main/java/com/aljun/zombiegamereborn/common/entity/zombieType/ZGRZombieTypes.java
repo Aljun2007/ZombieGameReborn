@@ -26,6 +26,8 @@ public class ZGRZombieTypes {
         public static final ResourceLocation BOW_ATTACKER_ID = id("bow_attacker");
         public static final ResourceLocation SHIELD_USER_ID = id("shield_user");
 
+        public static final ResourceLocation ZOMBIE_GUARD_VILLAGER = id("zombie_guard_villager");
+
         private static ResourceLocation id(String id) {
             return ResourceLocation.fromNamespaceAndPath(ZombieGameReborn.MOD_ID, id);
         }
@@ -43,6 +45,8 @@ public class ZGRZombieTypes {
     public static ZombieType BOW_ATTACKER = new BowAttackerType();
     public static ZombieType SHIELD_USER = new ShieldUserType();
 
+    public static ZombieType ZOMBIE_GUARD_VILLAGER = new ZombieGuardVillagerType();
+
     public static void register(RegisterEvent.RegisterHelper<ZombieType> helper) {
 
         helper.register(ZGRZombieTypes.IDs.DUMMY_ID, DUMMY);
@@ -56,5 +60,6 @@ public class ZGRZombieTypes {
         helper.register(IDs.BOW_ATTACKER_ID,BOW_ATTACKER);
         helper.register(IDs.SHIELD_USER_ID,SHIELD_USER);
 
+        helper.register(IDs.ZOMBIE_GUARD_VILLAGER,ZOMBIE_GUARD_VILLAGER);
     }
 }

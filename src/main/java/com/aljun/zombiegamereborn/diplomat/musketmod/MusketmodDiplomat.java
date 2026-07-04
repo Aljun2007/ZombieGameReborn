@@ -1,8 +1,10 @@
 package com.aljun.zombiegamereborn.diplomat.musketmod;
 
 import com.aljun.zombiegamereborn.diplomat.Diplomat;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.item.ItemStack;
 
 public class MusketmodDiplomat extends Diplomat {
 
@@ -31,9 +33,9 @@ public class MusketmodDiplomat extends Diplomat {
     /**
      * 创建一个僵尸火枪手 Goal，musketmod 未安装时返回 null
      */
-    public Goal createZombieGunGoal(Zombie zombie) {
+    public Goal createGunnerGoal(Zombie zombie) {
         if (provider != null) {
-            return provider.createZombieGunGoal(zombie);
+            return provider.createGunnerGoal(zombie);
         }
         return null;
     }
@@ -47,4 +49,28 @@ public class MusketmodDiplomat extends Diplomat {
             provider.setMobDamageMultiplier((float) multiplier);
         }
     }
+
+    public boolean isGunLoaded(ItemStack stack) {
+        if (provider != null) {
+             return  provider.isGunLoaded(stack);
+        }
+        return false;
+    }
+
+    public boolean isHoldingGun(LivingEntity livingEntity) {
+        if (provider != null) {
+            return  provider.isHoldingGun(livingEntity);
+        }
+        return false;
+    }
+
+    public ItemStack getGunStack() {
+        if (provider != null) {
+            return  provider.getGunStack();
+        }
+        return ItemStack.EMPTY;
+    }
+
+
+
 }

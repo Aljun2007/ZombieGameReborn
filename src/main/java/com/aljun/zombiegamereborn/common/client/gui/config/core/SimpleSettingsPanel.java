@@ -2,6 +2,7 @@ package com.aljun.zombiegamereborn.common.client.gui.config.core;
 
 import com.aljun.zombiegamereborn.common.client.gui.LabelWidget;
 import com.aljun.zombiegamereborn.common.client.gui.ValidatedEditBox;
+import com.aljun.zombiegamereborn.register.ZGRRegistries;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -17,6 +18,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
@@ -39,29 +41,29 @@ import java.util.function.*;
 @OnlyIn(Dist.CLIENT)
 public class SimpleSettingsPanel extends AbstractContainerEventHandler implements GuiEventListener, NarratableEntry {
 
-    private final List<GuiEventListener> children = new ArrayList<>();
-    private final List<AbstractWidget> renderables = new ArrayList<>();
-    private final List<Row> rows = new ArrayList<>();
+    protected final List<GuiEventListener> children = new ArrayList<>();
+    protected final List<AbstractWidget> renderables = new ArrayList<>();
+    protected final List<Row> rows = new ArrayList<>();
 
-    private final Map<String, ValidatedEditBox> editBoxes = new HashMap<>();
-    private final Map<String, ForgeSlider> sliders = new HashMap<>();
-    private final Map<String, Checkbox> checkboxes = new HashMap<>();
-    private final Map<String, EnumButtonInfo> enumButtons = new HashMap<>();
-    private final List<ButtonUpdateHandler> buttonUpdateHandlers = new ArrayList<>();
+    protected final Map<String, ValidatedEditBox> editBoxes = new HashMap<>();
+    protected final Map<String, ForgeSlider> sliders = new HashMap<>();
+    protected final Map<String, Checkbox> checkboxes = new HashMap<>();
+    protected final Map<String, EnumButtonInfo> enumButtons = new HashMap<>();
+    protected final List<ButtonUpdateHandler> buttonUpdateHandlers = new ArrayList<>();
 
-    private final Font font = Minecraft.getInstance().font;
-    private int nextY;
-    private int startX;
-    private final int startY;
-    private final int rowHeight = 24;
-    private final int controlWidth = 150;
-    private final int labelGap = 10;
-    private int panelX;
-    private int panelY;
-    private int panelWidth;
-    private int scrollOffset = 0;
+    protected final Font font = Minecraft.getInstance().font;
+    protected int nextY;
+    protected int startX;
+    protected final int startY;
+    protected final int rowHeight = 24;
+    protected final int controlWidth = 150;
+    protected final int labelGap = 10;
+    protected int panelX;
+    protected int panelY;
+    protected int panelWidth;
+    protected int scrollOffset = 0;
 
-    private BiConsumer<String, JsonElement> onValueChanged = null;
+    protected BiConsumer<String, JsonElement> onValueChanged = null;
 
     public SimpleSettingsPanel(int screenWidth, int screenHeight, int startY) {
         this.startY = startY;
@@ -179,6 +181,19 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
 
         rows.add(new Row(labelText, slider, 0xFFFFFF));
         nextY += rowHeight;
+    }
+
+    public <T> void addListChooseScreen(String labelText, String key, AbstractConfigScreen lastScreen, List<T> allValues, ListChooseScreen.ItemRenderer<T> display,Supplier<String> getCurrentValue) {
+        this.addTextMonitor(labelText, getCurrentValue);
+        this.addCallbackabeScreen("", lastScreen, key,
+                (parent, saveCallback) -> new ListChooseScreen<>(
+                        labelText,
+                        allValues,
+                        display,
+                        selected -> saveCallback.accept(new JsonPrimitive(selected.toString())),
+                        parent
+                )
+        );
     }
 
     public void addIntSlider(String labelText, String key, int min, int max, int currentValue) {
@@ -351,13 +366,23 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
         nextY += rowHeight;
     }
 
+    public void addTextMonitor(String labelText, Supplier<String> textSupplier) {
+        TextMonitorWidget widget = new TextMonitorWidget(
+                startX + panelX, nextY + panelY, controlWidth, 18, textSupplier, 0xFFFFFF
+        );
+        children.add(widget);
+        renderables.add(widget);
+        rows.add(new Row(labelText, widget, 0xFFFFFF));
+        nextY += rowHeight;
+    }
+
     public void addSimpleButton(String text, Runnable onClick, @NotNull Supplier<String> displayText) {
         Button button = addSimpleButtonInternal(text, onClick, displayText);
         rows.add(new Row(text, button, 0xFFFFFF));
         nextY += rowHeight;
     }
 
-    private Button addSimpleButtonInternal(String text, Runnable onClick, @NotNull Supplier<String> displayText) {
+    protected Button addSimpleButtonInternal(String text, Runnable onClick, @NotNull Supplier<String> displayText) {
         int buttonX = startX + panelX;
 
         Button button = Button.builder(
@@ -597,10 +622,33 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
 
     // ==================== 内部类 ====================
 
+    protected static class TextMonitorWidget extends AbstractWidget {
+        protected final Supplier<String> textSupplier;
+        protected final int textColor;
+        protected final Font font = Minecraft.getInstance().font;
+
+        TextMonitorWidget(int x, int y, int width, int height, Supplier<String> textSupplier, int textColor) {
+            super(x, y, width, height, Component.empty());
+            this.textSupplier = textSupplier;
+            this.textColor = textColor;
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            String text = textSupplier.get();
+            int textY = this.getY() + (this.height - font.lineHeight) / 2 + 1;
+            guiGraphics.drawString(font, text, this.getX(), textY, textColor);
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput output) {
+        }
+    }
+
     /**
      * 统一的行概念 - 解决标签与控件错位问题
      */
-    private static class Row {
+    protected static class Row {
         String labelText;
         AbstractWidget widget;
         int labelColor;
@@ -625,11 +673,11 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
     }
 
     @FunctionalInterface
-    private interface ButtonUpdateHandler {
+    protected interface ButtonUpdateHandler {
         void update();
     }
 
-    private static class EnumButtonInfo {
+    protected static class EnumButtonInfo {
         Enum<?>[] enumValues;
         int[] currentIndex;
         Function<Enum<?>, String> displayFunc;

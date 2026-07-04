@@ -1,4 +1,4 @@
-package com.aljun.zombiegamereborn.common.data;
+package com.aljun.zombiegamereborn.common.game;
 
 import com.aljun.zombiegamereborn.api.ZGRCommonAPI;
 import net.minecraft.nbt.CompoundTag;

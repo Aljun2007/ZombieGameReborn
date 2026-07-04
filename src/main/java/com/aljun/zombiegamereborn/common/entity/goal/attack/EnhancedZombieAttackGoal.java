@@ -99,12 +99,13 @@ public class EnhancedZombieAttackGoal extends Goal {
     @Override
     public boolean canContinueToUse() {
         LivingEntity target = this.zombie.getTarget();
-        
-        if (target == null) {
+
+        if (target == null || !target.isAlive()) {
             return false;
         }
-        
-        if (!target.isAlive()) {
+
+        if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
+            this.zombie.setTarget(null);
             return false;
         }
         
@@ -214,14 +215,16 @@ public class EnhancedZombieAttackGoal extends Goal {
     /**
      * 检查并执行攻击
      */
-    protected void checkAndPerformAttack(LivingEntity target, double distanceSqr) {
+    protected boolean checkAndPerformAttack(LivingEntity target, double distanceSqr) {
         double attackReachSqr = this.getAttackReachSqr(target);
         
         if (distanceSqr <= attackReachSqr && this.ticksUntilNextAttack <= 0) {
             this.resetAttackCooldown();
             this.zombie.swing(InteractionHand.MAIN_HAND);
             this.zombie.doHurtTarget(target);
+            return true;
         }
+        return false;
     }
 
     /**

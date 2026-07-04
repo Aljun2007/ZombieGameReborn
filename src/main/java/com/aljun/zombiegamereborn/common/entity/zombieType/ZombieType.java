@@ -6,9 +6,7 @@ import com.google.gson.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
-import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.monster.Zombie;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,21 +64,24 @@ public class ZombieType {
     }
 
     /**
-     * 初始化僵尸类型（在僵尸生成时调用一次）
-     * 可以修改属性、装备等
-     *
-     * @param zombie 僵尸实体
-     */
-    public void onInitializeZombieAppearance(Zombie zombie,IZombieData data) {
-    }
-
-    /**
      * 第一个 Tick 时调用
      * 用于重载 AI Goals 等一次性操作
      *
      * @param zombie 僵尸实体
      */
-    public void onInitializeZombieGoals(Zombie zombie) {
+    public void onInitializeZombieGoals(Zombie zombie,IZombieData data) {
+    }
+
+    /**
+     * 初始化僵尸类型（在僵尸生成时调用一次）
+     * 可以修改属性、装备等
+     *
+     * @param zombie 僵尸实体
+     */
+    public void onInitializeZombieAttributes(Zombie zombie, IZombieData data) {
+    }
+
+    public void onInitializeZombieWeaponsAndArmors(Zombie zombie, IZombieData data) {
     }
 
     /**
@@ -95,7 +96,7 @@ public class ZombieType {
     /**
      * 是否具备破坏方块能力
      * 重写此方法以启用自动破坏功能
-     * 
+     *
      * @return 默认返回 false
      */
     public boolean canBreakBlocks() {

@@ -7,11 +7,14 @@ import com.aljun.zombiegamereborn.common.config.ZombieSpawnChooser;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+@OnlyIn(Dist.CLIENT)
 public class ZombieSpawnChooserScreen extends AbstractBranchConfigScreen {
 
     private static final Gson GSON = new GsonBuilder()

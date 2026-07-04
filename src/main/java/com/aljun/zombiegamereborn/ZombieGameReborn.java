@@ -27,7 +27,9 @@ public class ZombieGameReborn {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        LOGGER.info("Zombie Game Reborn initialized!");
-        ZGRDiplomacyCenter.init();
+        event.enqueueWork(() -> {
+            ZGRDiplomacyCenter.init();
+            LOGGER.info("Zombie Game Reborn initialized!");
+        });
     }
 }

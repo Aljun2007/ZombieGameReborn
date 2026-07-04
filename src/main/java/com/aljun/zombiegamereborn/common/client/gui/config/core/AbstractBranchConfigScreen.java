@@ -3,11 +3,14 @@ package com.aljun.zombiegamereborn.common.client.gui.config.core;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+@OnlyIn(Dist.CLIENT)
 public abstract class AbstractBranchConfigScreen extends AbstractConfigScreen implements Callbackable<JsonElement> {
     private final Consumer<JsonElement> onSaveCallback;
     private final Screen lastScreen;

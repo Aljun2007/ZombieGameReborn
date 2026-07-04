@@ -15,9 +15,9 @@ public class ClearHeadBlockGoal extends Goal {
     private boolean tried = false;
     private BlockPos targetBlockPos;
 
-    public ClearHeadBlockGoal(Zombie zombie) {
+    public ClearHeadBlockGoal(Zombie zombie,IZombieData data) {
         this.zombie = zombie;
-        this.data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        this.data = data;
         //this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
 

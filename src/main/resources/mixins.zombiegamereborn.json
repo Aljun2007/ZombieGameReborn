@@ -6,12 +6,17 @@
   "mixins": [
     "minecraft.entity.EntityMixin",
     "minecraft.entity.LivingEntityMixin",
+    "minecraft.entity.MobMixin",
     "minecraft.entity.ZombieMixin",
     "minecraft.entity.goal.TargetGoalMixin",
     "musketmod.BulletEntityMixin",
     "musketmod.GunItemFireMixin",
     "pointblank.MainHeldSimplifiedStateSyncRequestMixin"
   ],
-  "client": [],
+  "client": [
+    "client.AbstractZombieModelMixin",
+    "client.HumanoidModelMixin",
+    "client.ZombieVillagerModelMixin"
+  ],
   "minVersion": "0.8"
 }

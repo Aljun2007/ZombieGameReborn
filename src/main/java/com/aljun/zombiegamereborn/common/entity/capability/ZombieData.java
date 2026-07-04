@@ -199,4 +199,16 @@ public class ZombieData implements IZombieData {
     public void setFollowMustSee(boolean value) {
         this.followMustSee = value;
     }
+
+    private boolean canZombieContinueUseWeaponsInHand = false;
+
+    @Override
+    public boolean canZombieContinueUseWeaponsInHand() {
+        return canZombieContinueUseWeaponsInHand;
+    }
+
+    @Override
+    public void setZombieContinueUseWeaponsInHand(boolean value) {
+        this.canZombieContinueUseWeaponsInHand = value;
+    }
 }

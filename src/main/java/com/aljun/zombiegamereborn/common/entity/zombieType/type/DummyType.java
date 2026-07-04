@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.common.entity.zombieType.type;
 
+import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import net.minecraft.world.entity.monster.Zombie;
@@ -14,7 +15,8 @@ public class DummyType extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieGoals(Zombie zombie) {
+    public void onInitializeZombieGoals(Zombie zombie, IZombieData data) {
+        zombie.targetSelector.removeAllGoals(goal -> true);
         zombie.goalSelector.removeAllGoals(goal -> true);
     }
 }

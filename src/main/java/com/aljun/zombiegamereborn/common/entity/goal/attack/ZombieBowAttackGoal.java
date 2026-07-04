@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.common.entity.goal.attack;
 
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
@@ -68,6 +69,10 @@ public class ZombieBowAttackGoal extends Goal {
         if (target == null || !target.isAlive()) {
             return false;
         }
+        if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
+            this.zombie.setTarget(null);
+            return false;
+        }
         return (this.isHoldingBow()) && (this.zombie.getSensing().hasLineOfSight(target)
                 || !this.zombie.getNavigation().isDone());
     }
@@ -101,6 +106,7 @@ public class ZombieBowAttackGoal extends Goal {
 
     @Override
     public void tick() {
+
         LivingEntity target = this.zombie.getTarget();
         if (target == null) {
             return;
@@ -126,8 +132,8 @@ public class ZombieBowAttackGoal extends Goal {
     }
 
     protected void handleMovement(LivingEntity target, double distanceSqr) {
-        float enterStrafeSqr = this.attackRadiusSqr * 0.85F;
-        float exitStrafeSqr = this.attackRadiusSqr * 1.21F;
+        float enterStrafeSqr = this.attackRadiusSqr * 0.7F;
+        float exitStrafeSqr = this.attackRadiusSqr * 1.1F;
         double dist = Math.sqrt(distanceSqr);
 
         if (distanceSqr <= (double) enterStrafeSqr && this.seeTime >= 20) {
@@ -162,8 +168,8 @@ public class ZombieBowAttackGoal extends Goal {
                 this.strafingBackwards = true;
             }
             this.zombie.getMoveControl().strafe(
-                    this.strafingBackwards ? -0.5F : 0.5F,
-                    this.strafingClockwise ? 0.5F : -0.5F
+                    this.strafingBackwards ? -1.0F : 1.0F,
+                    this.strafingClockwise ? 0.8F : -0.8F
             );
         }
     }

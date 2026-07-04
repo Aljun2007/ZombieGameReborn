@@ -20,15 +20,14 @@ public class ShieldUserType extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieAppearance(Zombie zombie, IZombieData data) {
+    public void onInitializeZombieWeaponsAndArmors(Zombie zombie, IZombieData data) {
         zombie.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
     }
 
     @Override
-    public void onInitializeZombieGoals(Zombie zombie) {
-        ZombieShieldGoal shieldUsingGoal = new ZombieShieldGoal(zombie);
+    public void onInitializeZombieGoals(Zombie zombie,IZombieData data) {
+        ZombieShieldGoal shieldUsingGoal = new ZombieShieldGoal(zombie,data);
         zombie.goalSelector.addGoal(1, shieldUsingGoal);
-        IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
         data.setZombieShieldGoal(shieldUsingGoal);
         ZombieType.replaceGoal(zombie.goalSelector, goal -> goal instanceof ZombieAttackGoal,
                 () -> new ZombieShieldAttackGoal(zombie, shieldUsingGoal), 2);
