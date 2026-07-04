@@ -28,4 +28,9 @@ public class BowAttackerType extends ZombieType {
                 () -> new ZombieBowAttackGoal(zombie), 2);
         zombie.goalSelector.addGoal(4, new EnhancedZombieAttackGoal(zombie));
     }
+
+    @Override
+    public boolean onlyMelee() {
+        return false;
+    }
 }

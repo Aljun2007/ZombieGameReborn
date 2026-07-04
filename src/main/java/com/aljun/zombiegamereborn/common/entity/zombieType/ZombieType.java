@@ -112,6 +112,10 @@ public class ZombieType {
         return false;
     }
 
+    public boolean onlyMelee() {
+        return true;
+    }
+
     public static class ZombieTypeAdapter implements JsonSerializer<ZombieType>, JsonDeserializer<ZombieType> {
 
         @Override

@@ -4,6 +4,7 @@ import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieShieldGoal;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.item.BowItem;
@@ -114,6 +115,11 @@ public class ZombieShieldAttackGoal extends EnhancedZombieAttackGoal {
     private boolean isEnemyThreatening(LivingEntity enemy, ItemStack stack) {
         if (enemy instanceof AbstractVillager) {
             return false;
+        }
+        if (enemy instanceof Mob enemyMob) {
+            if (this.zombie == enemyMob.getTarget()) {
+                return false;
+            }
         }
         if (stack.getItem() instanceof BowItem) {
             if (enemy.isUsingItem() && enemy.getUseItem().equals(stack)) {

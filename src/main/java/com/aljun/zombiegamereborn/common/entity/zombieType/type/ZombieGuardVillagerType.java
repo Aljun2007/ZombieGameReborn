@@ -41,4 +41,9 @@ public class ZombieGuardVillagerType extends ZombieType {
         }
 
     }
+
+    @Override
+    public boolean onlyMelee() {
+        return false;
+    }
 }

@@ -606,11 +606,6 @@ public abstract class AbstractConfigScreen extends Screen {
         // 默认不做任何操作，子类可以重写
     }
 
-    @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
-
     /**
      * 配置标签页内部类
      */

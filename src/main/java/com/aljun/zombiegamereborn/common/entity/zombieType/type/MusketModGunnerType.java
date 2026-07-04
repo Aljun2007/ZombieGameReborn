@@ -33,4 +33,9 @@ public class MusketModGunnerType extends ZombieType {
             zombie.goalSelector.addGoal(4,new EnhancedZombieAttackGoal( zombie));
         }
     }
+
+    @Override
+    public boolean onlyMelee() {
+        return false;
+    }
 }
