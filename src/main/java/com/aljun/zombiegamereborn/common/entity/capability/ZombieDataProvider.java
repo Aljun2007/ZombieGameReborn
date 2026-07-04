@@ -16,14 +16,14 @@ public class ZombieDataProvider implements ICapabilityProvider, INBTSerializable
 
     public static final Capability<IZombieData> ZOMBIE_DATA = CapabilityManager.get(new CapabilityToken<>() {});
 
-    private IZombieData zombieData = null;
+    private IZombieData data = null;
     private final LazyOptional<IZombieData> optional = LazyOptional.of(this::createZombieData);
 
     private IZombieData createZombieData() {
-        if (zombieData == null) {
-            zombieData = new ZombieData();
+        if (data == null) {
+            data = new ZombieData();
         }
-        return zombieData;
+        return data;
     }
 
     @Override
@@ -36,35 +36,45 @@ public class ZombieDataProvider implements ICapabilityProvider, INBTSerializable
 
     @Override
     public CompoundTag serializeNBT() {
-        CompoundTag tag = new CompoundTag();
         createZombieData();
-        tag.putBoolean("isSunSensitive", zombieData.isSunSensitive());
-        tag.putString("type", zombieData.getTypeID().toString());
-        tag.putDouble("miningSpeed", zombieData.getMiningSpeed());
-        tag.putBoolean("canSwim", zombieData.canSwim());
-        tag.putBoolean("isTypeInitialized",zombieData.isTypeInitialized());
-        tag.putBoolean("fireImmune", zombieData.fireImmune());
-        tag.putBoolean("isEmpowered", zombieData.isEmpowered());
-        tag.putDouble("movement_speed_modify",zombieData.getTotalMovementSpeedModify());
-        tag.putBoolean("canJumpAttack", zombieData.canJumpAttack());
-        tag.putBoolean("enhancedSense",zombieData.enhancedSense());
-        tag.putBoolean("followMustSee", zombieData.followMustSee());
+        return serializeNBT(data);
+    }
+
+    public static CompoundTag serializeNBT(IZombieData data) {
+        CompoundTag tag = new CompoundTag();
+        tag.putBoolean("isSunSensitive", data.isSunSensitive());
+        tag.putString("type", data.getTypeID().toString());
+        tag.putDouble("miningSpeed", data.getMiningSpeed());
+        tag.putBoolean("canSwim", data.canSwim());
+        tag.putBoolean("isTypeInitialized", data.isTypeInitialized());
+        tag.putBoolean("fireImmune", data.fireImmune());
+        tag.putBoolean("isEmpowered", data.isEmpowered());
+        tag.putDouble("movement_speed_modify", data.getTotalMovementSpeedModify());
+        tag.putBoolean("canJumpAttack", data.canJumpAttack());
+        tag.putBoolean("enhancedSense", data.enhancedSense());
+        tag.putBoolean("followMustSee", data.followMustSee());
+        tag.putBoolean("canZombieContinueUseWeaponsInHand", data.canZombieContinueUseWeaponsInHand());
         return tag;
     }
 
     @Override
     public void deserializeNBT(CompoundTag tag) {
         createZombieData();
-        zombieData.setSunSensitive(tag.getBoolean("isSunSensitive"));
-        zombieData.setTypeID(ResourceLocation.parse(tag.getString("type")));
-        zombieData.setMiningSpeed(tag.getDouble("miningSpeed"));
-        zombieData.enableSwim(tag.getBoolean("canSwim"));
-        zombieData.setTypeInitialized(tag.getBoolean("isTypeInitialized"));
-        zombieData.setFireImmune(tag.getBoolean("fireImmune"));
-        zombieData.setEmpowered(tag.getBoolean("isEmpowered"));
-        zombieData.setAttributesMovementSpeedModify(tag.getDouble("movementSpeedModify"));
-        zombieData.enableJumpAttack(tag.getBoolean("canJumpAttack"));
-        zombieData.setEnhancedSense(tag.getBoolean("enhancedSense"));
-        zombieData.setFollowMustSee(tag.getBoolean("followMustSee"));
+        applyData(data, tag);
+    }
+
+    public static void applyData(IZombieData data, CompoundTag tag) {
+        data.setSunSensitive(tag.getBoolean("isSunSensitive"));
+        data.setTypeID(ResourceLocation.parse(tag.getString("type")));
+        data.setMiningSpeed(tag.getDouble("miningSpeed"));
+        data.enableSwim(tag.getBoolean("canSwim"));
+        data.setTypeInitialized(tag.getBoolean("isTypeInitialized"));
+        data.setFireImmune(tag.getBoolean("fireImmune"));
+        data.setEmpowered(tag.getBoolean("isEmpowered"));
+        data.setAttributesMovementSpeedModify(tag.getDouble("movementSpeedModify"));
+        data.enableJumpAttack(tag.getBoolean("canJumpAttack"));
+        data.setEnhancedSense(tag.getBoolean("enhancedSense"));
+        data.setFollowMustSee(tag.getBoolean("followMustSee"));
+        data.setZombieContinueUseWeaponsInHand(tag.getBoolean("canZombieContinueUseWeaponsInHand"));
     }
 }

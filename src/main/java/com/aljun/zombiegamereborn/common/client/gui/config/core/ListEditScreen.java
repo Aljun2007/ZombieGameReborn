@@ -177,7 +177,7 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
         this.cancelButton = Button.builder(
                 Component.literal("§7✗ 取消"),
                 btn -> onCancel()
-        ).bounds(padding, buttonY, 80, 20).build();
+        ).bounds(padding, buttonY, 55, 20).build();
 
         // 中间操作按钮组（新建、复制、删除、编辑）- 居中
         int centerButtonWidth = 55;
@@ -212,7 +212,7 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
 
         // 右侧保存按钮（与 AbstractConfigScreen 自定义按钮一致）
         int rightPadding = 10;
-        int rightButtonWidth = 100;
+        int rightButtonWidth = 55;
         int rightGroupStartX = this.width - rightPadding - rightButtonWidth;
 
         // 保存按钮

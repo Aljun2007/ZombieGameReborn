@@ -45,13 +45,13 @@ public class ZombieSmartBreakAttackGoal extends Goal {
     protected boolean isTried = false;
     protected State state = State.MELEE;
     private long lastGiveUpBreakTime = 0L;
-    private IZombieData data;
+    private final IZombieData data;
     private int breakIndex = 0;
     private long lastHurtAndCanReachPlayerTime = 0L;
 
-    public ZombieSmartBreakAttackGoal(Zombie zombie) {
+    public ZombieSmartBreakAttackGoal(Zombie zombie,IZombieData data) {
         this.zombie = zombie;
-        this.data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        this.data = data;
         this.speedModifier = 1.0d;
         this.followingTargetEvenIfNotSeen = true;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
@@ -109,13 +109,15 @@ public class ZombieSmartBreakAttackGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
+
         LivingEntity target = this.zombie.getTarget();
 
-        if (target == null) {
+        if (target == null || !target.isAlive()) {
             return false;
         }
 
-        if (!target.isAlive()) {
+        if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
+            this.zombie.setTarget(null);
             return false;
         }
 

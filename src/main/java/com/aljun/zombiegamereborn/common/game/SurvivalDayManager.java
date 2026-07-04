@@ -1,6 +1,5 @@
 package com.aljun.zombiegamereborn.common.game;
 
-import com.aljun.zombiegamereborn.common.data.GlobalSurvivalData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 

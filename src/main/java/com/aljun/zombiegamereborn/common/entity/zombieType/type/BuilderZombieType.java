@@ -23,15 +23,19 @@ public class BuilderZombieType extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieAppearance(Zombie zombie,IZombieData data) {
-        data.setEmpowered(false);
+    public void onInitializeZombieWeaponsAndArmors(Zombie zombie, IZombieData data) {
         zombie.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_PICKAXE));
         zombie.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.DIRT));
     }
 
     @Override
-    public void onInitializeZombieGoals(Zombie zombie) {
-        ZombieType.replaceGoal(zombie.goalSelector,goal-> goal instanceof ZombieAttackGoal, ()->new ZombieMeleeAndPathBuildGoal(zombie),2);
+    public void onInitializeZombieAttributes(Zombie zombie, IZombieData data) {
+        data.setEmpowered(false);
+    }
+
+    @Override
+    public void onInitializeZombieGoals(Zombie zombie,IZombieData data) {
+        ZombieType.replaceGoal(zombie.goalSelector,goal-> goal instanceof ZombieAttackGoal, ()->new ZombieMeleeAndPathBuildGoal(zombie,data),2);
     }
 
     @Override

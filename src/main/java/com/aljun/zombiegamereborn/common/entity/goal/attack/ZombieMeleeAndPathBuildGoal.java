@@ -68,10 +68,10 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     private Boolean cachedCanPlace = null;
     private IZombieData data;
 
-    public ZombieMeleeAndPathBuildGoal(Zombie zombie) {
+    public ZombieMeleeAndPathBuildGoal(Zombie zombie,IZombieData data) {
         this.zombie = zombie;
         this.pathConstructor = new PathConstructor();
-        this.data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        this.data = data;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
 
@@ -172,18 +172,20 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        LivingEntity livingentity = this.zombie.getTarget();
-        if (livingentity == null) {
+        LivingEntity target = this.zombie.getTarget();
+        if (target == null) {
             return false;
-        } else if (!livingentity.isAlive()) {
+        } else if (!target.isAlive()) {
             return false;
         } else if (!this.followingTargetEvenIfNotSeen()) {
             return !this.zombie.getNavigation().isDone();
-        } else if (!this.zombie.isWithinRestriction(livingentity.blockPosition())) {
+        } else if (!this.zombie.isWithinRestriction(target.blockPosition())) {
             return false;
-        } else {
-            return !(livingentity instanceof Player) || !livingentity.isSpectator() && !((Player) livingentity).isCreative();
+        } else if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
+            this.zombie.setTarget(null);
+            return false;
         }
+        return true;
     }
 
     protected boolean followingTargetEvenIfNotSeen() {

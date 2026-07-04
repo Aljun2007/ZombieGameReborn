@@ -1,10 +1,9 @@
 package com.aljun.zombiegamereborn.diplomat.musketmod;
 
-import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import ewewukek.musketmod.Config;
 import ewewukek.musketmod.GunItem;
 import ewewukek.musketmod.RangedGunAttackGoal;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
@@ -13,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 public class MusketmodProviderImpl implements IMusketmodProvider {
 
     @Override
-    public Goal createZombieGunGoal(Zombie zombie) {
+    public Goal createGunnerGoal(Zombie zombie) {
         return new RangedGunAttackGoal<Zombie>(zombie) {
             private int seeTime;
             private int attackDelay;
@@ -23,6 +22,14 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
 
             @Override
             public boolean canContinueToUse() {
+                LivingEntity target = this.mob.getTarget();
+                if (target == null || !target.isAlive()) {
+                    return false;
+                }
+                if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
+                    this.mob.setTarget(null);
+                    return false;
+                }
                 return (isTargetValid() || !this.mob.getNavigation().isDone()) && canUseGun();
             }
 
@@ -33,11 +40,8 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
             }
 
             @Override
-            public void stop() {
-                super.stop();
-                this.seeTime = 0;
-                this.attackDelay = 0;
-                this.strafingTime = -1;
+            public void onReady() {
+                this.attackDelay = Math.max(40, this.attackDelay);
             }
 
             @Override
@@ -47,11 +51,7 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
                 if (target == null) return;
 
                 int currentRadius = 15;
-                if (this.mob.level() instanceof ServerLevel serverLevel) {
-                    currentRadius = ZGRGame.getGameProperty()
-                            .getStageProperty(serverLevel.getServer())
-                            .zombieProperty.musketModGunFireRadius;
-                }
+
                 float fireRadiusF = (float) Math.max(1, currentRadius);
 
                 boolean canSee = this.mob.getSensing().hasLineOfSight(target);
@@ -114,8 +114,11 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
             }
 
             @Override
-            public void onReady() {
-                this.attackDelay = Math.max(40, this.attackDelay);
+            public void stop() {
+                super.stop();
+                this.seeTime = 0;
+                this.attackDelay = 0;
+                this.strafingTime = -1;
             }
         };
     }
@@ -141,5 +144,10 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
             return GunItem.isLoaded(stack);
         }
         return false;
+    }
+
+    @Override
+    public boolean isHoldingGun(LivingEntity livingEntity) {
+        return GunItem.isHoldingGun(livingEntity);
     }
 }

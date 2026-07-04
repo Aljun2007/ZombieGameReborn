@@ -30,9 +30,9 @@ public class ZombieWaterBridgeBuildGoal extends Goal {
     private Boolean pathBuildGoalChecked = false;
     private ZombieMeleeAndPathBuildGoal pathBuildGoal = null;
 
-    public ZombieWaterBridgeBuildGoal(Zombie zombie) {
+    public ZombieWaterBridgeBuildGoal(Zombie zombie,IZombieData data) {
         this.zombie = zombie;
-        this.data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        this.data = data;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 

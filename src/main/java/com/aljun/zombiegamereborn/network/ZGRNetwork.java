@@ -4,8 +4,10 @@ import com.aljun.zombiegamereborn.ZombieGameReborn;
 import com.aljun.zombiegamereborn.network.packet.DebugGuiPacket;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyDownloadPacket;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyUploadPacket;
+import com.aljun.zombiegamereborn.network.packet.ZombieCapacitySyncPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
@@ -24,14 +26,12 @@ public class ZGRNetwork {
     );
 
     public static void register() {
-        // 包ID: 0 - DebugGuiPacket (服务端 -> 客户端)
         CHANNEL.messageBuilder(DebugGuiPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(DebugGuiPacket::toBytes)
                 .decoder(DebugGuiPacket::new)
                 .consumerMainThread(DebugGuiPacket::handle)
                 .add();
 
-        // 包ID: 1 - SettingsPacket (客户端 -> 服务端)
         CHANNEL.messageBuilder(GamePropertyUploadPacket.class, packetId++, NetworkDirection.PLAY_TO_SERVER)
                 .encoder(GamePropertyUploadPacket::encode)
                 .decoder(GamePropertyUploadPacket::decode)
@@ -43,12 +43,12 @@ public class ZGRNetwork {
                 .decoder(GamePropertyDownloadPacket::decode)
                 .consumerMainThread(GamePropertyDownloadPacket::handle)
                 .add();
-        // 包ID: 2 - 下一个包
-        // CHANNEL.messageBuilder(YourPacket.class, packetId++, direction)
-        //         .encoder(YourPacket::encode)
-        //         .decoder(YourPacket::decode)
-        //         .consumerMainThread(YourPacket::handle)
-        //         .add();
+
+        CHANNEL.messageBuilder(ZombieCapacitySyncPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(ZombieCapacitySyncPacket::encode)
+                .decoder(ZombieCapacitySyncPacket::decode)
+                .consumerMainThread(ZombieCapacitySyncPacket::handle)
+                .add();
     }
 
     // ==================== 发送方法 ====================
@@ -67,5 +67,9 @@ public class ZGRNetwork {
 
     public static <T> void sendToNearby(T packet, net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, double radius) {
         CHANNEL.send(PacketDistributor.NEAR.with(() -> new PacketDistributor.TargetPoint(pos.getX(), pos.getY(), pos.getZ(), radius, level.dimension())), packet);
+    }
+
+    public static <T> void sendToTrackingEntity(T packet, Entity entity) {
+        CHANNEL.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), packet);
     }
 }

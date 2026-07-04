@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.common.entity.goal.attack;
 
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
@@ -37,10 +38,28 @@ public class ZombieCrossbowAttackGoal extends Goal implements CrossbowAttackMob 
         this.attackRadius = attackRadius;
         this.attackRadiusSqr = attackRadius * attackRadius;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+        if (this.isHoldingCrossbow()) {
+            ItemStack mainHandItemStack = zombie.getMainHandItem();
+            ItemStack offHandItemStack = zombie.getOffhandItem();
+
+            if (mainHandItemStack.getItem() instanceof CrossbowItem) {
+               if (CrossbowItem.isCharged(mainHandItemStack)) {
+                   crossbowState = CrossbowState.CHARGED;
+               } else {
+                   crossbowState = CrossbowState.UNCHARGED;
+               }
+            } else if (offHandItemStack.getItem() instanceof CrossbowItem) {
+               if (CrossbowItem.isCharged(offHandItemStack)) {
+                   crossbowState = CrossbowState.CHARGED;
+               } else {
+                   crossbowState = CrossbowState.UNCHARGED;
+               }
+            }
+        }
     }
 
     public ZombieCrossbowAttackGoal(Zombie zombie) {
-        this(zombie, 1.0D, 10.0F);
+        this(zombie, 1.0D, 15.0F);
     }
 
     @Override
@@ -62,6 +81,10 @@ public class ZombieCrossbowAttackGoal extends Goal implements CrossbowAttackMob 
     public boolean canContinueToUse() {
         LivingEntity target = this.zombie.getTarget();
         if (target == null || !target.isAlive()) {
+            return false;
+        }
+        if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
+            this.zombie.setTarget(null);
             return false;
         }
         return this.isHoldingCrossbow() && (this.zombie.getSensing().hasLineOfSight(target)
@@ -129,8 +152,8 @@ public class ZombieCrossbowAttackGoal extends Goal implements CrossbowAttackMob 
     }
 
     protected void handleMovement(LivingEntity target, double distanceSqr) {
-        float enterStrafeSqr = this.attackRadiusSqr * 0.9F;
-        float exitStrafeSqr = this.attackRadiusSqr * 1.21F;
+        float enterStrafeSqr = this.attackRadiusSqr * 0.7F;
+        float exitStrafeSqr = this.attackRadiusSqr * 1.1F;
         double dist = Math.sqrt(distanceSqr);
 
         if (distanceSqr <= (double) enterStrafeSqr && this.seeTime >= 20) {
@@ -145,7 +168,7 @@ public class ZombieCrossbowAttackGoal extends Goal implements CrossbowAttackMob 
             this.zombie.getNavigation().moveTo(target, speed);
             this.strafingTime = -1;
         } else if (this.strafingTime < 0) {
-            this.zombie.getNavigation().moveTo(target, this.speedModifier * 0.6D);
+            this.zombie.getNavigation().moveTo(target, this.speedModifier*0.6d);
         }
 
         if (this.strafingTime >= 20) {
@@ -159,19 +182,15 @@ public class ZombieCrossbowAttackGoal extends Goal implements CrossbowAttackMob 
         }
 
         if (this.strafingTime > -1) {
-            if (distanceSqr > (double) (this.attackRadiusSqr * 0.8F)) {
+            if (distanceSqr > (double) (this.attackRadiusSqr * 0.75F)) {
                 this.strafingBackwards = false;
-            } else if (distanceSqr < (double) (this.attackRadiusSqr * 0.5F)) {
+            } else if (distanceSqr < (double) (this.attackRadiusSqr * 0.25F)) {
                 this.strafingBackwards = true;
             }
-
-            float speed = (float) this.speedModifier * (this.crossbowState == CrossbowState.CHARGING ? 0.5F : 1.0F);
-            if (this.zombie.getNavigation().isDone()) {
-                this.zombie.getMoveControl().strafe(
-                        this.strafingBackwards ? -speed : speed,
-                        this.strafingClockwise ? speed : -speed
-                );
-            }
+            this.zombie.getMoveControl().strafe(
+                    this.strafingBackwards ? -1F : 1F,
+                    this.strafingClockwise ? 0.8F : -0.8F
+            );
         }
     }
 
@@ -204,7 +223,7 @@ public class ZombieCrossbowAttackGoal extends Goal implements CrossbowAttackMob 
                 }
             }
             case READY_TO_ATTACK -> {
-                if (canSee && !(distanceSqr > (double) this.attackRadiusSqr) && this.seeTime >= 20) {
+                if (canSee && !(distanceSqr > (double) this.attackRadiusSqr * 1.44) && this.seeTime >= 20) {
                     this.performRangedAttack(target, 1.0F);
                     ItemStack heldItem = this.zombie.getItemInHand(ProjectileUtil.getWeaponHoldingHand(
                             this.zombie, item -> item instanceof CrossbowItem));
@@ -235,7 +254,7 @@ public class ZombieCrossbowAttackGoal extends Goal implements CrossbowAttackMob 
 
     @Override
     public void performRangedAttack(@NotNull LivingEntity target, float power) {
-        this.performCrossbowAttack(this.zombie, 1.6F);
+        this.performCrossbowAttack(this.zombie, 2.5F);
     }
 
     @Override

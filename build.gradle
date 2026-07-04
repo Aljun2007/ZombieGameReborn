@@ -143,15 +143,10 @@ repositories {
 mixin {
     //【必要】Mixin引用映射表（核心文件，无则崩溃）
     add sourceSets.main,  'mixins.zombiegamereborn.refmap.json'
-    //【必要】指定Mixin配置文件（无则Mixin不加载）
     config 'mixins.zombiegamereborn.json'
-    //【可选】调试：输出详细Mixin日志
     debug.verbose = true
-    // 【 可选 】 调试 ： 导出注入后的原版class文件 （ 方便查错 ）
     debug.export = true
-    //【可选】调试：Mixin注入失败时转储错误信息
     dumpTargetOnFailure = true
-    //【可选】静默模式：减少Gradle日志输出
     quiet
 }
 dependencies {

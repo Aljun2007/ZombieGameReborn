@@ -2,6 +2,7 @@ package com.aljun.zombiegamereborn.common.entity.goal.attack;
 
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieShieldGoal;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.BowItem;
@@ -31,6 +32,15 @@ public class ZombieShieldAttackGoal extends EnhancedZombieAttackGoal {
 
     @Override
     public boolean canContinueToUse() {
+        LivingEntity target = this.zombie.getTarget();
+
+        if (target==null) return false;
+
+        if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)){
+            this.zombie.setTarget(null);
+            return false;
+        }
+
         return super.canContinueToUse();
     }
 
@@ -101,8 +111,6 @@ public class ZombieShieldAttackGoal extends EnhancedZombieAttackGoal {
     }
 
     private boolean isEnemyThreatening(LivingEntity enemy, ItemStack stack) {
-        if (stack.isEmpty()) return false;
-
         if (stack.getItem() instanceof BowItem) {
             if (enemy.isUsingItem() && enemy.getUseItem().equals(stack)) {
                 return true;
@@ -135,5 +143,13 @@ public class ZombieShieldAttackGoal extends EnhancedZombieAttackGoal {
             }
         }
         return this.zombie.distanceTo(enemy) <= 5d;
+    }
+
+    @Override
+    protected boolean checkAndPerformAttack(LivingEntity target, double distanceSqr) {
+        if (super.checkAndPerformAttack(target, distanceSqr)) {
+            this.stopUsingShield();
+        }
+        return true;
     }
 }

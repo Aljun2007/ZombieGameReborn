@@ -1,7 +1,7 @@
 package com.aljun.zombiegamereborn.common.client.gui.config.stage;
 
-import com.aljun.zombiegamereborn.common.client.gui.ValidatedEditBox;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.AbstractBranchConfigScreen;
+import com.aljun.zombiegamereborn.common.client.gui.config.core.ListChooseScreen;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.SimpleSettingsPanel;
 import com.aljun.zombiegamereborn.common.config.ZombieSpawnChooser;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
@@ -9,10 +9,13 @@ import com.aljun.zombiegamereborn.register.ZGRRegistries;
 import com.google.gson.*;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.function.Consumer;
 
+@OnlyIn(Dist.CLIENT)
 public class WrappedZombieTypeScreen extends AbstractBranchConfigScreen {
 
     private static final Gson GSON = new GsonBuilder()
@@ -37,7 +40,13 @@ public class WrappedZombieTypeScreen extends AbstractBranchConfigScreen {
     }
 
     private void initializeExclusiveTab(SimpleSettingsPanel panel) {
-        panel.addEditBox("僵尸类型", "zombie_type", ZGRZombieTypes.DUMMY.getId().toString());
+
+        List<ResourceLocation> types = ZGRRegistries.ZOMBIE_TYPE.get().getKeys().stream().toList();
+
+        panel.addListChooseScreen("僵尸类型", "zombie_type", this, types, ResourceLocation::toString, () -> this.localJson.has("zombie_type") ? this.localJson.get("zombie_type").getAsString() : "");
+
+        panel.addLabel("");
+
         panel.setEditBoxSuggestionProvider("zombie_type", input -> {
             if (ZGRRegistries.ZOMBIE_TYPE == null || ZGRRegistries.ZOMBIE_TYPE.get() == null) {
                 return List.of();

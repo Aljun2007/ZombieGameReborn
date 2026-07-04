@@ -17,7 +17,7 @@ public class MusketModGunnerType extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieAppearance(Zombie zombie, IZombieData data) {
+    public void onInitializeZombieWeaponsAndArmors(Zombie zombie, IZombieData data) {
         if (ZGRDiplomacyCenter.MUSKETMOD_DIPLOMAT.isLoaded()) {
             ItemStack gun = ZGRDiplomacyCenter.MUSKETMOD_DIPLOMAT.getGunStack();
             if (!gun.isEmpty()) {
@@ -27,7 +27,7 @@ public class MusketModGunnerType extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieGoals(Zombie zombie) {
+    public void onInitializeZombieGoals(Zombie zombie,IZombieData data) {
         if (ZGRDiplomacyCenter.MUSKETMOD_DIPLOMAT.isLoaded()) {
             ZombieType.replaceGoal(zombie.goalSelector,(goal -> goal instanceof ZombieAttackGoal), ()->ZGRDiplomacyCenter.MUSKETMOD_DIPLOMAT.createGunnerGoal(zombie),2);
             zombie.goalSelector.addGoal(4,new EnhancedZombieAttackGoal( zombie));

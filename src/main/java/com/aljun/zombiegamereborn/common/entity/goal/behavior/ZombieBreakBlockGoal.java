@@ -40,10 +40,10 @@ public class ZombieBreakBlockGoal extends Goal {
 
     private long lastFailTime = 0;
 
-    public ZombieBreakBlockGoal(Zombie zombie) {
+    public ZombieBreakBlockGoal(Zombie zombie,IZombieData data) {
         this.zombie = zombie;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
-        this.data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        this.data = data;
         this.level = (ServerLevel) zombie.level();
     }
 

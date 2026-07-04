@@ -10,11 +10,13 @@ import com.aljun.zombiegamereborn.network.packet.GamePropertyUploadPacket;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
+@OnlyIn(Dist.CLIENT)
 public class GamePropertyScreen extends AbstractConfigScreen {
 
     private static final Gson GSON = new GsonBuilder()

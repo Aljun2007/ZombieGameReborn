@@ -85,9 +85,6 @@ public class ZombieProperty {
     @SerializedName("musket_mod_gun_damage_modify")
     public double musketModGunDamageModify = 0.5d;
 
-    @SerializedName("musket_mod_gun_fire_radius")
-    public int musketModGunFireRadius = 15;
-
 
     private static final double DEFAULT_MOVEMENT_SPEED = 1.0;
     private static final double DEFAULT_ATTACK_DAMAGE = 1.0;
@@ -101,6 +98,9 @@ public class ZombieProperty {
 
     @SerializedName("can_jump_attack")
     public boolean canJumpAttack = false;
+
+    @SerializedName("can_zombie_guard_continue_use_weapons")
+    public boolean canZombieGuardContinueUseWeapons = false;
 
     public ZombieProperty() {
     }
@@ -160,7 +160,8 @@ public class ZombieProperty {
         property.senseGunShotSilencedLifespan = getIntOrDefault(obj, "sense_gun_shot_silenced_lifespan", 100);
         property.enhancedSense = getBooleanOrDefault(obj, "enhanced_sense", false);
         property.musketModGunDamageModify = getDoubleOrDefault(obj, "musket_mod_gun_damage_modify", 0.5d);
-        property.musketModGunFireRadius = getIntOrDefault(obj, "musket_mod_gun_fire_radius", 15);
+        property.canZombieGuardContinueUseWeapons = getBooleanOrDefault(obj, "can_zombie_guard_continue_use_weapons", false);
+
         return property;
 
     }
@@ -198,7 +199,8 @@ public class ZombieProperty {
         obj.addProperty("sense_gun_shot_silenced_lifespan", senseGunShotSilencedLifespan);
         obj.addProperty("enhanced_sense", enhancedSense);
         obj.addProperty("musket_mod_gun_damage_modify", musketModGunDamageModify);
-        obj.addProperty("musket_mod_gun_fire_radius", musketModGunFireRadius);
+        obj.addProperty("can_zombie_guard_continue_use_weapons", canZombieGuardContinueUseWeapons);
+
         return obj;
 
     }
@@ -206,8 +208,8 @@ public class ZombieProperty {
     @SuppressWarnings("all")
     public void loadZombieAttributes(Zombie zombie) {
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-        applyAttributeModifiers(zombie, data);
         applyProbabilisticTraits(zombie,data);
+        applyAttributeModifiers(zombie, data);
     }
 
     private void applyAttributeModifiers(Zombie zombie, IZombieData data) {
@@ -240,8 +242,21 @@ public class ZombieProperty {
 
         data.setEnhancedSense(this.enhancedSense);
 
-        zombie.setBaby(false);
-        zombie.setBaby(RandomUtils.booleanByChance(this.babyProbability));
+        if (this.babyProbability > 0.05d) {
+            if (!zombie.isBaby()) {
+                zombie.setBaby(RandomUtils.booleanByChance((this.babyProbability-0.05d)/0.95d));
+            }
+        } else if (this.babyProbability < 0.05d) {
+            if (zombie.isBaby()) {
+                if (!RandomUtils.booleanByChance(this.babyProbability / 0.05d)){
+                    zombie.setBaby(false);
+                }
+            }
+        }
+
+
+
+
     }
 
     /**

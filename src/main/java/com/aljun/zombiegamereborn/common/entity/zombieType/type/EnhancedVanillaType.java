@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.common.entity.zombieType.type;
 
+import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.goal.attack.EnhancedZombieAttackGoal;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
@@ -13,7 +14,7 @@ public class EnhancedVanillaType  extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieGoals(Zombie zombie) {
+    public void onInitializeZombieGoals(Zombie zombie, IZombieData data) {
         ZombieType.replaceGoal(zombie.goalSelector,goal-> goal instanceof ZombieAttackGoal, ()->new EnhancedZombieAttackGoal(zombie),2);
     }
 }

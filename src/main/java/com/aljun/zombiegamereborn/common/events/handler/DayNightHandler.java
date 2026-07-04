@@ -1,6 +1,6 @@
 package com.aljun.zombiegamereborn.common.events.handler;
 
-import com.aljun.zombiegamereborn.common.data.GlobalSurvivalData;
+import com.aljun.zombiegamereborn.common.game.GlobalSurvivalData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
