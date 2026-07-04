@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 
-public class GlobalSurvivalData extends SavedData {
+public class TimeData extends SavedData {
     private static final String DATA_NAME = "global_survival_days";
 
     private long survivedDays = 1;
@@ -15,7 +15,7 @@ public class GlobalSurvivalData extends SavedData {
     private boolean wasNight = false;
     private long lastIncrementDayGameTime = -1;
 
-    public GlobalSurvivalData() {}
+    public TimeData() {}
 
     public void setDays(long days) {
         // 双重检测，即使 API 层没检测，底层也会保护
@@ -26,7 +26,7 @@ public class GlobalSurvivalData extends SavedData {
     }
 
     // 加载时的检测
-    public GlobalSurvivalData(CompoundTag tag) {
+    public TimeData(CompoundTag tag) {
         this.survivedDays = tag.getLong("Days");
         if (this.survivedDays < ZGRCommonAPI.SurvivalDaysAPI.MIN_DAYS) this.survivedDays = ZGRCommonAPI.SurvivalDaysAPI.MIN_DAYS;
         if (this.survivedDays > ZGRCommonAPI.SurvivalDaysAPI.MAX_DAYS) this.survivedDays = ZGRCommonAPI.SurvivalDaysAPI.MAX_DAYS;
@@ -46,10 +46,10 @@ public class GlobalSurvivalData extends SavedData {
         return tag;
     }
 
-    public static GlobalSurvivalData get(ServerLevel level) {
+    public static TimeData get(ServerLevel level) {
         return level.getDataStorage().computeIfAbsent(
-                GlobalSurvivalData::new,
-                GlobalSurvivalData::new,
+                TimeData::new,
+                TimeData::new,
                 DATA_NAME
         );
     }

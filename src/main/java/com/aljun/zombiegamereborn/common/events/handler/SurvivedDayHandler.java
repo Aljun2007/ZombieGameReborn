@@ -1,6 +1,6 @@
 package com.aljun.zombiegamereborn.common.events.handler;
 
-import com.aljun.zombiegamereborn.common.game.GlobalSurvivalData;
+import com.aljun.zombiegamereborn.common.game.TimeData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
@@ -8,7 +8,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class DayNightHandler {
+public class SurvivedDayHandler {
 
     @SuppressWarnings("ConstantConditions")
     @SubscribeEvent
@@ -26,7 +26,7 @@ public class DayNightHandler {
         ServerLevel overworld = (ServerLevel) event.level;
 
         // 获取或创建全局数据
-        GlobalSurvivalData data = GlobalSurvivalData.get(overworld);
+        TimeData data = TimeData.get(overworld);
 
         long currentGameTime = overworld.getGameTime();
         boolean hasPlayersOnline = !overworld.getServer().getPlayerList().getPlayers().isEmpty();

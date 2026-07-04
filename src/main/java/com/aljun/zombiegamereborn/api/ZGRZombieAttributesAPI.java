@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.api;
 
+import com.aljun.zombiegamereborn.common.entity.accessor.IZombieAccessor;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.capability.ZombieDataProvider;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
@@ -12,7 +13,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -27,15 +27,6 @@ public class ZGRZombieAttributesAPI {
      */
     public static IZombieData getZombieData(Zombie zombie) {
         return zombie.getCapability(ZombieDataProvider.ZOMBIE_DATA).orElse(null);
-    }
-
-    // ==================== Custom Capability Properties ====================
-
-    /**
-     * 检查僵尸是否对阳光敏感
-     */
-    public static boolean isSunSensitive(IZombieData data) {
-        return data.isSunSensitive();
     }
 
     /**
@@ -57,8 +48,8 @@ public class ZGRZombieAttributesAPI {
      * 设置僵尸的类型 ID
      */
     public static void setTypeID(IZombieData data, ResourceLocation typeId) {
-    data.setTypeID(typeId);
-}
+        data.setTypeID(typeId);
+    }
 
     /**
      * 获取僵尸的类型对象（可能返回 null）
@@ -86,11 +77,31 @@ public class ZGRZombieAttributesAPI {
     }
 
     /**
+     * 向所有在线玩家发送错误消息
+     *
+     * @param message 错误消息内容
+     */
+    private static void sendErrorToPlayers(String message) {
+        try {
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            if (server != null) {
+                server.getPlayerList().getPlayers().forEach(player -> {
+                    player.displayClientMessage(Component.literal("§c[错误] " + message), false);
+                });
+            }
+        } catch (Exception e) {
+            // 静默失败，不影响原有逻辑
+        }
+    }
+
+    /**
      * 检查僵尸是否可以游泳
      */
     public static boolean canSwim(IZombieData data) {
         return data.canSwim();
     }
+
+    // ==================== Vanilla Attribute Operations ====================
 
     /**
      * 设置僵尸是否可以游泳
@@ -99,7 +110,13 @@ public class ZGRZombieAttributesAPI {
         data.enableSwim(canSwim);
     }
 
-    // ==================== Vanilla Attribute Operations ====================
+    /**
+     * 获取僵尸的最大生命值（可能返回 null）
+     */
+    @Nullable
+    public static Double getMaxHealth(Zombie zombie) {
+        return getVanillaAttribute(zombie, Attributes.MAX_HEALTH);
+    }
 
     /**
      * 获取僵尸的原版属性实例
@@ -115,6 +132,13 @@ public class ZGRZombieAttributesAPI {
     }
 
     /**
+     * 获取僵尸的最大生命值（返回 Optional）
+     */
+    public static Optional<Double> getMaxHealthOptional(Zombie zombie) {
+        return getVanillaAttributeOptional(zombie, Attributes.MAX_HEALTH);
+    }
+
+    /**
      * 获取僵尸的原版属性实例（返回 Optional）
      */
     @SuppressWarnings("unchecked")
@@ -124,6 +148,17 @@ public class ZGRZombieAttributesAPI {
             return Optional.of((T) Double.valueOf(instance.getValue()));
         }
         return Optional.empty();
+    }
+
+    /**
+     * 设置僵尸的最大生命值
+     */
+    public static void setMaxHealth(Zombie zombie, double health) {
+        if (health <= 0.0) {
+            sendErrorToPlayers("最大生命值必须大于0.0，当前值: " + health);
+            throw new IllegalArgumentException("Max health must be greater than 0.0, but got: " + health);
+        }
+        setVanillaAttribute(zombie, Attributes.MAX_HEALTH, health);
     }
 
     /**
@@ -142,32 +177,6 @@ public class ZGRZombieAttributesAPI {
             sendErrorToPlayers("僵尸没有该属性: " + attribute.getDescriptionId());
             throw new IllegalArgumentException("Zombie does not have attribute: " + attribute.getDescriptionId());
         }
-    }
-
-    /**
-     * 获取僵尸的最大生命值（可能返回 null）
-     */
-    @Nullable
-    public static Double getMaxHealth(Zombie zombie) {
-        return getVanillaAttribute(zombie, Attributes.MAX_HEALTH);
-    }
-
-    /**
-     * 获取僵尸的最大生命值（返回 Optional）
-     */
-    public static Optional<Double> getMaxHealthOptional(Zombie zombie) {
-        return getVanillaAttributeOptional(zombie, Attributes.MAX_HEALTH);
-    }
-
-    /**
-     * 设置僵尸的最大生命值
-     */
-    public static void setMaxHealth(Zombie zombie, double health) {
-        if (health <= 0.0) {
-            sendErrorToPlayers("最大生命值必须大于0.0，当前值: " + health);
-            throw new IllegalArgumentException("Max health must be greater than 0.0, but got: " + health);
-        }
-        setVanillaAttribute(zombie, Attributes.MAX_HEALTH, health);
     }
 
     /**
@@ -316,7 +325,6 @@ public class ZGRZombieAttributesAPI {
         setVanillaAttribute(zombie, Attributes.FOLLOW_RANGE, range);
     }
 
-
     /**
      * 获取僵尸的游泳速度（Forge 属性，可能返回 null）
      */
@@ -343,9 +351,15 @@ public class ZGRZombieAttributesAPI {
         setVanillaAttribute(zombie, ForgeMod.SWIM_SPEED.get(), speed);
     }
 
-    public static boolean fireImmune(IZombieData data) {
-        return data.fireImmune();
+    public static boolean fireImmune(Zombie zombie) {
+        return zombie.fireImmune();
     }
+
+    public static boolean isSunSensitive(Zombie zombie) {
+        return ((IZombieAccessor) zombie).zgr_invokeIsSunSensitive();
+    }
+
+
 
     public static void setFireImmune(IZombieData data, boolean value) {
         data.setFireImmune(value);
@@ -367,23 +381,19 @@ public class ZGRZombieAttributesAPI {
         data.setFleeSun(value);
     }
 
-    // ==================== Helper Methods ====================
-
-    /**
-     * 向所有在线玩家发送错误消息
-     * @param message 错误消息内容
-     */
-    private static void sendErrorToPlayers(String message) {
-        try {
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            if (server != null) {
-                server.getPlayerList().getPlayers().forEach(player -> {
-                    player.displayClientMessage(Component.literal("§c[错误] " + message), false);
-                });
-            }
-        } catch (Exception e) {
-            // 静默失败，不影响原有逻辑
-        }
+    public static void setAmbientVolumeModify(IZombieData data, double ambientVolumeModify) {
+        data.setAmbientVolumeModify(ambientVolumeModify);
     }
 
+    public static double getAmbientVolumeModify(IZombieData data) {
+        return data.getAmbientVolumeModify();
+    }
+
+    public static void setStepVolumeModify(IZombieData data, double ambientPitchModify) {
+        data.setStepVolumeModify(ambientPitchModify);
+    }
+
+    public static double getStepVolumeModify(IZombieData data) {
+        return data.getStepVolumeModify();
+    }
 }

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -29,7 +30,7 @@ public class MobMixin {
             locals = LocalCapture.CAPTURE_FAILSOFT
     )
     private <T extends Mob> void onConvertTo(EntityType<T> entityType, boolean keepInventory,
-                                              CallbackInfoReturnable<T> cir, T target) {
+                                             CallbackInfoReturnable<T> cir, T target) {
         if (!(target instanceof Zombie zombie) || zombie.level().isClientSide) return;
 
         Mob self = (Mob) (Object) this;
@@ -40,6 +41,22 @@ public class MobMixin {
                         zombie, ZGRZombieTypes.ZOMBIE_GUARD_VILLAGER.getId());
             }
         }
+    }
+
+    @ModifyArg(
+            method = "playAmbientSound",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/Mob;playSound(Lnet/minecraft/sounds/SoundEvent;FF)V"
+            ),
+            index = 1
+    )
+    private float modifyAmbientVolume(float originalVolume) {
+        Mob mob = (Mob) (Object) this;
+        if (mob instanceof Zombie zombie) {
+            IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+            return (float) (originalVolume * data.getAmbientVolumeModify());
+        }
+        return originalVolume;
     }
 
 }

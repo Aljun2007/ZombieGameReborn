@@ -1,6 +1,6 @@
 package com.aljun.zombiegamereborn.api;
 
-import com.aljun.zombiegamereborn.common.game.GlobalSurvivalData;
+import com.aljun.zombiegamereborn.common.game.TimeData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -19,7 +19,7 @@ public class ZGRCommonAPI {
             ServerLevel overworld = server.getLevel(Level.OVERWORLD);
             if (overworld == null) return MIN_DAYS;
 
-            GlobalSurvivalData data = GlobalSurvivalData.get(overworld);
+            TimeData data = TimeData.get(overworld);
 
             long days = data.getDays();
             return validateDays(days);
@@ -34,7 +34,7 @@ public class ZGRCommonAPI {
             ServerLevel overworld = server.getLevel(Level.OVERWORLD);
             if (overworld == null) return;
 
-            GlobalSurvivalData data = GlobalSurvivalData.get(overworld);
+            TimeData data = TimeData.get(overworld);
             data.setDays(days);
         }
 
@@ -48,7 +48,7 @@ public class ZGRCommonAPI {
             ServerLevel overworld = server.getLevel(Level.OVERWORLD);
             if (overworld == null) return;
 
-            GlobalSurvivalData data = GlobalSurvivalData.get(overworld);
+            TimeData data = TimeData.get(overworld);
 
             long currentDays = data.getDays();
             long newDays = currentDays + delta;
@@ -76,7 +76,7 @@ public class ZGRCommonAPI {
             if (server == null) return MIN_DAYS;
             ServerLevel overworld = server.getLevel(Level.OVERWORLD);
             if (overworld == null) return MIN_DAYS;
-            GlobalSurvivalData data = GlobalSurvivalData.get(overworld);
+            TimeData data = TimeData.get(overworld);
             return data.getDays();
         }
     }

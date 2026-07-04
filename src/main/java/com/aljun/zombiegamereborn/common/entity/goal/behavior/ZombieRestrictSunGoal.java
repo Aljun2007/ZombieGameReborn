@@ -1,7 +1,6 @@
 package com.aljun.zombiegamereborn.common.entity.goal.behavior;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
-import com.aljun.zombiegamereborn.common.entity.accessor.IZombieAccessor;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import net.minecraft.world.entity.ai.goal.RestrictSunGoal;
@@ -20,7 +19,7 @@ public class ZombieRestrictSunGoal extends RestrictSunGoal {
     @Override
     public boolean canUse() {
         // 检查僵尸是否对阳光敏感，如果不敏感则不执行此目标
-        if (!((IZombieAccessor) this.zombie).zgr_invokeIsSunSensitive()) {
+        if (!ZGRZombieAttributesAPI.isSunSensitive(zombie)) {
             return false;
         }
 

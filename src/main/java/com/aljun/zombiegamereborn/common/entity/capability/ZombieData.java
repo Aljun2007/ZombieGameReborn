@@ -222,4 +222,27 @@ public class ZombieData implements IZombieData {
     public void setFleeSun(boolean value) {
         this.fleeSun = value;
     }
+
+    private double ambientVolumeModify = 1.0d;
+    private double stepVolumeModify = 1.0d;
+
+    @Override
+    public double getAmbientVolumeModify() {
+        return this.ambientVolumeModify;
+    }
+
+    @Override
+    public void setAmbientVolumeModify(double modify) {
+        this.ambientVolumeModify = modify;
+    }
+
+    @Override
+    public double getStepVolumeModify() {
+        return this.stepVolumeModify;
+    }
+
+    @Override
+    public void setStepVolumeModify(double modify) {
+        this.stepVolumeModify = modify;
+    }
 }

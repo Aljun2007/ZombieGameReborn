@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 public class SurvivalDayManager {
     public static double getDay(MinecraftServer server) {
         ServerLevel overworld = server.overworld();
-        GlobalSurvivalData data = GlobalSurvivalData.get(overworld);
+        TimeData data = TimeData.get(overworld);
         
         long baseDays = data.getDays();
         long dayTime = overworld.dayTime();

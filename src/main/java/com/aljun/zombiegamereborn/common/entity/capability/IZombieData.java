@@ -74,4 +74,11 @@ public interface IZombieData {
 
     boolean fleeSun();
     void setFleeSun(boolean value);
+
+    double getAmbientVolumeModify();
+    void setAmbientVolumeModify(double modify);
+
+    double getStepVolumeModify();
+    void setStepVolumeModify(double modify);
+
 }

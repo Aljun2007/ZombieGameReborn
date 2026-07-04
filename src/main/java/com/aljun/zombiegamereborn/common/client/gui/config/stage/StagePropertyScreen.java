@@ -53,9 +53,9 @@ public class StagePropertyScreen extends AbstractBranchConfigScreen {
 
     private void initializeElseTab(SimpleSettingsPanel panel) {
         if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isLoaded()) {
-            panel.addLabel("月亮事件联动");
+            panel.addLabel("§6§l月亮事件联动");
         } else {
-            panel.addLabel("月亮事件联动§8【未安装】");
+            panel.addLabel("§8§l月亮事件联动【未安装】");
         }
         panel.addDoubleEditBox("覆盖版血月概率", "blood_moon_chance", 0.0, 0.0, 1.0);
     }

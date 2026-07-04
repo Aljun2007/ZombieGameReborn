@@ -55,6 +55,8 @@ public class ZombieDataProvider implements ICapabilityProvider, INBTSerializable
         tag.putBoolean("followMustSee", data.followMustSee());
         tag.putBoolean("canZombieContinueUseWeaponsInHand", data.canZombieContinueUseWeaponsInHand());
         tag.putBoolean("fleeSun",data.fleeSun());
+        tag.putDouble("ambientVolumeModify", data.getAmbientVolumeModify());
+        tag.putDouble("stepVolumeModify", data.getStepVolumeModify());
         return tag;
     }
 
@@ -78,5 +80,7 @@ public class ZombieDataProvider implements ICapabilityProvider, INBTSerializable
         data.setFollowMustSee(tag.getBoolean("followMustSee"));
         data.setZombieContinueUseWeaponsInHand(tag.getBoolean("canZombieContinueUseWeaponsInHand"));
         data.setFleeSun(tag.getBoolean("fleeSun"));
+        data.setAmbientVolumeModify(tag.getDouble("ambientVolumeModify"));
+        data.setStepVolumeModify(tag.getDouble("stepVolumeModify"));
     }
 }

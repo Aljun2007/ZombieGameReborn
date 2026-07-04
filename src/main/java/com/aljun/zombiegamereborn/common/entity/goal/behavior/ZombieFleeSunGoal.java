@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.common.entity.goal.behavior;
 
+import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.common.entity.accessor.IZombieAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
@@ -27,7 +28,7 @@ public class ZombieFleeSunGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        if (!((IZombieAccessor) this.zombie).zgr_invokeIsSunSensitive()) {
+        if (!ZGRZombieAttributesAPI.isSunSensitive(zombie)) {
             return false;
         }
         if (this.zombie.getTarget() != null) return false;
@@ -40,7 +41,7 @@ public class ZombieFleeSunGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        if (!((IZombieAccessor) this.zombie).zgr_invokeIsSunSensitive()) {
+        if (!ZGRZombieAttributesAPI.isSunSensitive(zombie)) {
             return false;
         }
         return !this.zombie.getNavigation().isDone();

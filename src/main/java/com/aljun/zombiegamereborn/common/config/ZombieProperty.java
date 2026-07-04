@@ -81,6 +81,12 @@ public class ZombieProperty {
     @SerializedName("can_zombie_guard_continue_use_weapons")
     public boolean canZombieGuardContinueUseWeapons = false;
 
+    @SerializedName("ambient_volume_modify")
+    public double ambientVolumeModify = 1.0d;
+
+    @SerializedName("step_volume_modify")
+    public double stepVolumeModify = 1.0d;
+
 
     public ZombieProperty() {
     }
@@ -121,6 +127,8 @@ public class ZombieProperty {
         property.musketModGunDamageModify = getDoubleOrDefault(obj, "musket_mod_gun_damage_modify", 0.5d);
         property.canZombieGuardContinueUseWeapons = getBooleanOrDefault(obj, "can_zombie_guard_continue_use_weapons", false);
         property.fleeSun = getBooleanOrDefault(obj, "flee_sun", false);
+        property.ambientVolumeModify = getDoubleOrDefault(obj, "ambient_volume_modify", 1.0d);
+        property.stepVolumeModify = getDoubleOrDefault(obj, "step_volume_modify", 1.0d);
 
         return property;
 
@@ -182,6 +190,8 @@ public class ZombieProperty {
         obj.addProperty("musket_mod_gun_damage_modify", musketModGunDamageModify);
         obj.addProperty("can_zombie_guard_continue_use_weapons", canZombieGuardContinueUseWeapons);
         obj.addProperty("flee_sun", fleeSun);
+        obj.addProperty("ambient_volume_modify", ambientVolumeModify);
+        obj.addProperty("step_volume_modify", stepVolumeModify);
 
         return obj;
 
@@ -202,6 +212,9 @@ public class ZombieProperty {
 
         ZGRZombieAttributesAPI.setEnhancedSense(data,this.enhancedSense);
         ZGRZombieAttributesAPI.setFleeSun(data,this.fleeSun);
+
+        ZGRZombieAttributesAPI.setAmbientVolumeModify(data,this.ambientVolumeModify);
+        ZGRZombieAttributesAPI.setStepVolumeModify(data,this.stepVolumeModify);
 
         if (this.babyProbability > 0.05d) {
             if (!zombie.isBaby()) {

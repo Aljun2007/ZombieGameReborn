@@ -21,18 +21,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Zombie.class)
 public abstract class ZombieMixin implements IZombieAccessor {
 
-    @Shadow
-    protected abstract boolean isSunSensitive();
-
     @Override
     public boolean zgr_invokeIsSunSensitive() {
         return isSunSensitive();
     }
 
+    @Shadow
+    protected abstract boolean isSunSensitive();
+
     @Inject(method = "isSunSensitive", at = @At("RETURN"), cancellable = true)
     private void isSunSensitiveMixin(CallbackInfoReturnable<Boolean> cir) {
         Zombie zombie = (Zombie) (Object) this;
-        cir.setReturnValue(cir.getReturnValue() && ZGRZombieAttributesAPI.isSunSensitive(ZGRZombieAttributesAPI.getZombieData(zombie)));
+        cir.setReturnValue(cir.getReturnValue() && ZGRZombieAttributesAPI.getZombieData(zombie).isSunSensitive());
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -89,4 +89,19 @@ public abstract class ZombieMixin implements IZombieAccessor {
             cir.setReturnValue(cir.getReturnValue() && !ZGRZombieAttributesAPI.canSwim(ZGRZombieAttributesAPI.getZombieData(zombie)));
         }
     }
+
+    @ModifyArg(
+            method = "playStepSound",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/monster/Zombie;playSound(Lnet/minecraft/sounds/SoundEvent;FF)V"
+            ),
+            index = 1  // 音量参数
+    )
+    private float modifyStepVolume(float originalVolume) {
+        IZombieData data = ZGRZombieAttributesAPI.getZombieData((Zombie) (Object) this);
+        return (float) (originalVolume * data.getStepVolumeModify());
+    }
+
 }
+
