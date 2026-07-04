@@ -72,5 +72,10 @@ public class MusketmodDiplomat extends Diplomat {
     }
 
 
-
+    public ItemStack getBulletStack(int bulletCount) {
+        if (provider != null) {
+            return  provider.getBulletStack(bulletCount);
+        }
+        return ItemStack.EMPTY;
+    }
 }

@@ -27,6 +27,13 @@ public class RandomUtils {
         else return RANDOM.nextDouble(0d, 1d) <= chance;
     }
 
+    public static int nextInt(int min, int max) {
+        if (min >= max) {
+            return min;
+        }
+        return RANDOM.nextInt(min, max + 1);
+    }
+
     public static class RandomPool<T> {
         private final List<T> VAR;
         private final List<Double> WEIGHT;

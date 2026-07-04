@@ -2,6 +2,7 @@ package com.aljun.zombiegamereborn.diplomat.musketmod;
 
 import ewewukek.musketmod.Config;
 import ewewukek.musketmod.GunItem;
+import ewewukek.musketmod.Items;
 import ewewukek.musketmod.RangedGunAttackGoal;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -130,12 +131,12 @@ public class MusketmodProviderImpl implements IMusketmodProvider {
 
     @Override
     public ItemStack getGunStack() {
-        return new ItemStack(ewewukek.musketmod.Items.MUSKET);
+        return new ItemStack(Items.MUSKET);
     }
 
     @Override
-    public ItemStack getAmmoStack() {
-        return new ItemStack(ewewukek.musketmod.Items.CARTRIDGE);
+    public ItemStack getBulletStack(int count) {
+        return new ItemStack(Items.CARTRIDGE,count);
     }
 
     @Override

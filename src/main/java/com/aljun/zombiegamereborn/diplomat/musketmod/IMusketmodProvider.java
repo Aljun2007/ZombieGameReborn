@@ -9,7 +9,7 @@ public interface IMusketmodProvider {
     Goal createGunnerGoal(Zombie zombie);
     void setMobDamageMultiplier(float multiplier);
     ItemStack getGunStack();
-    ItemStack getAmmoStack();
+    ItemStack getBulletStack(int count);
     boolean isGunLoaded(ItemStack stack);
     boolean isHoldingGun(LivingEntity livingEntity);
 }
