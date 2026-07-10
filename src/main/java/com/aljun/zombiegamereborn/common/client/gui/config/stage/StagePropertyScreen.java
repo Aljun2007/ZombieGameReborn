@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -33,30 +34,31 @@ public class StagePropertyScreen extends AbstractBranchConfigScreen {
 
     @Override
     protected void initializeTabs() {
-        ConfigTab zombieTab = new ConfigTab("僵尸设置", this::initializeZombieTab);
+        ConfigTab zombieTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.stageproperty.tab.zombie"), this::initializeZombieTab);
         this.tabs.add(zombieTab);
 
-        ConfigTab elseTab = new ConfigTab("其他设置", this::initializeElseTab);
+        ConfigTab elseTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.stageproperty.tab.other"), this::initializeElseTab);
         this.tabs.add(elseTab);
     }
 
     private void initializeZombieTab(SimpleSettingsPanel panel) {
-        panel.addDoubleEditBox("天数", "day", 1.0, 1.0, Double.MAX_VALUE);
-        panel.addCallbackabeScreen("僵尸属性", this, "zombie_property",
+        panel.addDoubleEditBox("gui.zombiegamereborn.stageproperty.day", "day", 1.0, 1.0, Double.MAX_VALUE);
+        panel.addCallbackabeScreen("gui.zombiegamereborn.stageproperty.zombie_property", this, "zombie_property",
                 (screen, callback) -> new ZombiePropertyScreen("", this.localJson.getAsJsonObject("zombie_property"),
                         callback, screen));
-        panel.addCallbackabeScreen("僵尸种类", this, "zombie_spawn_chooser",
+        panel.addCallbackabeScreen("gui.zombiegamereborn.stageproperty.zombie_spawn", this, "zombie_spawn_chooser",
                 (screen, callback) -> new ZombieSpawnChooserScreen("", this.localJson.getAsJsonObject("zombie_spawn_chooser"),
                         callback, screen));
-
+        panel.addDoubleEditBox("gui.zombiegamereborn.stageproperty.zombie_count_modify","zombie_count_modify", 1.0, 0.0, Double.MAX_VALUE);
+        panel.addCheckBox("gui.zombiegamereborn.stageproperty.holy_cleansing","holy_cleansing", true);
     }
 
     private void initializeElseTab(SimpleSettingsPanel panel) {
         if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isLoaded()) {
-            panel.addLabel("§6§l月亮事件联动");
+            panel.addLabel("gui.zombiegamereborn.stageproperty.moon_event_loaded");
         } else {
-            panel.addLabel("§8§l月亮事件联动【未安装】");
+            panel.addLabel("gui.zombiegamereborn.stageproperty.moon_event_unloaded");
         }
-        panel.addDoubleEditBox("覆盖版血月概率", "blood_moon_chance", 0.0, 0.0, 1.0);
+        panel.addDoubleEditBox("gui.zombiegamereborn.stageproperty.blood_moon_chance", "blood_moon_chance", 0.0, 0.0, 1.0);
     }
 }

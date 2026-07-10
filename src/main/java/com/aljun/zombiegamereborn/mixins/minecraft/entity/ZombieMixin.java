@@ -32,7 +32,8 @@ public abstract class ZombieMixin implements IZombieAccessor {
     @Inject(method = "isSunSensitive", at = @At("RETURN"), cancellable = true)
     private void isSunSensitiveMixin(CallbackInfoReturnable<Boolean> cir) {
         Zombie zombie = (Zombie) (Object) this;
-        cir.setReturnValue(cir.getReturnValue() && ZGRZombieAttributesAPI.getZombieData(zombie).isSunSensitive());
+        IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        cir.setReturnValue(cir.getReturnValue() && data.isSunSensitive());
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -101,6 +102,17 @@ public abstract class ZombieMixin implements IZombieAccessor {
     private float modifyStepVolume(float originalVolume) {
         IZombieData data = ZGRZombieAttributesAPI.getZombieData((Zombie) (Object) this);
         return (float) (originalVolume * data.getStepVolumeModify());
+    }
+
+
+    @Inject(method = "aiStep", at = @At("RETURN"))
+    private void aiStepMixin(CallbackInfo ci) {
+        Zombie zombie = (Zombie) (Object) this;
+        if ((zombie.level().getGameTime() + zombie.getBlockY()) % 20 == 0) {
+            if (ZGRGame.getGameProperty().getStageProperty(zombie.getServer()).holyCleansing) {
+                zombie.setSecondsOnFire(8);
+            }
+        }
     }
 
 }

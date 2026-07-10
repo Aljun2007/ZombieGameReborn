@@ -9,6 +9,7 @@ import com.aljun.zombiegamereborn.network.ZGRNetwork;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyUploadPacket;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -37,15 +38,15 @@ public class GamePropertyScreen extends AbstractConfigScreen {
 
     @Override
     protected void initializeTabs() {
-        ConfigTab ruleTab = new ConfigTab("游戏规则", this::initializeRuleTab);
-        ConfigTab stageTab = new ConfigTab("阶段设置", this::initializeStageTab);
+        ConfigTab ruleTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.gameproperty.tab.rules"), this::initializeRuleTab);
+        ConfigTab stageTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.gameproperty.tab.stages"), this::initializeStageTab);
         this.tabs.add(ruleTab);
         this.tabs.add(stageTab);
     }
 
     private void initializeRuleTab(SimpleSettingsPanel panel) {
-        panel.addCheckBox("允许僵尸挖掘", "can_zombie_break_block", true);
-        panel.addCheckBox("允许僵尸建造", "can_zombie_place_block", true);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_break", "can_zombie_break_block", true);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_place", "can_zombie_place_block", true);
         
         panel.setOnValueChanged((key, value) -> {
             if (!isInitializing) {
@@ -65,12 +66,12 @@ public class GamePropertyScreen extends AbstractConfigScreen {
 
     private void initializeStageTab(SimpleSettingsPanel panel) {
         panel.addCallbackabeScreen(
-                "阶段列表",
+                "gui.zombiegamereborn.gameproperty.stage_list",
                 this,
                 "stage_properties",
                 (parentScreen, saveCallback) -> {
                     ListEditScreen<JsonElement> screen = new ListEditScreen<JsonElement>(
-                            "编辑阶段列表",
+                            "gui.zombiegamereborn.gameproperty.stage_list_edit_title",
                             parentScreen,
                             this.localJson.has("stage_properties") && this.localJson.get("stage_properties").isJsonArray() 
                                 ? this.localJson.getAsJsonArray("stage_properties").asList()
@@ -81,7 +82,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
                                 saveCallback.accept((JsonElement)jsonArray);
                             },
 
-                            (jsonElement) -> "第" + GSON.fromJson(jsonElement, StageProperty.class).day + "天",
+                            (jsonElement) -> I18n.get("gui.zombiegamereborn.gameproperty.stage_day_prefix") + GSON.fromJson(jsonElement, StageProperty.class).day + I18n.get("gui.zombiegamereborn.gameproperty.stage_day_suffix"),
 
                             (lastScreen1, jsonElement1, itemSaveCallback) -> {
                                 StageProperty stageProperty =
@@ -90,7 +91,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
                                 JsonObject initialData = GSON.toJsonTree(stageProperty).getAsJsonObject();
 
                                 Minecraft.getInstance().setScreen(new StagePropertyScreen(
-                                        "编辑阶段设置",
+                                        "gui.zombiegamereborn.gameproperty.stage_edit_title",
                                         initialData,
                                         (updatedElement) -> {
                                             itemSaveCallback.accept(updatedElement);
@@ -114,8 +115,8 @@ public class GamePropertyScreen extends AbstractConfigScreen {
     @Override
     protected List<ButtonInfo> getCustomButtons() {
         List<ButtonInfo> buttons = new ArrayList<>();
-        buttons.add(new ButtonInfo("§e导入/导出", this::importScreen));
-        buttons.add(new ButtonInfo("§b✓ 保存", this::syncToServer, () -> hasUnsavedChanges));
+        buttons.add(new ButtonInfo("gui.zombiegamereborn.gameproperty.import_export", this::importScreen));
+        buttons.add(new ButtonInfo("gui.zombiegamereborn.gameproperty.save_sync", this::syncToServer, () -> hasUnsavedChanges));
         return buttons;
     }
 
@@ -135,7 +136,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
             
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.displayClientMessage(
-                    Component.literal("§a配置已同步到服务器"), false
+                    Component.translatable("gui.zombiegamereborn.gameproperty.sync_success"), false
                 );
             }
         }
@@ -155,22 +156,22 @@ public class GamePropertyScreen extends AbstractConfigScreen {
         if (!hasInteracted) {
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.displayClientMessage(
-                        Component.literal("§7配置没有修改"), false
+                        Component.translatable("gui.zombiegamereborn.core.no_changes"), false
                 );
             }
         } else if (hasUnsavedChanges) {
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.displayClientMessage(
-                        Component.literal("§c§l意外退出，配置未同步到服务器！"), false
+                        Component.translatable("gui.zombiegamereborn.gameproperty.unsaved_warning"), false
                 );
                 Minecraft.getInstance().player.displayClientMessage(
-                        Component.literal("§e提示：点击设置面板中'上传到服务器'按钮"), false
+                        Component.translatable("gui.zombiegamereborn.gameproperty.sync_hint"), false
                 );
             }
         } else {
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.displayClientMessage(
-                        Component.literal("§7配置已同步，安全退出"), false
+                        Component.translatable("gui.zombiegamereborn.gameproperty.safe_exit"), false
                 );
             }
         }

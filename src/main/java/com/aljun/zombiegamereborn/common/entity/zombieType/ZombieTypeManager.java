@@ -124,7 +124,7 @@ public class ZombieTypeManager {
             zombie.targetSelector.addGoal(4, senseGoal);
         }
         if (data.fleeSun()) {
-            zombie.goalSelector.addGoal(2, new ZombieRestrictSunGoal(zombie));
+            zombie.goalSelector.addGoal(2, new ZombieRestrictSunGoal(zombie,data));
             zombie.goalSelector.addGoal(3, new ZombieFleeSunGoal(zombie));
         }
     }

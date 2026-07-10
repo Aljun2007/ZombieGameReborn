@@ -4,6 +4,8 @@ import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Type;
+import static com.aljun.zombiegamereborn.utils.JsonUtils.getBooleanOrDefault;
+import static com.aljun.zombiegamereborn.utils.JsonUtils.getDoubleOrDefault;
 
 /**
  * 阶段属性配置类
@@ -32,6 +34,12 @@ public class StageProperty {
     public double bloodMoonChance = 0.0d;
     @SerializedName("day")
     public double day = 1.0;
+    @SerializedName("zombie_count_modify")
+    public double zombieCountModify = 1.0d;
+
+    //清除所有僵尸）
+    @SerializedName("holy_cleansing")
+    public boolean holyCleansing = false;
 
     /**
      * 从 JsonObject 反序列化为 StageProperty 对象
@@ -58,17 +66,14 @@ public class StageProperty {
             }
         }
         property.bloodMoonChance = getDoubleOrDefault(jsonObject, "blood_moon_chance", 0.0d);
+        property.zombieCountModify = getDoubleOrDefault(jsonObject, "zombie_count_modify", 1.0d);
+        property.holyCleansing = getBooleanOrDefault(jsonObject, "holy_cleansing", false);
 
 
         return property;
     }
 
-    private static double getDoubleOrDefault(JsonObject obj, String key, double defaultValue) {
-        if (obj.has(key)) {
-            return obj.get(key).getAsDouble();
-        }
-        return defaultValue;
-    }
+
 
     public void init() {
         this.zombieSpawnChooser.init();
@@ -93,6 +98,8 @@ public class StageProperty {
         }
 
         obj.addProperty("blood_moon_chance", this.bloodMoonChance);
+        obj.addProperty("zombie_count_modify", this.zombieCountModify);
+        obj.addProperty("holy_cleansing", this.holyCleansing);
 
         return obj;
     }

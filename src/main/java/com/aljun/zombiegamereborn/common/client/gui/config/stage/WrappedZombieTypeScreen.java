@@ -8,6 +8,7 @@ import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.register.ZGRRegistries;
 import com.google.gson.*;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -35,7 +36,7 @@ public class WrappedZombieTypeScreen extends AbstractBranchConfigScreen {
 
     @Override
     protected void initializeTabs() {
-        ConfigTab tab = new ConfigTab("设置", this::initializeExclusiveTab);
+        ConfigTab tab = new ConfigTab(Component.translatable("gui.zombiegamereborn.wrappedzombietype.tab.settings"), this::initializeExclusiveTab);
         this.tabs.add(tab);
     }
 
@@ -43,7 +44,7 @@ public class WrappedZombieTypeScreen extends AbstractBranchConfigScreen {
 
         List<ResourceLocation> types = ZGRRegistries.ZOMBIE_TYPE.get().getKeys().stream().toList();
 
-        panel.addListChooseScreen("僵尸类型", "zombie_type", this, types, ResourceLocation::toString, () -> this.localJson.has("zombie_type") ? this.localJson.get("zombie_type").getAsString() : "");
+        panel.addListChooseScreen("gui.zombiegamereborn.wrappedzombietype.zombie_type", "zombie_type", this, types, ResourceLocation::toString, () -> this.localJson.has("zombie_type") ? this.localJson.get("zombie_type").getAsString() : "");
 
         panel.addLabel("");
 
@@ -57,9 +58,9 @@ public class WrappedZombieTypeScreen extends AbstractBranchConfigScreen {
                     .sorted()
                     .toList();
         });
-        panel.addDoubleEditBox("权重", "chance", 1.0, 0.0, Double.MAX_VALUE);
+        panel.addDoubleEditBox("gui.zombiegamereborn.wrappedzombietype.weight", "chance", 1.0, 0.0, Double.MAX_VALUE);
         panel.addEnumCycleButton(
-                "生成类型",
+                "gui.zombiegamereborn.wrappedzombietype.spawn_type",
                 "type",
                 ZombieSpawnChooser.SpawnType.values(),
                 ZombieSpawnChooser.SpawnType.NORMAL,

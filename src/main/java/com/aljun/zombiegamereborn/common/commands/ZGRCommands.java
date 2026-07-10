@@ -14,7 +14,7 @@ public class ZGRCommands {
     public static LiteralCommandNode<CommandSourceStack> registry(CommandDispatcher<CommandSourceStack> dispatcher) {
         ConfigCommand.register(ROOT);
         ZGRDebugCommand.register(ROOT);
-        NewZombieCommand.register(ROOT);
+        SummonZombieCommand.register(ROOT);
         return dispatcher.register(ROOT);
     }
 }

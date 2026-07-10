@@ -2,6 +2,7 @@ package com.aljun.zombiegamereborn.mixins.minecraft.entity;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
+import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Zombie;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,9 +17,14 @@ public class EntityMixin {
         Entity entity = (Entity) (Object) this;
         if (entity instanceof Zombie zombie) {
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-            if (data!=null) {
-                cir.setReturnValue(data.fireImmune() || cir.getReturnValue());
+
+            if (ZGRGame.getGameProperty().getStageProperty(zombie.getServer()).holyCleansing) {
+                cir.setReturnValue(false);
+                return;
             }
+
+            cir.setReturnValue(data.fireImmune() || cir.getReturnValue());
+
         }
     }
 }

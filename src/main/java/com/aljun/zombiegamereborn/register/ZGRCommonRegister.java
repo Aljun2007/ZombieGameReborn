@@ -2,6 +2,8 @@ package com.aljun.zombiegamereborn.register;
 
 import com.aljun.zombiegamereborn.ZombieGameReborn;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
+import com.aljun.zombiegamereborn.sounds.ZGRSoundEvents;
+import net.minecraft.core.registries.Registries;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.NewRegistryEvent;
@@ -16,5 +18,6 @@ public class ZGRCommonRegister {
     @SubscribeEvent
     public static void registerZombieTypes(RegisterEvent event) {
         event.register(ZGRRegistries.Keys.ZOMBIE_TYPES_KEY, ZGRZombieTypes::register);
+        event.register(Registries.SOUND_EVENT, ZGRSoundEvents::register);
     }
 }

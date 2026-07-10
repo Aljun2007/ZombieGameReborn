@@ -6,9 +6,11 @@
   "mixins": [
     "minecraft.entity.EntityMixin",
     "minecraft.entity.LivingEntityMixin",
+    "minecraft.entity.MobCategoryMixin",
     "minecraft.entity.MobMixin",
     "minecraft.entity.ZombieMixin",
     "minecraft.entity.goal.TargetGoalMixin",
+    "minecraft.item.ItemMixin",
     "musketmod.BulletEntityMixin",
     "musketmod.GunItemFireMixin",
     "pointblank.MainHeldSimplifiedStateSyncRequestMixin"

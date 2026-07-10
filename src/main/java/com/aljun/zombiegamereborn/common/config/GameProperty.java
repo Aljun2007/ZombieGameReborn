@@ -37,6 +37,15 @@ public class GameProperty {
         return ZGRConfigFileManager.getGlobalDefault();
     }
 
+    /**
+     * ⚠️ 此方法仅供无法直接使用 Server 的方法使用。
+     * 其他逻辑请勿直接调用
+     */
+
+    public StageProperty getCurrentStageProperty() {
+        return this.cachedResult;
+    }
+
     public StageProperty getStageProperty(MinecraftServer server) {
         if (stageProperties.isEmpty()) {
             return new StageProperty();

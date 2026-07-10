@@ -4,6 +4,7 @@ import com.aljun.zombiegamereborn.ZombieGameReborn;
 import com.aljun.zombiegamereborn.network.packet.DebugGuiPacket;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyDownloadPacket;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyUploadPacket;
+import com.aljun.zombiegamereborn.network.packet.TimeBroadcastPacket;
 import com.aljun.zombiegamereborn.network.packet.ZombieCapacitySyncPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -48,6 +49,12 @@ public class ZGRNetwork {
                 .encoder(ZombieCapacitySyncPacket::encode)
                 .decoder(ZombieCapacitySyncPacket::decode)
                 .consumerMainThread(ZombieCapacitySyncPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(TimeBroadcastPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(TimeBroadcastPacket::encode)
+                .decoder(TimeBroadcastPacket::new)
+                .consumerMainThread(TimeBroadcastPacket::handle)
                 .add();
     }
 

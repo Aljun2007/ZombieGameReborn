@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -130,7 +131,7 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
     public void addEditBox(String labelText, String key, String defaultValue) {
         ValidatedEditBox editBox = ValidatedEditBox.createStringEditBox(
                 font, startX + panelX, nextY + panelY, controlWidth, 18, 
-                Component.literal(labelText), defaultValue
+                Component.translatable(labelText), defaultValue
         );
 
         editBox.setResponder((newValue) -> {
@@ -152,7 +153,7 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
 
         ForgeSlider slider = new ForgeSlider(
                 startX + panelX, nextY + panelY, controlWidth, 18,
-                Component.literal(labelText + ": "),
+                Component.translatable(labelText).append(Component.literal(": ")),
                 Component.literal(""),
                 min, max, currentValue,
                 true
@@ -201,7 +202,7 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
 
         ForgeSlider slider = new ForgeSlider(
                 startX + panelX, nextY + panelY, controlWidth, 18,
-                Component.literal(labelText + ": "),
+                Component.translatable(labelText).append(Component.literal(": ")),
                 Component.literal(""),
                 min, max, currentValue,
                 1.0, 0, true
@@ -408,7 +409,8 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
      */
     public void addLabel(String text) {
         int labelWidth = 120;
-        LabelWidget label = new LabelWidget(0, nextY + panelY, labelWidth, 20, text, 0xFFAA00);
+        Component labelText = text.isEmpty() ? Component.empty() : Component.translatable(text);
+        LabelWidget label = new LabelWidget(0, nextY + panelY, labelWidth, 20, labelText, 0xFFAA00);
         children.add(label);
         renderables.add(label);
 
@@ -466,9 +468,7 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
         if (validationFailCount > 0) {
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.displayClientMessage(
-                    Component.literal(
-                        "§c已忽略 " + validationFailCount + " 个无效的输入值，已自动恢复为上次的有效值"
-                    ),
+                    Component.translatable("gui.zombiegamereborn.settingspanel.invalid_input", validationFailCount),
                     false
                 );
             }
@@ -556,10 +556,11 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
                 }
             } else {
                 if (row.labelText != null && !row.labelText.isEmpty()) {
-                    int labelWidth = font.width(row.labelText);
+                    String resolvedLabel = I18n.get(row.labelText);
+                    int labelWidth = font.width(resolvedLabel);
                     int labelX = startX - labelWidth - labelGap + panelX;
                     int labelY = currentY + panelY + 5;
-                    guiGraphics.drawString(font, row.labelText, labelX, labelY, row.labelColor);
+                    guiGraphics.drawString(font, resolvedLabel, labelX, labelY, row.labelColor);
                 }
 
                 if (row.widget != null) {

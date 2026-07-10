@@ -30,7 +30,7 @@ public class SurvivedDayHandler {
 
         long currentGameTime = overworld.getGameTime();
         boolean hasPlayersOnline = !overworld.getServer().getPlayerList().getPlayers().isEmpty();
-        long currentTimeOfDay = currentGameTime % 24000;
+        long currentTimeOfDay = Math.floorMod(overworld.getDayTime(), 24000L);
         boolean isNight = currentTimeOfDay >= 13000;
 
         // 首次运行或玩家从离线变在线时，重置基准时间

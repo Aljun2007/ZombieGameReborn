@@ -70,7 +70,7 @@ public class ZGRZombieAttributesAPI {
      */
     public static void setMiningSpeed(IZombieData data, double speed) {
         if (speed <= 0.0) {
-            sendErrorToPlayers("挖掘速度必须大于0.0，当前值: " + speed);
+            sendErrorToPlayers("Mining speed must be greater than 0.0, current value: " + speed);
             throw new IllegalArgumentException("Mining speed must be greater than 0.0, but got: " + speed);
         }
         data.setMiningSpeed(speed);
@@ -86,7 +86,7 @@ public class ZGRZombieAttributesAPI {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             if (server != null) {
                 server.getPlayerList().getPlayers().forEach(player -> {
-                    player.displayClientMessage(Component.literal("§c[错误] " + message), false);
+                    player.displayClientMessage(Component.literal("§c[Error] " + message), false);
                 });
             }
         } catch (Exception e) {
@@ -155,7 +155,7 @@ public class ZGRZombieAttributesAPI {
      */
     public static void setMaxHealth(Zombie zombie, double health) {
         if (health <= 0.0) {
-            sendErrorToPlayers("最大生命值必须大于0.0，当前值: " + health);
+            sendErrorToPlayers("Max health must be greater than 0.0, current value: " + health);
             throw new IllegalArgumentException("Max health must be greater than 0.0, but got: " + health);
         }
         setVanillaAttribute(zombie, Attributes.MAX_HEALTH, health);
@@ -166,7 +166,7 @@ public class ZGRZombieAttributesAPI {
      */
     public static <T extends Number> void setVanillaAttribute(Zombie zombie, Attribute attribute, T value) {
         if (value == null) {
-            sendErrorToPlayers("属性值不能为null");
+            sendErrorToPlayers("Attribute value cannot be null");
             throw new IllegalArgumentException("Attribute value cannot be null");
         }
 
@@ -174,7 +174,7 @@ public class ZGRZombieAttributesAPI {
         if (instance != null) {
             instance.setBaseValue(value.doubleValue());
         } else {
-            sendErrorToPlayers("僵尸没有该属性: " + attribute.getDescriptionId());
+            sendErrorToPlayers("Zombie does not have attribute: " + attribute.getDescriptionId());
             throw new IllegalArgumentException("Zombie does not have attribute: " + attribute.getDescriptionId());
         }
     }
@@ -199,7 +199,7 @@ public class ZGRZombieAttributesAPI {
      */
     public static void setMovementSpeed(Zombie zombie, double speed) {
         if (speed < 0.0) {
-            sendErrorToPlayers("移动速度必须大于0.0，当前值: " + speed);
+            sendErrorToPlayers("Movement speed must be greater than 0.0, current value: " + speed);
             throw new IllegalArgumentException("Movement speed must be greater than 0.0, but got: " + speed);
         }
         setVanillaAttribute(zombie, Attributes.MOVEMENT_SPEED, speed);
@@ -225,7 +225,7 @@ public class ZGRZombieAttributesAPI {
      */
     public static void setAttackDamage(Zombie zombie, double damage) {
         if (damage < 0.0) {
-            sendErrorToPlayers("攻击伤害不能为负数，当前值: " + damage);
+            sendErrorToPlayers("Attack damage cannot be negative, current value: " + damage);
             throw new IllegalArgumentException("Attack damage must be non-negative, but got: " + damage);
         }
         setVanillaAttribute(zombie, Attributes.ATTACK_DAMAGE, damage);
@@ -233,8 +233,8 @@ public class ZGRZombieAttributesAPI {
 
     public static void setArmorToughness(Zombie zombie, double armorToughness) {
         if (armorToughness < 0.0) {
-            sendErrorToPlayers("盔甲韧性不能为负数，当前值: " + armorToughness);
-            throw new IllegalArgumentException("Attack damage must be non-negative, but got: " + armorToughness);
+            sendErrorToPlayers("Armor toughness cannot be negative, current value: " + armorToughness);
+            throw new IllegalArgumentException("Armor toughness must be non-negative, but got: " + armorToughness);
         }
         setVanillaAttribute(zombie, Attributes.ARMOR_TOUGHNESS, armorToughness);
     }
@@ -267,7 +267,7 @@ public class ZGRZombieAttributesAPI {
      */
     public static void setArmor(Zombie zombie, double armor) {
         if (armor < 0.0) {
-            sendErrorToPlayers("护甲值不能为负数，当前值: " + armor);
+            sendErrorToPlayers("Armor cannot be negative, current value: " + armor);
             throw new IllegalArgumentException("Armor must be non-negative, but got: " + armor);
         }
         setVanillaAttribute(zombie, Attributes.ARMOR, armor);
@@ -293,7 +293,7 @@ public class ZGRZombieAttributesAPI {
      */
     public static void setKnockbackResistance(Zombie zombie, double resistance) {
         if (resistance < 0.0 || resistance > 1.0) {
-            sendErrorToPlayers("击退抗性必须在0.0到1.0之间，当前值: " + resistance);
+            sendErrorToPlayers("Knockback resistance must be between 0.0 and 1.0, current value: " + resistance);
             throw new IllegalArgumentException("Knockback resistance must be between 0.0 and 1.0, but got: " + resistance);
         }
         setVanillaAttribute(zombie, Attributes.KNOCKBACK_RESISTANCE, resistance);
@@ -319,7 +319,7 @@ public class ZGRZombieAttributesAPI {
      */
     public static void setFollowRange(Zombie zombie, double range) {
         if (range <= 0.0) {
-            sendErrorToPlayers("跟随范围必须大于0.0，当前值: " + range);
+            sendErrorToPlayers("Follow range must be greater than 0.0, current value: " + range);
             throw new IllegalArgumentException("Follow range must be greater than 0.0, but got: " + range);
         }
         setVanillaAttribute(zombie, Attributes.FOLLOW_RANGE, range);
@@ -345,7 +345,7 @@ public class ZGRZombieAttributesAPI {
      */
     public static void setSwimSpeed(Zombie zombie, double speed) {
         if (speed <= 0.0) {
-            sendErrorToPlayers("游泳速度必须大于0.0，当前值: " + speed);
+            sendErrorToPlayers("Swim speed must be greater than 0.0, current value: " + speed);
             throw new IllegalArgumentException("Swim speed must be greater than 0.0, but got: " + speed);
         }
         setVanillaAttribute(zombie, ForgeMod.SWIM_SPEED.get(), speed);

@@ -1,0 +1,11 @@
+{
+  "morning_roast": {
+    "sounds": ["zombiegamereborn:morning_roast"]
+  },
+  "evening_howl": {
+    "sounds": ["zombiegamereborn:evening_howl"]
+  },
+  "clock_ring": {
+    "sounds": ["zombiegamereborn:clock_ring"]
+  }
+}

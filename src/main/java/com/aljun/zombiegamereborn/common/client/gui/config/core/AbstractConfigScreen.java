@@ -247,9 +247,11 @@ public abstract class AbstractConfigScreen extends Screen {
         int buttonWidth = 55;
         int spacing = 5;
 
-        String cancelButtonText = hasUnsavedChanges ? "§7✗ 取消" : "§7✓ 退出";
+        Component cancelButtonText = hasUnsavedChanges
+                ? Component.translatable("gui.zombiegamereborn.core.cancel")
+                : Component.translatable("gui.zombiegamereborn.core.exit");
         Button backButton = Button.builder(
-                        Component.literal(cancelButtonText),
+                        cancelButtonText,
                         btn -> onClose()
                 )
                 .bounds(padding, buttonY, buttonWidth, 20)
@@ -267,7 +269,7 @@ public abstract class AbstractConfigScreen extends Screen {
             boolean active = buttonInfo.isActive() == null || buttonInfo.isActive().getAsBoolean();
             
             Button button = Button.builder(
-                            Component.literal(buttonInfo.text()),
+                            Component.translatable(buttonInfo.text()),
                             btn -> {
                                 if (active) {
                                     buttonInfo.onClick().run();
@@ -585,13 +587,13 @@ public abstract class AbstractConfigScreen extends Screen {
         if (!hasInteracted) {
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.displayClientMessage(
-                        Component.literal("§7配置没有修改"), false
+                        Component.translatable("gui.zombiegamereborn.core.no_changes"), false
                 );
             }
         } else if (hasUnsavedChanges) {
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.displayClientMessage(
-                        Component.literal("§c§l意外退出"), false
+                        Component.translatable("gui.zombiegamereborn.core.unsaved_exit"), false
                 );
             }
         } else {
@@ -610,18 +612,18 @@ public abstract class AbstractConfigScreen extends Screen {
      * 配置标签页内部类
      */
     protected class ConfigTab implements Tab {
-        private final String title;
+        private final Component title;
         private final PanelInitializer initializer;
         private SimpleSettingsPanel panel;
 
-        public ConfigTab(String title, PanelInitializer initializer) {
+        public ConfigTab(Component title, PanelInitializer initializer) {
             this.title = title;
             this.initializer = initializer;
         }
 
         @Override
         public @NotNull Component getTabTitle() {
-            return Component.literal(title);
+            return title;
         }
 
         @Override

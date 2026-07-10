@@ -24,7 +24,7 @@ public abstract class AbstractBranchConfigScreen extends AbstractConfigScreen im
     @Override
     protected List<ButtonInfo> getCustomButtons() {
         List<ButtonInfo> buttons = new ArrayList<>();
-        buttons.add(new ButtonInfo("§b✓ 保存", this::onSave));
+        buttons.add(new ButtonInfo("gui.zombiegamereborn.core.save", this::onSave));
         return buttons;
     }
 

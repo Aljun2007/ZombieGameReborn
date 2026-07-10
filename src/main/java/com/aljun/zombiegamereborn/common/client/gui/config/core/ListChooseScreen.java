@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.common.client.gui.config.core;
 
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -62,7 +63,7 @@ public class ListChooseScreen<T> extends Screen {
             Consumer<T> onSelectCallback,
             Screen lastScreen
     ) {
-        super(Component.literal(title));
+        super(Component.translatable(title));
         this.items = items;
         this.itemRenderer = itemRenderer;
         this.onSelectCallback = onSelectCallback;
@@ -83,7 +84,7 @@ public class ListChooseScreen<T> extends Screen {
         renderScrollbar(guiGraphics, mouseX, mouseY, partialTick);
 
         if (selectedIndex >= 0 && selectedIndex < items.size()) {
-            String selectedText = "§7已选中: §f" + itemRenderer.render(items.get(selectedIndex));
+            String selectedText = I18n.get("gui.zombiegamereborn.core.selected_prefix") + itemRenderer.render(items.get(selectedIndex));
             guiGraphics.drawString(this.font, selectedText, 10, this.height - BOTTOM_BAR_HEIGHT - 15, 0xAAAAAA);
         }
     }
@@ -106,13 +107,13 @@ public class ListChooseScreen<T> extends Screen {
 
         int padding = 10;
         this.cancelButton = Button.builder(
-                Component.literal("§7✗ 取消"),
+                Component.translatable("gui.zombiegamereborn.core.cancel"),
                 btn -> onCancel()
         ).bounds(padding, buttonY, 55, 20).build();
 
         int rightPadding = 10;
         this.confirmButton = Button.builder(
-                Component.literal("§a✓ 选择"),
+                Component.translatable("gui.zombiegamereborn.core.confirm_select"),
                 btn -> onConfirm()
         ).bounds(this.width - rightPadding - 55, buttonY, 55, 20).build();
 
@@ -181,7 +182,7 @@ public class ListChooseScreen<T> extends Screen {
         }
 
         if (items.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, "§7列表为空",
+            guiGraphics.drawCenteredString(this.font, I18n.get("gui.zombiegamereborn.core.list_empty"),
                     this.width / 2, LIST_START_Y + 50, 0x888888);
         }
     }

@@ -9,6 +9,8 @@ import net.minecraft.world.entity.monster.Zombie;
 
 import java.lang.reflect.Type;
 
+import static com.aljun.zombiegamereborn.utils.JsonUtils.*;
+
 public class ZombieProperty {
 
     private static final double DEFAULT_MOVEMENT_SPEED = 1.0;
@@ -132,27 +134,6 @@ public class ZombieProperty {
 
         return property;
 
-    }
-
-    private static double getDoubleOrDefault(JsonObject obj, String key, double defaultValue) {
-        if (obj.has(key)) {
-            return obj.get(key).getAsDouble();
-        }
-        return defaultValue;
-    }
-
-    private static int getIntOrDefault(JsonObject obj, String key, int defaultValue) {
-        if (obj.has(key)) {
-            return obj.get(key).getAsInt();
-        }
-        return defaultValue;
-    }
-
-    private static boolean getBooleanOrDefault(JsonObject obj, String key, boolean defaultValue) {
-        if (obj.has(key)) {
-            return obj.get(key).getAsBoolean();
-        }
-        return defaultValue;
     }
 
     /**

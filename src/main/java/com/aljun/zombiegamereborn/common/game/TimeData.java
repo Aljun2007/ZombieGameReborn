@@ -18,14 +18,12 @@ public class TimeData extends SavedData {
     public TimeData() {}
 
     public void setDays(long days) {
-        // 双重检测，即使 API 层没检测，底层也会保护
         if (days < ZGRCommonAPI.SurvivalDaysAPI.MIN_DAYS) days = ZGRCommonAPI.SurvivalDaysAPI.MIN_DAYS;
         if (days > ZGRCommonAPI.SurvivalDaysAPI.MAX_DAYS) days = ZGRCommonAPI.SurvivalDaysAPI.MAX_DAYS;
         this.survivedDays = days;
         this.setDirty();
     }
 
-    // 加载时的检测
     public TimeData(CompoundTag tag) {
         this.survivedDays = tag.getLong("Days");
         if (this.survivedDays < ZGRCommonAPI.SurvivalDaysAPI.MIN_DAYS) this.survivedDays = ZGRCommonAPI.SurvivalDaysAPI.MIN_DAYS;
@@ -54,18 +52,24 @@ public class TimeData extends SavedData {
         );
     }
 
-    // Getter
     public long getDays() { return survivedDays; }
+
     public long getLastGameTime() { return lastGameTime; }
+
     public boolean wasAnyPlayerOnline() { return wasAnyPlayerOnline; }
+
     public boolean wasNight() { return wasNight; }
 
     public void addDays(long delta) {
+        if (delta == 0) return;
         setDays(this.survivedDays + delta);
     }
 
     public void incrementDay() {
         this.survivedDays++;
+        if (this.survivedDays < 0 || this.survivedDays > ZGRCommonAPI.SurvivalDaysAPI.MAX_DAYS) {
+            this.survivedDays = ZGRCommonAPI.SurvivalDaysAPI.MAX_DAYS;
+        }
         this.lastIncrementDayGameTime = this.lastGameTime;
         this.setDirty();
     }
@@ -89,5 +93,13 @@ public class TimeData extends SavedData {
 
     public long getLastIncrementDayGameTime() {
         return lastIncrementDayGameTime;
+    }
+
+    public static DayTime getCurrentDayTime(long dayTime) {
+        return DayTime.fromDayTime(dayTime);
+    }
+
+    public static DayTime getCurrentDayTime(ServerLevel level) {
+        return DayTime.fromDayTime(level.getDayTime());
     }
 }

@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.common.client.gui.config.core;
 
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -94,7 +95,7 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
             ItemEditor<T> itemEditor,
             Supplier<T> defaultItemSupplier
     ) {
-        super(Component.literal(title));
+        super(Component.translatable(title));
         this.originalList = new ArrayList<>(initialList);
         this.currentList = new ArrayList<>(initialList);
         this.onSaveCallback = onSaveCallback;
@@ -146,7 +147,7 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
 
         // 渲染选中提示
         if (selectedIndex >= 0 && selectedIndex < currentList.size()) {
-            String selectedText = "§7已选中: §f" + itemRenderer.render(currentList.get(selectedIndex));
+            String selectedText = I18n.get("gui.zombiegamereborn.core.selected_prefix") + itemRenderer.render(currentList.get(selectedIndex));
             guiGraphics.drawString(this.font, selectedText, 10, this.height - BOTTOM_BAR_HEIGHT - 15, 0xAAAAAA);
         }
     }
@@ -175,49 +176,42 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
         // 左侧取消按钮（与 AbstractConfigScreen 一致）
         int padding = 10;
         this.cancelButton = Button.builder(
-                Component.literal("§7✗ 取消"),
+                Component.translatable("gui.zombiegamereborn.core.cancel"),
                 btn -> onCancel()
         ).bounds(padding, buttonY, 55, 20).build();
-
-        // 中间操作按钮组（新建、复制、删除、编辑）- 居中
+        
         int centerButtonWidth = 55;
         int buttonSpacing = 3;
         int centerGroupWidth = centerButtonWidth * 4 + buttonSpacing * 3;
         int centerX = this.width / 2;
         int centerGroupStartX = centerX - centerGroupWidth / 2;
 
-        // 新建按钮
         this.addButton = Button.builder(
-                Component.literal("§a+ 新建"),
+                Component.translatable("gui.zombiegamereborn.listedit.add"),
                 btn -> onAddItem()
         ).bounds(centerGroupStartX, buttonY, centerButtonWidth, 20).build();
 
-        // 复制按钮
         this.copyButton = Button.builder(
-                Component.literal("§b⧉ 复制"),
+                Component.translatable("gui.zombiegamereborn.listedit.copy"),
                 btn -> onCopyItem()
         ).bounds(centerGroupStartX + centerButtonWidth + buttonSpacing, buttonY, centerButtonWidth, 20).build();
 
-        // 删除按钮
         this.deleteButton = Button.builder(
-                Component.literal("§c- 删除"),
+                Component.translatable("gui.zombiegamereborn.listedit.delete"),
                 btn -> onDeleteItem()
         ).bounds(centerGroupStartX + (centerButtonWidth + buttonSpacing) * 2, buttonY, centerButtonWidth, 20).build();
 
-        // 编辑按钮
         this.editButton = Button.builder(
-                Component.literal("§e✎ 编辑"),
+                Component.translatable("gui.zombiegamereborn.listedit.edit"),
                 btn -> onEditItem()
         ).bounds(centerGroupStartX + (centerButtonWidth + buttonSpacing) * 3, buttonY, centerButtonWidth, 20).build();
 
-        // 右侧保存按钮（与 AbstractConfigScreen 自定义按钮一致）
         int rightPadding = 10;
         int rightButtonWidth = 55;
         int rightGroupStartX = this.width - rightPadding - rightButtonWidth;
 
-        // 保存按钮
         this.saveButton = Button.builder(
-                Component.literal("§b✓ 保存"),
+                Component.translatable("gui.zombiegamereborn.listedit.save"),
                 btn -> onSave()
         ).bounds(rightGroupStartX, buttonY, rightButtonWidth, 20).build();
 
@@ -423,7 +417,7 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
 
         // 如果列表为空，显示提示
         if (currentList.isEmpty()) {
-            guiGraphics.drawCenteredString(this.font, "§7列表为空，点击\"新建\"添加项",
+            guiGraphics.drawCenteredString(this.font, I18n.get("gui.zombiegamereborn.core.list_empty_hint"),
                     this.width / 2, LIST_START_Y + 50, 0x888888);
         }
     }
@@ -608,7 +602,7 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
         private Button cancelButton;
 
         protected StringEditScreen(Screen parent, String initialValue, Consumer<String> callback) {
-            super(Component.literal("编辑项"));
+            super(Component.translatable("gui.zombiegamereborn.listedit.edit_title"));
             this.parent = parent;
             this.initialValue = initialValue != null ? initialValue : "";
             this.callback = callback;
@@ -619,7 +613,7 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
             this.renderBackground(guiGraphics);
             super.render(guiGraphics, mouseX, mouseY, partialTick);
 
-            guiGraphics.drawCenteredString(this.font, "编辑项", this.width / 2, this.height / 2 - 60, 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, I18n.get("gui.zombiegamereborn.listedit.edit_title"), this.width / 2, this.height / 2 - 60, 0xFFFFFF);
         }
 
         @Override
@@ -629,13 +623,13 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
             int centerX = this.width / 2;
             int centerY = this.height / 2;
 
-            this.editBox = new EditBox(this.font, centerX - 100, centerY - 30, 200, 20, Component.literal("值"));
+            this.editBox = new EditBox(this.font, centerX - 100, centerY - 30, 200, 20, Component.translatable("gui.zombiegamereborn.listedit.value_label"));
             this.editBox.setValue(initialValue);
             this.addWidget(this.editBox);
             this.setFocused(this.editBox);
 
             this.confirmButton = Button.builder(
-                    Component.literal("§a确认"),
+                    Component.translatable("gui.zombiegamereborn.listedit.confirm"),
                     btn -> {
                         callback.accept(editBox.getValue());
                         Minecraft.getInstance().setScreen(parent);
@@ -643,7 +637,7 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
             ).bounds(centerX - 110, centerY + 10, 100, 20).build();
 
             this.cancelButton = Button.builder(
-                    Component.literal("§c取消"),
+                    Component.translatable("gui.zombiegamereborn.listedit.cancel"),
                     btn -> Minecraft.getInstance().setScreen(parent)
             ).bounds(centerX + 10, centerY + 10, 100, 20).build();
 
@@ -668,7 +662,7 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
         private Button cancelButton;
 
         protected ConfirmDeleteScreen(Screen parent, String itemText, Runnable onConfirm) {
-            super(Component.literal("确认删除"));
+            super(Component.translatable("gui.zombiegamereborn.listedit.confirm_delete_title"));
             this.parent = parent;
             this.itemText = itemText;
             this.onConfirm = onConfirm;
@@ -681,18 +675,16 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
             int centerX = this.width / 2;
             int centerY = this.height / 2;
 
-            // 确认按钮
             this.confirmButton = Button.builder(
-                    Component.literal("§c✓ 确认删除"),
+                    Component.translatable("gui.zombiegamereborn.listedit.confirm_delete_button"),
                     btn -> {
                         onConfirm.run();
                         Minecraft.getInstance().setScreen(parent);
                     }
             ).bounds(centerX - 110, centerY + 30, 100, 20).build();
 
-            // 取消按钮
             this.cancelButton = Button.builder(
-                    Component.literal("§7✗ 取消"),
+                    Component.translatable("gui.zombiegamereborn.core.cancel"),
                     btn -> Minecraft.getInstance().setScreen(parent)
             ).bounds(centerX + 10, centerY + 30, 100, 20).build();
 
@@ -705,15 +697,12 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
             this.renderBackground(guiGraphics);
             super.render(guiGraphics, mouseX, mouseY, partialTick);
 
-            // 标题
-            guiGraphics.drawCenteredString(this.font, "§c确认删除", 
+            guiGraphics.drawCenteredString(this.font, I18n.get("gui.zombiegamereborn.listedit.delete_title"), 
                     this.width / 2, this.height / 2 - 40, 0xFF5555);
 
-            // 提示信息
-            guiGraphics.drawCenteredString(this.font, "确定要删除以下项吗？", 
+            guiGraphics.drawCenteredString(this.font, I18n.get("gui.zombiegamereborn.listedit.delete_confirm_text"), 
                     this.width / 2, this.height / 2 - 10, 0xFFFFFF);
 
-            // 显示要删除的项（截断过长的文本）
             String displayText = itemText.length() > 40 ? 
                     itemText.substring(0, 37) + "..." : itemText;
             guiGraphics.drawCenteredString(this.font, "§7" + displayText, 
