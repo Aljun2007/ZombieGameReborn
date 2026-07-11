@@ -29,7 +29,6 @@ public class TimeBroadcastHandler {
         if (event.getEntity().level().isClientSide) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!event.getItemStack().is(Items.CLOCK)) return;
-        if (player.level().dimension() != Level.OVERWORLD) return;
 
         TimeBroadcast.handleManualClockUse(player);
     }
@@ -50,5 +49,19 @@ public class TimeBroadcastHandler {
         if (event.getEntity().level().isClientSide) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         TimeBroadcast.scheduleLoginBroadcast(player);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        if (!event.isWasDeath()) return;
+        // 死亡重生后，复制地下估算数据到新玩家实体
+        var oldTag = event.getOriginal().getPersistentData();
+        var newTag = event.getEntity().getPersistentData();
+        String[] keys = {"zgr_underground_day", "zgr_underground_game_time", "zgr_last_estimated_day"};
+        for (String key : keys) {
+            if (oldTag.contains(key)) {
+                newTag.putLong(key, oldTag.getLong(key));
+            }
+        }
     }
 }

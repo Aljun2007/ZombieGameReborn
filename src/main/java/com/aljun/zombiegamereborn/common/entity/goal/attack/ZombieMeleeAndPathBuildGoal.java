@@ -1,6 +1,5 @@
 package com.aljun.zombiegamereborn.common.entity.goal.attack;
 
-import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
@@ -9,14 +8,13 @@ import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieWaterBridgeB
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.utils.MathUtils;
 import com.aljun.zombiegamereborn.utils.PathConstructor;
-import com.aljun.zombiegamereborn.utils.ZombieDecisionUtils;
+import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.PowderSnowCauldronBlock;
@@ -89,7 +87,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                     if (this.state.is(State.BUILD)) {
                         this.setMelee();
                         if (this.zombie.getTarget() == livingEntity) {
-                            if (ZombieDecisionUtils.isZombieVeryCloseToTarget(this.zombie, livingEntity)) {
+                            if (ZombieUtils.isZombieVeryCloseToTarget(this.zombie, livingEntity)) {
                                 this.lastHurtAndCanReachPlayerTime = this.zombie.level().getGameTime();
                             }
                         }

@@ -8,12 +8,13 @@ import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieTypeManager;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingConversionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -38,7 +39,15 @@ public class ZombieSpawnHandler {
         }
         ResourceLocation typeId = selectType(zombie, zombie.getSpawnType());
 
+        if (zombie instanceof ZombifiedPiglin) {
+            if (zombie.getMainHandItem().is(Items.CROSSBOW)) {
+                typeId = ZGRZombieTypes.CROSSBOW_ATTACKER.getId();
+            }
+        }
+
         if (zombie.getSpawnType() == MobSpawnType.CONVERSION) {
+            ZombieTypeManager.initializeZombieWithNoWeaponAndArmor(zombie, typeId);
+        } else if (zombie.getSpawnType() == null && zombie instanceof ZombifiedPiglin) {
             ZombieTypeManager.initializeZombieWithNoWeaponAndArmor(zombie, typeId);
         } else {
             ZombieTypeManager.initializeZombie(zombie, typeId);
@@ -52,7 +61,7 @@ public class ZombieSpawnHandler {
             chooserType = switch (spawnType) {
                 case CONVERSION -> {
                     // 村民感染走普通池，溺尸转化走溺尸池
-                    if (zombie instanceof ZombieVillager) {
+                    if (zombie instanceof ZombieVillager || zombie instanceof ZombifiedPiglin) {
                         yield ZombieSpawnChooser.SpawnType.NORMAL;
                     }
                     yield ZombieSpawnChooser.SpawnType.DROWNED;
@@ -63,7 +72,7 @@ public class ZombieSpawnHandler {
             chooserType = ZombieSpawnChooser.SpawnType.NORMAL;
         }
 
-        ZombieType type = ZGRGame.getGameProperty().getStageProperty(zombie.getServer()).zombieSpawnChooser.randomType(chooserType);
+        ZombieType type = ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieSpawnChooser.randomType(chooserType);
         return type != null ? type.getId() : ZGRZombieTypes.DUMMY.getId();
     }
 }

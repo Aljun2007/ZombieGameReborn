@@ -73,22 +73,28 @@ public class ZombieProperty {
     public double musketModGunDamageModify = 0.5d;
     @SerializedName("do_swimming_zombie_convert")
     public boolean doSwimmingZombieConvert = false;
-
     @SerializedName("can_jump_attack")
     public boolean canJumpAttack = false;
-
     @SerializedName("flee_sun")
     public boolean fleeSun = false;
-
     @SerializedName("can_zombie_guard_continue_use_weapons")
     public boolean canZombieGuardContinueUseWeapons = false;
-
     @SerializedName("ambient_volume_modify")
     public double ambientVolumeModify = 1.0d;
-
     @SerializedName("step_volume_modify")
     public double stepVolumeModify = 1.0d;
-
+    @SerializedName("equipment_quality_mean_offset")
+    public double equipmentQualityMeanOffset = 0.0d;  // 装备品质均值偏移: 越大材质越好, 0=原版
+    @SerializedName("equipment_probability_factor")
+    public double equipmentProbabilityFactor = 1.0d;
+    @SerializedName("equipment_enchantment_factor")
+    public double equipmentEnchantmentFactor = 1.0d;
+    @SerializedName("enable_piglin_collision_anger")
+    public boolean enablePiglinCollisionAnger = false;
+    @SerializedName("piglin_collision_anger_chance")
+    public double piglinCollisionAngerChance = 0.25d;
+    @SerializedName("piglin_angry_mode")
+    public boolean piglinAngryMode = false;
 
     public ZombieProperty() {
     }
@@ -131,6 +137,12 @@ public class ZombieProperty {
         property.fleeSun = getBooleanOrDefault(obj, "flee_sun", false);
         property.ambientVolumeModify = getDoubleOrDefault(obj, "ambient_volume_modify", 1.0d);
         property.stepVolumeModify = getDoubleOrDefault(obj, "step_volume_modify", 1.0d);
+        property.equipmentQualityMeanOffset = getDoubleOrDefault(obj, "equipment_quality_mean_offset", 0.0d);
+        property.equipmentProbabilityFactor = getDoubleOrDefault(obj, "equipment_probability_factor", 1.0d);
+        property.equipmentEnchantmentFactor = getDoubleOrDefault(obj, "equipment_enchantment_factor", 1.0d);
+        property.enablePiglinCollisionAnger = getBooleanOrDefault(obj, "enable_piglin_collision_anger", false);
+        property.piglinCollisionAngerChance = getDoubleOrDefault(obj, "piglin_collision_anger_chance", 0.25d);
+        property.piglinAngryMode = getBooleanOrDefault(obj, "piglin_angry_mode", false);
 
         return property;
 
@@ -173,6 +185,12 @@ public class ZombieProperty {
         obj.addProperty("flee_sun", fleeSun);
         obj.addProperty("ambient_volume_modify", ambientVolumeModify);
         obj.addProperty("step_volume_modify", stepVolumeModify);
+        obj.addProperty("equipment_quality_mean_offset", equipmentQualityMeanOffset);
+        obj.addProperty("equipment_probability_factor", equipmentProbabilityFactor);
+        obj.addProperty("equipment_enchantment_factor", equipmentEnchantmentFactor);
+        obj.addProperty("enable_piglin_collision_anger", enablePiglinCollisionAnger);
+        obj.addProperty("piglin_collision_anger_chance", piglinCollisionAngerChance);
+        obj.addProperty("piglin_angry_mode", piglinAngryMode);
 
         return obj;
 

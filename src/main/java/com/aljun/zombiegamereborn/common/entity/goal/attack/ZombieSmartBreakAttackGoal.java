@@ -1,10 +1,9 @@
 package com.aljun.zombiegamereborn.common.entity.goal.attack;
 
-import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
-import com.aljun.zombiegamereborn.utils.ZombieDecisionUtils;
+import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -626,7 +625,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
                     if (this.state == State.BREAK) {
                         this.setMelee();
                         if (this.zombie.getTarget() == livingEntity) {
-                            if (ZombieDecisionUtils.isZombieVeryCloseToTarget(this.zombie, livingEntity)) {
+                            if (ZombieUtils.isZombieVeryCloseToTarget(this.zombie, livingEntity)) {
                                 this.lastHurtAndCanReachPlayerTime = this.zombie.level().getGameTime();
                             }
                         }

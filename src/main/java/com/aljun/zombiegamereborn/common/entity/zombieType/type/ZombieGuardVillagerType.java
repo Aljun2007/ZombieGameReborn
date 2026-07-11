@@ -10,6 +10,7 @@ import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.monster.Zombie;
 
@@ -21,7 +22,7 @@ public class ZombieGuardVillagerType extends ZombieType {
 
     @Override
     public void onInitializeZombieAttributes(Zombie zombie, IZombieData data) {
-        data.setZombieContinueUseWeaponsInHand(ZGRGame.getGameProperty().getStageProperty(zombie.getServer()).zombieProperty.canZombieGuardContinueUseWeapons);
+        data.setZombieContinueUseWeaponsInHand(ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(), zombie.blockPosition()).zombieProperty.canZombieGuardContinueUseWeapons);
     }
 
     @Override

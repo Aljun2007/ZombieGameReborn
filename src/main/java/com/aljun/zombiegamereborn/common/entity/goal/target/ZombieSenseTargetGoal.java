@@ -1,7 +1,7 @@
 package com.aljun.zombiegamereborn.common.entity.goal.target;
 
 import com.aljun.zombiegamereborn.common.entity.sense.SenseType;
-import com.aljun.zombiegamereborn.utils.ZombieDecisionUtils;
+import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
@@ -25,7 +25,7 @@ public class ZombieSenseTargetGoal extends TargetGoal {
             return false;
         }
         LivingEntity creator = this.activePoint.creator;
-        if (!ZombieDecisionUtils.isTargetLegal(creator)) {
+        if (!ZombieUtils.isTargetLegal(creator)) {
             this.activePoint = null;
             return false;
         }
@@ -42,7 +42,7 @@ public class ZombieSenseTargetGoal extends TargetGoal {
             return false;
         }
         LivingEntity creator = this.activePoint.creator;
-        return ZombieDecisionUtils.isTargetLegal(creator) && !this.activePoint.isDecayed();
+        return ZombieUtils.isTargetLegal(creator) && !this.activePoint.isDecayed();
     }
 
     @Override
@@ -105,7 +105,7 @@ public class ZombieSenseTargetGoal extends TargetGoal {
     }
 
     public void sense(LivingEntity entity, SenseType senseType) {
-        if (!ZombieDecisionUtils.zombieAttackableEntity(entity)) {
+        if (!ZombieUtils.zombieAttackableEntity(entity)) {
             return;
         }
 
@@ -117,7 +117,7 @@ public class ZombieSenseTargetGoal extends TargetGoal {
         LivingEntity current = this.activePoint != null ? this.activePoint.creator : null;
 
         if (current != null && current != entity
-                && ZombieDecisionUtils.threatLevel(entity) >= ZombieDecisionUtils.threatLevel(current)) {
+                && ZombieUtils.threatLevel(entity) >= ZombieUtils.threatLevel(current)) {
             return;
         }
 

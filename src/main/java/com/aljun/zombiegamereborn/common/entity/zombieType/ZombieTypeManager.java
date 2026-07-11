@@ -5,6 +5,7 @@ import com.aljun.zombiegamereborn.common.entity.accessor.ITargetGoalAccessor;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.capability.ZombieDataProvider;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.*;
+import com.aljun.zombiegamereborn.common.entity.goal.target.ZombiePiglinCollisionTargetGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.common.game.ZombieStatic;
@@ -12,7 +13,19 @@ import com.aljun.zombiegamereborn.network.ZGRNetwork;
 import com.aljun.zombiegamereborn.network.packet.ZombieCapacitySyncPacket;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.function.Supplier;
 
 public class ZombieTypeManager {
 
@@ -26,9 +39,21 @@ public class ZombieTypeManager {
         ZGRZombieAttributesAPI.setTypeID(data, typeID);
         ZombieType type = ZGRZombieAttributesAPI.getType(data);
         if (type != null) {
-            ZGRGame.getGameProperty().getStageProperty(zombie.getServer()).zombieProperty.loadZombieAttributes(zombie);
+            ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieProperty.loadZombieAttributes(zombie);
             type.onInitializeZombieAttributes(zombie, data);
-            type.onInitializeZombieWeaponsAndArmors(zombie, data);
+            zombie.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+            zombie.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+            zombie.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+            zombie.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            zombie.setItemSlot(EquipmentSlot.LEGS, ItemStack.EMPTY);
+            zombie.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
+            type.onInitializeZombieEquipment(zombie, data);
+            type.onInitializeZombieEnchantment(zombie,data);
+        }
+
+        // 空手僵尸猪灵补发金剑
+        if (zombie instanceof ZombifiedPiglin && zombie.getMainHandItem().isEmpty()) {
+            zombie.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
         }
 
         if (!zombie.level().isClientSide) {
@@ -51,7 +76,7 @@ public class ZombieTypeManager {
         ZGRZombieAttributesAPI.setTypeID(data, typeID);
         ZombieType type = ZGRZombieAttributesAPI.getType(data);
         if (type != null) {
-            ZGRGame.getGameProperty().getStageProperty(zombie.getServer()).zombieProperty.loadZombieAttributes(zombie);
+            ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieProperty.loadZombieAttributes(zombie);
             type.onInitializeZombieAttributes(zombie, data);
         }
 
@@ -104,6 +129,9 @@ public class ZombieTypeManager {
         }
         if (type.canPlaceBlock()) {
             ZombiePlaceBlockGoal placeBlockGoal = new ZombiePlaceBlockGoal(zombie, data);
+            if ( zombie.getOffhandItem().getItem() instanceof BlockItem blockItem) {
+                placeBlockGoal.setDefaultPlaceBlock(()-> blockItem.getBlock().defaultBlockState());
+            }
             data.setZombiePlaceBlockGoal(placeBlockGoal);
             zombie.goalSelector.addGoal(1, placeBlockGoal);
         }
@@ -118,6 +146,13 @@ public class ZombieTypeManager {
                 targetGoal.set_mustSee(data.followMustSee() && targetGoal.get_mustSee());
             }
         });
+        if (zombie instanceof ZombifiedPiglin) {
+            zombie.targetSelector.addGoal(2, new ZombiePiglinCollisionTargetGoal(zombie));
+            if (zombie.getServer() != null && ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieProperty.piglinAngryMode) {
+                zombie.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(zombie, Player.class, true));
+                zombie.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(zombie, AbstractPiglin.class, true));
+            }
+        }
         if (data.enhancedSense()) {
             ZombieSenseTargetGoal senseGoal = new ZombieSenseTargetGoal(zombie);
             data.setZombieSenseTargetGoalGoal(senseGoal);

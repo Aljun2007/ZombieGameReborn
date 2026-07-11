@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -110,13 +111,42 @@ public class ValidatedEditBox extends EditBox {
                 lastValidValue = parseValue(text);
                 hasValidInput = true;
                 return Component.literal(text).getVisualOrderText();
-            } else {
-                hasValidInput = false;
-                String fallback = String.valueOf(lastValidValue);
-                this.setValue(fallback);
-                return Component.literal(fallback).getVisualOrderText();
             }
+
+            // 尝试纠正：过大→最大值，过小→最小值，非法字符→恢复旧值
+            String corrected = clampToBounds(text);
+            if (corrected != null) {
+                hasValidInput = true;
+                lastValidValue = parseValue(corrected);
+                this.setValue(corrected);
+                return Component.literal(corrected).getVisualOrderText();
+            }
+
+            hasValidInput = false;
+            String fallback = String.valueOf(lastValidValue);
+            this.setValue(fallback);
+            return Component.literal(fallback).getVisualOrderText();
         });
+    }
+
+    @Nullable
+    private String clampToBounds(String text) {
+        if (type == EditType.STRING) return null;
+        try {
+            if (type == EditType.INTEGER) {
+                int parsed = Integer.parseInt(text.trim());
+                if (parsed < minValue) return String.valueOf((int) minValue);
+                if (parsed > maxValue) return String.valueOf((int) maxValue);
+                return text;
+            }
+            if (type == EditType.DOUBLE) {
+                double parsed = Double.parseDouble(text.trim());
+                if (parsed < minValue) return String.valueOf(minValue);
+                if (parsed > maxValue) return String.valueOf(maxValue);
+                return text;
+            }
+        } catch (NumberFormatException ignored) {}
+        return null;
     }
 
     public boolean validate(String input) {

@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.common.optimizer;
 
+import com.aljun.zombiegamereborn.common.config.StageProperty;
 import com.aljun.zombiegamereborn.common.config.ZombieProperty;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
@@ -27,8 +28,8 @@ public class ZombieGoalOptimizer {
         }
     }
 
-    public static void refreshQuota(MinecraftServer server) {
-        ZombieProperty zombieProperty = ZGRGame.getGameProperty().getStageProperty(server).zombieProperty;
+    public static void refreshQuota(StageProperty stageProperty) {
+        ZombieProperty zombieProperty = stageProperty.zombieProperty;
         newBuilderQuota = zombieProperty.maxEmpoweredZombieBuilderCount - ZombieStatic.getEmpoweredBuilderCount();
         newMinerQuota = zombieProperty.maxEmpoweredZombieMinerCount - ZombieStatic.getEmpoweredMinerCount();
     }

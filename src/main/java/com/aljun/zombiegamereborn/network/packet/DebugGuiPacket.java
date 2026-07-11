@@ -1,7 +1,5 @@
 package com.aljun.zombiegamereborn.network.packet;
 
-import com.aljun.zombiegamereborn.common.client.gui.game.ZGRTestScreen;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
@@ -162,35 +160,6 @@ public class DebugGuiPacket {
      * 根据 GUI 类型创建不同的界面
      */
     private void openGui() {
-        switch (guiType) {
-            case TEST_SCREEN:
-                // 打开测试界面
-                Minecraft.getInstance().setScreen(new ZGRTestScreen());
-                break;
-//            case LIST_SCREEN:
-//                // 创建列表编辑屏幕
-//                Minecraft.getInstance().setScreen(new ListEditScreen<>(
-//                        "编辑示例列表",
-//                        new ArrayList<>(),
-//                        savedList -> {
-//                            if (Minecraft.getInstance().player != null) {
-//                                Minecraft.getInstance().player.displayClientMessage(
-//                                        Component.literal("§a已保存列表，共 " + savedList.size() + " 项"),
-//                                        false
-//                                );
-//                            }
-//                        },
-//                        item -> "§7[§f" + item + "§7]",
-//                        new ListEditScreen.StringItemEditor()
-//                ));
-//                break;
-                // 在这里添加更多 GUI 打开逻辑
-            // case PLAYER_LIST_SCREEN:
-            //     Minecraft.getInstance().setScreen(new PlayerListScreen());
-            //     break;
-            default:
-                // 未知类型，不执行任何操作
-                break;
-        }
+
     }
 }

@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.common.events.handler;
 
 import com.aljun.zombiegamereborn.ZombieGameReborn;
+import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.common.game.ZombieStatic;
 import com.aljun.zombiegamereborn.common.optimizer.ZombieGoalOptimizer;
 import net.minecraftforge.event.TickEvent;
@@ -14,7 +15,7 @@ public class ZombieStatisticsHandler {
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             ZombieStatic.resetZombieCount();
-            ZombieGoalOptimizer.refreshQuota(event.getServer());
+            ZombieGoalOptimizer.refreshQuota(ZGRGame.getGameProperty().getGlobalStage(event.getServer()));
         }
     }
 }

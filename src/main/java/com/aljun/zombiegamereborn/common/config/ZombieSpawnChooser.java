@@ -25,7 +25,7 @@ public class ZombieSpawnChooser {
     static {
         allKeys.add(SpawnType.NORMAL);
         allKeys.add(SpawnType.DROWNED);
-    }
+   }
 
     public enum SpawnType {
         NORMAL("normal"),
@@ -51,7 +51,7 @@ public class ZombieSpawnChooser {
     @SerializedName("zombie_types")
     public ArrayList<WrappedZombieType> zombieTypes = new ArrayList<>();
     // 不序列化 - 运行时动态生成
-    private transient Map<SpawnType, RandomUtils.RandomPool<ZombieType>> allPools = new HashMap<>();
+    private final transient Map<SpawnType, RandomUtils.RandomPool<ZombieType>> allPools = new HashMap<>();
 
     public ZombieSpawnChooser() {
         zombieTypes.add(new WrappedZombieType(SpawnType.NORMAL,1.0,ZGRZombieTypes.VANILLA));
@@ -66,6 +66,12 @@ public class ZombieSpawnChooser {
      * 初始化所有池子
      */
     public void init() {
+        boolean flag = false;
+        if (this.zombieTypes.isEmpty()) {
+            zombieTypes.add(new WrappedZombieType(SpawnType.NORMAL,1.0,ZGRZombieTypes.VANILLA));
+            zombieTypes.add(new WrappedZombieType(SpawnType.DROWNED,1.0,ZGRZombieTypes.VANILLA));
+            flag = true;
+        }
         allPools.clear();
         allKeys.forEach(key -> {
             RandomUtils.RandomPool.Builder<ZombieType> builder =
@@ -77,6 +83,9 @@ public class ZombieSpawnChooser {
             });
             allPools.put(key, builder.build());
         });
+        if (flag) {
+            zombieTypes.clear();
+        }
     }
 
     /**

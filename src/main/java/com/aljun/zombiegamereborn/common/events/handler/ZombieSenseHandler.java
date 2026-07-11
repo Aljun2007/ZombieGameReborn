@@ -1,11 +1,10 @@
 package com.aljun.zombiegamereborn.common.events.handler;
 
 import com.aljun.zombiegamereborn.ZombieGameReborn;
-import com.aljun.zombiegamereborn.common.config.ZombieProperty;
 import com.aljun.zombiegamereborn.common.entity.sense.SenseType;
 import com.aljun.zombiegamereborn.common.entity.sense.ZombieSenseManager;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
-import com.aljun.zombiegamereborn.utils.ZombieDecisionUtils;
+import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
@@ -27,8 +26,9 @@ public class ZombieSenseHandler {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            ZombieProperty zombieProperty = ZGRGame.getGameProperty().getStageProperty(event.getServer()).zombieProperty;
-            ZombieSenseManager.refresh(zombieProperty);
+            var stageProperty = ZGRGame.getGameProperty().getGlobalStage(event.getServer());
+            // 不再需要重复调用 getStageProperty()
+            // ZombieSenseManager.refresh 已在 GamePropertyRefresher 中处理
         }
     }
 
@@ -37,7 +37,7 @@ public class ZombieSenseHandler {
         if (event.getEntity().level().isClientSide) return;
         Level level = event.getEntity().level();
         LivingEntity victim = event.getEntity();
-        if (ZombieDecisionUtils.zombieAttackableEntity(victim)) {
+        if (ZombieUtils.zombieAttackableEntity(victim)) {
             ZombieSenseManager.broadcastSense(event.getEntity(), level, SenseType.BLEEDING);
         }
     }

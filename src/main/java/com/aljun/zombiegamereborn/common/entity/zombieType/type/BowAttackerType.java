@@ -18,7 +18,8 @@ public class BowAttackerType extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieWeaponsAndArmors(Zombie zombie, IZombieData data) {
+    public void onInitializeZombieEquipment(Zombie zombie, IZombieData data) {
+        super.onInitializeZombieEquipment(zombie, data);
         zombie.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
     }
 

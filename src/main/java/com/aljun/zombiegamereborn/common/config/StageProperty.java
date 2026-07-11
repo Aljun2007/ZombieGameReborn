@@ -2,8 +2,11 @@ package com.aljun.zombiegamereborn.common.config;
 
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 
 import java.lang.reflect.Type;
+
 import static com.aljun.zombiegamereborn.utils.JsonUtils.getBooleanOrDefault;
 import static com.aljun.zombiegamereborn.utils.JsonUtils.getDoubleOrDefault;
 
@@ -36,7 +39,6 @@ public class StageProperty {
     public double day = 1.0;
     @SerializedName("zombie_count_modify")
     public double zombieCountModify = 1.0d;
-
     //清除所有僵尸）
     @SerializedName("holy_cleansing")
     public boolean holyCleansing = false;
@@ -69,11 +71,20 @@ public class StageProperty {
         property.zombieCountModify = getDoubleOrDefault(jsonObject, "zombie_count_modify", 1.0d);
         property.holyCleansing = getBooleanOrDefault(jsonObject, "holy_cleansing", false);
 
-
         return property;
     }
 
+    public float calculateDifficulty(ServerLevel level, BlockPos pos) {
+        // 只使用世界难度等级，完全不触碰 chunk
+        float baseOffset = switch (level.getDifficulty()) {
+            case PEACEFUL -> 0.0f;
+            case EASY -> 0.15f;
+            case HARD -> 0.45f;
+            default -> 0.30f;
+        };
 
+        return baseOffset + (1.0f - baseOffset) * baseOffset;
+    }
 
     public void init() {
         this.zombieSpawnChooser.init();

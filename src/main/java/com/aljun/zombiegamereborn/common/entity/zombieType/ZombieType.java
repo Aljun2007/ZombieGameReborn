@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.common.entity.zombieType;
 
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
+import com.aljun.zombiegamereborn.common.entity.equipement.ZombieEquipmentHelper;
 import com.aljun.zombiegamereborn.register.ZGRRegistries;
 import com.google.gson.*;
 import net.minecraft.resources.ResourceLocation;
@@ -81,7 +82,12 @@ public class ZombieType {
     public void onInitializeZombieAttributes(Zombie zombie, IZombieData data) {
     }
 
-    public void onInitializeZombieWeaponsAndArmors(Zombie zombie, IZombieData data) {
+    public void onInitializeZombieEquipment(Zombie zombie, IZombieData data) {
+        ZombieEquipmentHelper.applyFullEquipment(zombie);
+    }
+
+    public void onInitializeZombieEnchantment(Zombie zombie, IZombieData data) {
+        ZombieEquipmentHelper.applyEnchantments(zombie);
     }
 
     /**

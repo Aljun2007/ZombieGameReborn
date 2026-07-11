@@ -7,6 +7,7 @@ import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieTypeManager;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -62,16 +63,21 @@ public abstract class ZombieMixin implements IZombieAccessor {
         try {
             Zombie zombie = (Zombie) (Object) this;
             MinecraftServer server = zombie.getServer();
-
             if (server != null) {
 
-                ZombieProperty zombieProperty = ZGRGame.getGameProperty().getStageProperty(server).zombieProperty;
+                ZombieProperty zombieProperty = ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(), zombie.blockPosition()).zombieProperty;
 
                 if (zombieProperty != null) {
 
                     double coefficient = zombieProperty.canPickUpLootCoefficient;
                     RandomSource random = zombie.getRandom();
-                    float difficulty = zombie.level().getCurrentDifficultyAt(zombie.blockPosition()).getSpecialMultiplier();
+                    // 完全绕过 chunk 加载：只使用世界基础难度值
+                    float difficulty = switch (zombie.level().getDifficulty()) {
+                        case PEACEFUL -> 0.0f;
+                        case EASY -> 0.5f;
+                        case NORMAL -> 1.0f;
+                        case HARD -> 1.5f;
+                    };
 
                     return random.nextFloat() < (float) coefficient * difficulty;
                 }
@@ -86,7 +92,9 @@ public abstract class ZombieMixin implements IZombieAccessor {
     @Inject(method = "convertsInWater", at = @At("RETURN"), cancellable = true)
     private void convertsInWaterMixin(CallbackInfoReturnable<Boolean> cir) {
         Zombie zombie = (Zombie) (Object) this;
-        if (ZGRGame.getGameProperty().getStageProperty(zombie.getServer()).zombieProperty.doSwimmingZombieConvert) {
+        if (zombie.level().isClientSide) return;
+        MinecraftServer server = zombie.getServer();
+        if (server != null && ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieProperty.doSwimmingZombieConvert) {
             cir.setReturnValue(cir.getReturnValue() && !ZGRZombieAttributesAPI.canSwim(ZGRZombieAttributesAPI.getZombieData(zombie)));
         }
     }
@@ -108,8 +116,10 @@ public abstract class ZombieMixin implements IZombieAccessor {
     @Inject(method = "aiStep", at = @At("RETURN"))
     private void aiStepMixin(CallbackInfo ci) {
         Zombie zombie = (Zombie) (Object) this;
-        if ((zombie.level().getGameTime() + zombie.getBlockY()) % 20 == 0) {
-            if (ZGRGame.getGameProperty().getStageProperty(zombie.getServer()).holyCleansing) {
+        if (zombie.level().isClientSide) return;
+        MinecraftServer server = zombie.getServer();
+        if (server != null && (zombie.level().getGameTime() + zombie.getBlockY()) % 20 == 0) {
+            if (ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).holyCleansing) {
                 zombie.setSecondsOnFire(8);
             }
         }

@@ -51,6 +51,7 @@ public class StagePropertyScreen extends AbstractBranchConfigScreen {
                         callback, screen));
         panel.addDoubleEditBox("gui.zombiegamereborn.stageproperty.zombie_count_modify","zombie_count_modify", 1.0, 0.0, Double.MAX_VALUE);
         panel.addCheckBox("gui.zombiegamereborn.stageproperty.holy_cleansing","holy_cleansing", true);
+
     }
 
     private void initializeElseTab(SimpleSettingsPanel panel) {

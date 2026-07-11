@@ -47,6 +47,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
     private void initializeRuleTab(SimpleSettingsPanel panel) {
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_break", "can_zombie_break_block", true);
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_place", "can_zombie_place_block", true);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_piglin_infection", "can_piglin_infection", true);
         
         panel.setOnValueChanged((key, value) -> {
             if (!isInitializing) {

@@ -24,8 +24,8 @@ public class MinerZombieType extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieWeaponsAndArmors(Zombie zombie, IZombieData data) {
-        zombie.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_PICKAXE));
+    public void onInitializeZombieEquipment(Zombie zombie, IZombieData data) {
+        super.onInitializeZombieEquipment(zombie, data);
     }
 
     @Override

@@ -53,6 +53,10 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.armor_toughness", "armor_toughness", 0.0, 0.0, 20.0);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.knockback_resistance", "knockback_resistance", 0.0, 0.0, 1.0);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.mining_speed_modify", "mining_speed_modify", 1.0, 0.0, Double.MAX_VALUE);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.equipment_quality_mean_offset", "equipment_quality_mean_offset", 0.0, 0.0, 128.0);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.equipment_probability_factor", "equipment_probability_factor", 1.0, 0.0, 128.0);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.equipment_enchantment_factor", "equipment_enchantment_factor", 1.0, 0.0, 128.0);
+
     }
 
     private void initAbilityTab(SimpleSettingsPanel panel) {
@@ -85,6 +89,10 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.follow_range", "follow_range", 40.0, 0.0, Double.MAX_VALUE);
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.follow_must_see", "follow_must_see", true);
 
+        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.piglin_sense");
+        panel.addCheckBox("gui.zombiegamereborn.zombieproperty.enable_piglin_collision_anger", "enable_piglin_collision_anger", false);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.piglin_collision_anger_chance","piglin_collision_anger_chance", 0.25, 0.0, 1.0);
+        panel.addCheckBox("gui.zombiegamereborn.zombieproperty.piglin_angry_mode", "piglin_angry_mode", false);
         panel.addLabel("gui.zombiegamereborn.zombieproperty.section.enhanced_sense");
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.enhanced_sense_enabled", "enhanced_sense", false);
 

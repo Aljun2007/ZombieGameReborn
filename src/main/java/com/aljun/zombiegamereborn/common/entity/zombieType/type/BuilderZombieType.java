@@ -6,6 +6,8 @@ import com.aljun.zombiegamereborn.common.entity.goal.attack.ZombieMeleeAndPathBu
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.common.optimizer.ZombieGoalOptimizer;
+import com.aljun.zombiegamereborn.utils.ZombieUtils;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
@@ -23,9 +25,9 @@ public class BuilderZombieType extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieWeaponsAndArmors(Zombie zombie, IZombieData data) {
-        zombie.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.STONE_PICKAXE));
-        zombie.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.DIRT));
+    public void onInitializeZombieEquipment(Zombie zombie, IZombieData data) {
+        super.onInitializeZombieEquipment(zombie, data);
+        zombie.setItemSlot(EquipmentSlot.OFFHAND, ZombieUtils.randomPathBlock((ServerLevel) zombie.level(), zombie.blockPosition()));
     }
 
     @Override

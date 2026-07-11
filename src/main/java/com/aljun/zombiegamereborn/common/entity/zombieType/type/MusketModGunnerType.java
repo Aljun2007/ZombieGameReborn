@@ -17,7 +17,8 @@ public class MusketModGunnerType extends ZombieType {
     }
 
     @Override
-    public void onInitializeZombieWeaponsAndArmors(Zombie zombie, IZombieData data) {
+    public void onInitializeZombieEquipment(Zombie zombie, IZombieData data) {
+        super.onInitializeZombieEquipment(zombie, data);
         if (ZGRDiplomacyCenter.MUSKETMOD_DIPLOMAT.isLoaded()) {
             ItemStack gun = ZGRDiplomacyCenter.MUSKETMOD_DIPLOMAT.getGunStack();
             if (!gun.isEmpty()) {

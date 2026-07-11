@@ -126,7 +126,7 @@ public class ZGRZombieAttributesAPI {
     public static <T extends Number> T getVanillaAttribute(Zombie zombie, Attribute attribute) {
         AttributeInstance instance = zombie.getAttribute(attribute);
         if (instance != null) {
-            return (T) Double.valueOf(instance.getValue());
+            return (T) Double.valueOf(instance.getBaseValue());
         }
         return null;
     }
@@ -145,7 +145,7 @@ public class ZGRZombieAttributesAPI {
     public static <T extends Number> Optional<T> getVanillaAttributeOptional(Zombie zombie, Attribute attribute) {
         AttributeInstance instance = zombie.getAttribute(attribute);
         if (instance != null) {
-            return Optional.of((T) Double.valueOf(instance.getValue()));
+            return Optional.of((T) Double.valueOf(instance.getBaseValue()));
         }
         return Optional.empty();
     }

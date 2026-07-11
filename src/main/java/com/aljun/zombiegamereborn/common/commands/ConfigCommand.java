@@ -20,7 +20,7 @@ public class ConfigCommand {
 
     public static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
         root.then(Commands.literal("config").then(
-                Commands.literal("gui").executes(context -> {
+                Commands.literal("gameProperty").executes(context -> {
                     ServerPlayer player = context.getSource().getPlayerOrException();
                     GameProperty currentProperty = ZGRGame.getGameProperty();
                     JsonObject configData = currentProperty.toJsonObject();
