@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ZGRPlayerAPI {
 
-    public static @NotNull IPlayerData getPlayerData(ServerPlayer player) {
+    public static IPlayerData getPlayerData(ServerPlayer player) {
         return player.getCapability(PlayerDataProvider.PLAYER_DATA).orElse(null);
     }
 

@@ -4,24 +4,17 @@ package com.aljun.zombiegamereborn.common.entity.goal.behavior;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.phys.Vec3;
 
 public class JumpAttackGoal extends Goal {
     private final Zombie zombie;
     private LivingEntity target;
-    private final double jumpSpeed;
-    private final int jumpCooldown;
     private int cooldown = 0;
-    private boolean hasJumped = false;
-    private int jumpTicks = 0;
-    private Vec3 jumpStartPos;
 
     // 跳跃参数
     private static final double MIN_HEIGHT_DIFF = 0.5;
     private static final double MAX_HEIGHT_DIFF = 2.5;
     private static final double MIN_HORIZONTAL_DIST = 0.5;
     private static final double MAX_HORIZONTAL_DIST = 4.0;
-    private static final int MAX_AIR_TICKS = 20;
 
     public JumpAttackGoal(Zombie zombie) {
         this(zombie, 1.0, 20);
@@ -29,8 +22,6 @@ public class JumpAttackGoal extends Goal {
 
     public JumpAttackGoal(Zombie zombie, double jumpSpeed, int jumpCooldown) {
         this.zombie = zombie;
-        this.jumpSpeed = jumpSpeed;
-        this.jumpCooldown = jumpCooldown;
     }
 
     @Override

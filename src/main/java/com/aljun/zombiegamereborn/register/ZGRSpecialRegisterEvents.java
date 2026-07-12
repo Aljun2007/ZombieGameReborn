@@ -26,7 +26,6 @@ public class ZGRSpecialRegisterEvents {
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        LiteralCommandNode<CommandSourceStack> cmd = ZGRCommands.registry(dispatcher);
+        LiteralCommandNode<CommandSourceStack> cmd = ZGRCommands.registry(dispatcher, event.getBuildContext());
     }
-
 }

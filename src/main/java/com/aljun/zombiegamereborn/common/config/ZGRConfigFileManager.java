@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.common.config;
 
 import com.aljun.zombiegamereborn.ZombieGameReborn;
+import com.aljun.zombiegamereborn.utils.GamePropertyPresentUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -19,7 +20,7 @@ import java.nio.file.Path;
  */
 public class ZGRConfigFileManager {
     
-    private static final String CONFIG_FILE_NAME = "game_property.json";
+    private static final String CONFIG_FILE_NAME = "zgr_game_property.json";
     
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -37,7 +38,7 @@ public class ZGRConfigFileManager {
         Path configPath = getServerConfigPath(server);
 
         if (!Files.exists(configPath)) {
-            return GameProperty.globalDefault();
+            return GameProperty.getGlobalDefault();
         }
 
         try (Reader reader = Files.newBufferedReader(configPath)) {
@@ -66,7 +67,7 @@ public class ZGRConfigFileManager {
     }
 
     private static Path getServerConfigPath(MinecraftServer server) {
-        return server.getServerDirectory().toPath().resolve("serverconfig").resolve(CONFIG_FILE_NAME);
+        return server.getWorldPath(LevelResource.ROOT).resolve("serverconfig").resolve(CONFIG_FILE_NAME);
     }
 
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -98,7 +99,7 @@ public class ZGRConfigFileManager {
             }
         } catch (Exception e) {
             LOGGER.error("读取全局默认配置文件失败: {}", configPath, e);
-            globalDefault = GameProperty.empty();
+            globalDefault = GamePropertyPresentUtils.generalDefault();
             return globalDefault;
         }
     }

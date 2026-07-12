@@ -2,10 +2,12 @@ package com.aljun.zombiegamereborn.common.entity.zombieType.type;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
+import com.aljun.zombiegamereborn.common.entity.equipement.ZombieEquipmentHelper;
 import com.aljun.zombiegamereborn.common.entity.goal.attack.ZombieMeleeAndPathBuildGoal;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.common.optimizer.ZombieGoalOptimizer;
+import com.aljun.zombiegamereborn.utils.RandomUtils;
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -26,7 +28,11 @@ public class BuilderZombieType extends ZombieType {
 
     @Override
     public void onInitializeZombieEquipment(Zombie zombie, IZombieData data) {
-        super.onInitializeZombieEquipment(zombie, data);
+        if (RandomUtils.booleanByChance(0.4d)) {
+            ZombieEquipmentHelper.applyFullEquipmentWithPickaxe(zombie);
+        } else {
+            ZombieEquipmentHelper.applyFullEquipment(zombie);
+        }
         zombie.setItemSlot(EquipmentSlot.OFFHAND, ZombieUtils.randomPathBlock((ServerLevel) zombie.level(), zombie.blockPosition()));
     }
 

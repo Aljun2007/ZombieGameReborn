@@ -22,7 +22,7 @@ public class EnhancedCelestialsDiplomat extends Diplomat {
                 );
                 this.provider = (IEnhancedCelestialsProvider) implClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                // 反射加载失败，provider 保持 null，setBloodMoon 自动跳过
+                // 反射加载失败，provider 保持 null，所有方法自动跳过
             }
         }
     }
@@ -31,5 +31,9 @@ public class EnhancedCelestialsDiplomat extends Diplomat {
         if (provider != null) {
             provider.setBloodMoon(level);
         }
+    }
+
+    public boolean isBloodMoon(Level level) {
+        return provider != null && provider.isBloodMoon(level);
     }
 }

@@ -1,18 +1,8 @@
 package com.aljun.zombiegamereborn.network.packet;
 
-import com.aljun.zombiegamereborn.common.client.config.ClientConfigManager;
 import com.aljun.zombiegamereborn.common.game.DayTime;
-import com.aljun.zombiegamereborn.sounds.ZGRSoundEvents;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
 
 public class TimeBroadcastPacket {
 
@@ -23,7 +13,7 @@ public class TimeBroadcastPacket {
     private final long dayTime;
     private final long estimatedDay;
     private final boolean showTime;
-    private boolean timeAlarmEnabled = false; // 默认不响，仅 CHAT_MESSAGE 时传 true
+    private boolean timeAlarmEnabled = false;
 
     // CENTER_SUBTITLE: (day, dayTimeID, dayTime, showTime)
     public TimeBroadcastPacket(long day, DayTime dayTimeID, long dayTime, boolean showTime) {
@@ -93,62 +83,36 @@ public class TimeBroadcastPacket {
         buf.writeBoolean(this.timeAlarmEnabled);
     }
 
-    private static long getDisplayDay(long day, long dayTime) {
-        return dayTime >= 0 && Math.floorMod(dayTime, 24000L) >= 18000 ? day + 1 : day;
+    public DisplayType getDisplayType() {
+        return displayType;
     }
 
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> {
-            if (context.getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
-                if (!ClientConfigManager.get().timeBroadcastEnabled) return;
+    public long getDay() {
+        return day;
+    }
 
-                Minecraft mc = Minecraft.getInstance();
-                switch (displayType) {
-                    case CENTER_SUBTITLE -> {
-                        DayTime dt = DayTime.values()[dayTimeID];
-                        Component title = Component.translatable("gui.zombiegamereborn.time_broadcast.day_title",
-                                getDisplayDay(this.day, this.dayTime));
-                        MutableComponent subTitle = Component.translatable("daytime.zombiegamereborn." + dt.id);
-                        if (showTime) {
-                            subTitle.append("§l | §r").append(DayTime.transformToTime(this.dayTime));
-                        }
-                        subTitle.withStyle(ChatFormatting.GRAY);
-                        mc.gui.setTitle(title);
-                        mc.gui.setSubtitle(subTitle);
-                        mc.gui.setTimes(10, 70, 20);
-                    }
-                    case DAY_ONLY -> {
-                        mc.gui.setTitle(Component.translatable("gui.zombiegamereborn.time_broadcast.day_title",
-                                getDisplayDay(this.day, this.dayTime)));
-                        mc.gui.setTimes(10, 70, 20);
-                    }
-                    case UNDERGROUND_ESTIMATE -> {
-                        mc.gui.setTitle(Component.translatable("gui.zombiegamereborn.time_broadcast.day_estimate", this.estimatedDay));
-                        mc.gui.setTimes(10, 70, 20);
-                    }
-                    case GARBLED -> {
-                        mc.gui.setTitle(Component.translatable("gui.zombiegamereborn.time_broadcast.day_garbled", 1));
-                        mc.gui.setTimes(10, 70, 20);
-                    }
-                    case CHAT_MESSAGE -> {
-                        if (!chatComponentJson.isEmpty()) {
-                            Component chatMsg = Component.Serializer.fromJson(chatComponentJson);
-                            if (chatMsg != null && mc.player != null) {
-                                if (ClientConfigManager.get().timeBroadcastEnabled) {
-                                    mc.player.displayClientMessage(chatMsg, false);
-                                    if (timeAlarmEnabled && ClientConfigManager.get().timeAlarmEnabled) {
-                                        mc.player.playSound(ZGRSoundEvents.CLOCK_RING, 0.5f, 1.5f);
-                                    }
-                                }
-                            }
-                        }
-                    }
+    public int getDayTimeID() {
+        return dayTimeID;
+    }
 
-                }
-            }
-        });
-        context.setPacketHandled(true);
+    public String getChatComponentJson() {
+        return chatComponentJson;
+    }
+
+    public long getDayTime() {
+        return dayTime;
+    }
+
+    public long getEstimatedDay() {
+        return estimatedDay;
+    }
+
+    public boolean isShowTime() {
+        return showTime;
+    }
+
+    public boolean isTimeAlarmEnabled() {
+        return timeAlarmEnabled;
     }
 
     public enum DisplayType {

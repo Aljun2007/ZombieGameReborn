@@ -53,6 +53,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
         panel.addLabel("gui.zombiegamereborn.zombieproperty.section.performance");
         panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_miner", "max_empowered_miner_count", 100, 0, Integer.MAX_VALUE);
         panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_builder", "max_empowered_builder_count", 100, 0, Integer.MAX_VALUE);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.disable_turtle_egg_seeking", "disable_turtle_egg_seeking", false);
 
     }
 
@@ -159,7 +160,21 @@ public class GamePropertyScreen extends AbstractConfigScreen {
 
 
     private void importScreen() {
-
+        JsonObject configCopy = this.localJson.deepCopy();
+        Minecraft.getInstance().setScreen(new GamePropertyImportExportScreen(
+                configCopy,
+                loadedJson -> {
+                    this.localJson = loadedJson.deepCopy();
+                    this.hasUnsavedChanges = true;
+                    this.hasInteracted = true;
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                                Component.translatable("gui.zombiegamereborn.gameproperty.import_success"), false
+                        );
+                    }
+                },
+                this
+        ));
     }
 
     private void syncToServer() {

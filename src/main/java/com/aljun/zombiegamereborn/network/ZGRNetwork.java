@@ -15,6 +15,8 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+import java.util.function.Supplier;
+
 public class ZGRNetwork {
 
     private static final String PROTOCOL_VERSION = "1";
@@ -37,31 +39,81 @@ public class ZGRNetwork {
         CHANNEL.messageBuilder(GamePropertyDownloadPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(GamePropertyDownloadPacket::encode)
                 .decoder(GamePropertyDownloadPacket::decode)
-                .consumerMainThread(GamePropertyDownloadPacket::handle)
+                .consumerMainThread((packet, ctx) -> {
+                    ctx.get().enqueueWork(() -> {
+                        try {
+                            Class.forName("com.aljun.zombiegamereborn.common.client.handler.ClientPacketHandlers")
+                                    .getMethod("handleGamePropertyDownload", GamePropertyDownloadPacket.class, Supplier.class)
+                                    .invoke(null, packet, ctx);
+                        } catch (Exception ignored) {
+                        }
+                    });
+                    ctx.get().setPacketHandled(true);
+                })
                 .add();
 
         CHANNEL.messageBuilder(OpenClientConfigScreenPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(OpenClientConfigScreenPacket::encode)
                 .decoder(OpenClientConfigScreenPacket::decode)
-                .consumerMainThread(OpenClientConfigScreenPacket::handle)
+                .consumerMainThread((packet, ctx) -> {
+                    ctx.get().enqueueWork(() -> {
+                        try {
+                            Class.forName("com.aljun.zombiegamereborn.common.client.handler.ClientPacketHandlers")
+                                    .getMethod("handleOpenClientConfigScreen", OpenClientConfigScreenPacket.class, Supplier.class)
+                                    .invoke(null, packet, ctx);
+                        } catch (Exception ignored) {
+                        }
+                    });
+                    ctx.get().setPacketHandled(true);
+                })
                 .add();
 
         CHANNEL.messageBuilder(ZombieCapacitySyncPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(ZombieCapacitySyncPacket::encode)
                 .decoder(ZombieCapacitySyncPacket::decode)
-                .consumerMainThread(ZombieCapacitySyncPacket::handle)
+                .consumerMainThread((packet, ctx) -> {
+                    ctx.get().enqueueWork(() -> {
+                        try {
+                            Class.forName("com.aljun.zombiegamereborn.common.client.handler.ClientPacketHandlers")
+                                    .getMethod("handleZombieCapacitySync", ZombieCapacitySyncPacket.class, Supplier.class)
+                                    .invoke(null, packet, ctx);
+                        } catch (Exception ignored) {
+                        }
+                    });
+                    ctx.get().setPacketHandled(true);
+                })
                 .add();
 
         CHANNEL.messageBuilder(TimeBroadcastPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(TimeBroadcastPacket::encode)
                 .decoder(TimeBroadcastPacket::new)
-                .consumerMainThread(TimeBroadcastPacket::handle)
+                .consumerMainThread((packet, ctx) -> {
+                    ctx.get().enqueueWork(() -> {
+                        try {
+                            Class.forName("com.aljun.zombiegamereborn.common.client.handler.ClientPacketHandlers")
+                                    .getMethod("handleTimeBroadcast", TimeBroadcastPacket.class, Supplier.class)
+                                    .invoke(null, packet, ctx);
+                        } catch (Exception ignored) {
+                        }
+                    });
+                    ctx.get().setPacketHandled(true);
+                })
                 .add();
 
         CHANNEL.messageBuilder(LoginWelcomePacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(LoginWelcomePacket::encode)
                 .decoder(LoginWelcomePacket::decode)
-                .consumerMainThread(LoginWelcomePacket::handle)
+                .consumerMainThread((packet, ctx) -> {
+                    ctx.get().enqueueWork(() -> {
+                        try {
+                            Class.forName("com.aljun.zombiegamereborn.common.client.handler.ClientPacketHandlers")
+                                    .getMethod("handleLoginWelcome", LoginWelcomePacket.class, Supplier.class)
+                                    .invoke(null, packet, ctx);
+                        } catch (Exception ignored) {
+                        }
+                    });
+                    ctx.get().setPacketHandled(true);
+                })
                 .add();
 
     }

@@ -41,6 +41,7 @@ public class TimeBroadcast {
 
     // ========== tick() 中 ==========
 
+    @SuppressWarnings("all")
     public static void tick(ServerPlayer player) {
         if (player.level().isClientSide) return;
 
@@ -48,6 +49,8 @@ public class TimeBroadcast {
         PlayerBroadcastData data = PLAYER_DATA_MAP.computeIfAbsent(uuid, k -> new PlayerBroadcastData());
 
         IPlayerData playerData = ZGRPlayerAPI.getPlayerData(player);
+        if (playerData == null) return;
+
         ServerLevel overworld = player.server.overworld();
         long dayTime = overworld.getDayTime();
         long days = playerData.getSurvivedDay();
@@ -108,7 +111,7 @@ public class TimeBroadcast {
                 }
                 ZGRNetwork.sendToClient(new TimeBroadcastPacket(
                         days,
-                        shouldBroadcastDawn ? DayTime.DAWN : DayTime.SUNSET,
+                        shouldBroadcastDawn ? DayTime.DAWN : DayTime.EARLY_NIGHT,
                         dayTime,
                         hasClock
                 ), player);

@@ -466,12 +466,9 @@ public class ZombieSmartBreakAttackGoal extends Goal {
         }
 
         // 硬度 = 0：瞬间破坏（植物、火把等），不需要挖
-        if (hardness == 0) {
-            return false;
-        }
+        return hardness != 0;
 
         // 硬度 > 0：可以破坏
-        return true;
     }
     //--------------------------------------------------------------------
 

@@ -131,11 +131,11 @@ public class MobReplacement {
         replacement.add(ResourceLocation.parse("minecraft:axolotl"), ReplaceableType.REMOVE);
         replacement.add(ResourceLocation.parse("minecraft:camel"), ReplaceableType.REMOVE);
         replacement.add(ResourceLocation.parse("minecraft:sniffer"), ReplaceableType.REMOVE);
-
+        replacement.add(ResourceLocation.parse("minecraft:slime"), ReplaceableType.REMOVE);
+        replacement.add(ResourceLocation.parse("minecraft:phantom"), ReplaceableType.REMOVE);
 
         // ===== 替换为僵尸 =====
         replacement.add(ResourceLocation.parse("minecraft:hoglin"), ReplaceableType.REPLACE);
-        replacement.add(ResourceLocation.parse("minecraft:slime"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:ghast"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:skeleton"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:stray"), ReplaceableType.REPLACE);
@@ -146,6 +146,13 @@ public class MobReplacement {
         replacement.add(ResourceLocation.parse("minecraft:enderman"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:witch"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:magma_cube"), ReplaceableType.REPLACE);
+
+        // ===== 其他模组生物替换 =====
+        replacement.add(ResourceLocation.parse("mekanismadditions:baby_skeleton"), ReplaceableType.REPLACE);
+        replacement.add(ResourceLocation.parse("mekanismadditions:baby_enderman"), ReplaceableType.REPLACE);
+        replacement.add(ResourceLocation.parse("mekanismadditions:baby_stray"), ReplaceableType.REPLACE);
+        replacement.add(ResourceLocation.parse("mekanismadditions:baby_wither_skeleton"), ReplaceableType.REPLACE);
+        replacement.add(ResourceLocation.parse("touhou_little_maid:entity.monster.fairy"), ReplaceableType.REPLACE);
 
         return replacement;
     }

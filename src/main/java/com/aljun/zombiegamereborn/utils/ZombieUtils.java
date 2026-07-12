@@ -91,9 +91,10 @@ public class ZombieUtils {
         if (biome.is(Biomes.OCEAN) || biome.is(Biomes.COLD_OCEAN) || biome.is(Biomes.FROZEN_OCEAN) ||
                 biome.is(Biomes.DEEP_OCEAN) || biome.is(Biomes.DEEP_COLD_OCEAN) || biome.is(Biomes.DEEP_FROZEN_OCEAN) ||
                 biome.is(Biomes.LUKEWARM_OCEAN) || biome.is(Biomes.DEEP_LUKEWARM_OCEAN) || biome.is(Biomes.WARM_OCEAN)) {
-            return switch (random.nextInt(3)) {
+            return switch (random.nextInt(4)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.PRISMARINE);
+                case 2 -> new ItemStack(Items.DIRT);
                 default -> new ItemStack(Items.OAK_PLANKS);
             };
         }
@@ -102,80 +103,89 @@ public class ZombieUtils {
         if (biome.is(Biomes.SNOWY_PLAINS) || biome.is(Biomes.SNOWY_TAIGA) || biome.is(Biomes.SNOWY_BEACH) ||
                 biome.is(Biomes.FROZEN_RIVER) || biome.is(Biomes.FROZEN_PEAKS) || biome.is(Biomes.JAGGED_PEAKS) ||
                 biome.is(Biomes.SNOWY_SLOPES) || biome.is(Biomes.ICE_SPIKES) || biome.is(Biomes.GROVE)) {
-            return switch (random.nextInt(3)) {
+            return switch (random.nextInt(4)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.SPRUCE_PLANKS);
+                case 2 -> new ItemStack(Items.DIRT);
                 default -> new ItemStack(Items.STONE);
             };
         }
 
         // ===== 针叶林系 =====
         if (biome.is(Biomes.TAIGA) || biome.is(Biomes.OLD_GROWTH_PINE_TAIGA) || biome.is(Biomes.OLD_GROWTH_SPRUCE_TAIGA)) {
-            return switch (random.nextInt(3)) {
+            return switch (random.nextInt(4)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.SPRUCE_PLANKS);
+                case 2 -> new ItemStack(Items.DIRT);
                 default -> new ItemStack(Items.STONE);
             };
         }
 
         // ===== 白桦林系 =====
         if (biome.is(Biomes.BIRCH_FOREST) || biome.is(Biomes.OLD_GROWTH_BIRCH_FOREST)) {
-            return switch (random.nextInt(3)) {
+            return switch (random.nextInt(4)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.BIRCH_PLANKS);
+                case 2 -> new ItemStack(Items.DIRT);
                 default -> new ItemStack(Items.STONE);
             };
         }
 
         // ===== 黑森林系 =====
         if (biome.is(Biomes.DARK_FOREST)) {
-            return switch (random.nextInt(3)) {
+            return switch (random.nextInt(4)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.DARK_OAK_PLANKS);
+                case 2 -> new ItemStack(Items.DIRT);
                 default -> new ItemStack(Items.STONE);
             };
         }
 
         // ===== 丛林系 =====
         if (biome.is(Biomes.JUNGLE) || biome.is(Biomes.BAMBOO_JUNGLE) || biome.is(Biomes.SPARSE_JUNGLE)) {
-            return switch (random.nextInt(3)) {
+            return switch (random.nextInt(4)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.JUNGLE_PLANKS);
+                case 2 -> new ItemStack(Items.DIRT);
                 default -> new ItemStack(Items.STONE);
             };
         }
 
         // ===== 沼泽系 =====
         if (biome.is(Biomes.SWAMP) || biome.is(Biomes.MANGROVE_SWAMP)) {
-            return switch (random.nextInt(3)) {
+            return switch (random.nextInt(4)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.OAK_PLANKS);
+                case 2 -> new ItemStack(Items.DIRT);
                 default -> new ItemStack(Items.STONE);
             };
         }
 
         // ===== 草甸/花海系 =====
         if (biome.is(Biomes.MEADOW) || biome.is(Biomes.FLOWER_FOREST)) {
-            return switch (random.nextInt(3)) {
+            return switch (random.nextInt(4)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.OAK_PLANKS);
+                case 2 -> new ItemStack(Items.DIRT);
                 default -> new ItemStack(Items.STONE);
             };
         }
 
         // ===== 樱花系 =====
         if (biome.is(Biomes.CHERRY_GROVE)) {
-            return switch (random.nextInt(3)) {
+            return switch (random.nextInt(4)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.CHERRY_PLANKS);
+                case 2 -> new ItemStack(Items.DIRT);
                 default -> new ItemStack(Items.STONE);
             };
         }
 
         // ===== 其他（默认） =====
-        return switch (random.nextInt(3)) {
+        return switch (random.nextInt(4)) {
             case 0 -> new ItemStack(Items.COBBLESTONE);
             case 1 -> new ItemStack(Items.OAK_PLANKS);
+            case 2 -> new ItemStack(Items.DIRT);
             default -> new ItemStack(Items.STONE);
         };
     }

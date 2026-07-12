@@ -361,11 +361,10 @@ public class ListEditScreen<T> extends Screen implements Callbackable<List<T>> {
             T defaultItem = (defaultItemSupplier != null) ? defaultItemSupplier.get() : createDefaultItem();
             itemEditor.edit(this, defaultItem, newItem -> {
                 currentList.add(newItem);
-                selectedIndex = currentList.size() - 1;
                 updateButtonsState();
                 updateMaxScrollOffset();
 
-                if (maxScrollOffset > 0) {
+                if (scrollOffset > maxScrollOffset) {
                     scrollOffset = maxScrollOffset;
                 }
             });

@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ZombieSpawnChooser {
@@ -25,32 +26,39 @@ public class ZombieSpawnChooser {
     static {
         allKeys.add(SpawnType.NORMAL);
         allKeys.add(SpawnType.DROWNED);
+        allKeys.add(SpawnType.BLOOD_MOON);
    }
 
     public static ZombieSpawnChooser getDefault() {
         ZombieSpawnChooser chooser = new ZombieSpawnChooser();
         chooser.zombieTypes.add(new WrappedZombieType(SpawnType.NORMAL,1.0,ZGRZombieTypes.VANILLA));
         chooser.zombieTypes.add(new WrappedZombieType(SpawnType.DROWNED,1.0,ZGRZombieTypes.VANILLA));
+        chooser.zombieTypes.add(new WrappedZombieType(SpawnType.BLOOD_MOON,1.0,ZGRZombieTypes.VANILLA));
         return chooser;
     }
 
-    public enum SpawnType {
-        NORMAL("normal"),
-        DROWNED("drowned");
+    public static class SpawnType {
+        private static final List<SpawnType> values = new ArrayList<>();
+        public static final SpawnType NORMAL = new SpawnType("normal");
+        public static final SpawnType DROWNED = new SpawnType("drowned");
+        public static final SpawnType BLOOD_MOON = new SpawnType("blood_moon");
 
         public final String name;
 
-        SpawnType(String name) {
+        private SpawnType(String name) {
             this.name = name;
+            values.add(this);
+        }
+
+        public static SpawnType[] values() {
+            return values.toArray(new SpawnType[0]);
         }
 
         public static SpawnType byName(String name) {
-            for (SpawnType type : values()) {
-                if (type.name.equals(name)) {
-                    return type;
-                }
+            for (SpawnType type : values) {
+                if (type.name.equals(name)) return type;
             }
-            return NORMAL; // 默认返回 NORMAL
+            return NORMAL;
         }
     }
 
@@ -75,6 +83,7 @@ public class ZombieSpawnChooser {
         if (this.zombieTypes.isEmpty()) {
             zombieTypes.add(new WrappedZombieType(SpawnType.NORMAL,1.0,ZGRZombieTypes.VANILLA));
             zombieTypes.add(new WrappedZombieType(SpawnType.DROWNED,1.0,ZGRZombieTypes.VANILLA));
+            zombieTypes.add(new WrappedZombieType(SpawnType.BLOOD_MOON,1.0,ZGRZombieTypes.VANILLA));
             flag = true;
         }
         allPools.clear();

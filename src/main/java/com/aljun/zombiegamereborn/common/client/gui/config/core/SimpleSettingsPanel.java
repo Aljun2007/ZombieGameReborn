@@ -2,7 +2,6 @@ package com.aljun.zombiegamereborn.common.client.gui.config.core;
 
 import com.aljun.zombiegamereborn.common.client.gui.LabelWidget;
 import com.aljun.zombiegamereborn.common.client.gui.ValidatedEditBox;
-import com.aljun.zombiegamereborn.register.ZGRRegistries;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -19,7 +18,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
@@ -246,7 +244,7 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
                 startX + panelX,
                 nextY + panelY,
                 20,
-                18,
+                20,
                 Component.empty(),
                 defaultValue,
                 true
@@ -288,6 +286,35 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
         editBoxes.put(key, editBox);
 
         rows.add(new Row(labelText, editBox, 0xFFFFFF));
+        nextY += rowHeight;
+    }
+
+    public <E> void addFakeEnumCycleButton(
+            String labelText,
+            String key,
+            E[] enumValues,
+            E defaultValue,
+            Function<E, String> displayFunc,
+            Function<E, JsonElement> serializeFunc,
+            Function<JsonElement, E> deserializeFunc
+    ) {
+        final int[] currentIndex = {defaultValue instanceof Enum ? ((Enum<?>) defaultValue).ordinal() : 0};
+
+        enumButtons.put(key, new EnumButtonInfo(enumValues, currentIndex, displayFunc, serializeFunc, deserializeFunc));
+
+        Button button = addSimpleButtonInternal(
+                labelText,
+                () -> {
+                    currentIndex[0] = (currentIndex[0] + 1) % enumValues.length;
+                    if (onValueChanged != null) {
+                        JsonElement jsonElement = serializeFunc.apply(enumValues[currentIndex[0]]);
+                        onValueChanged.accept(key, jsonElement);
+                    }
+                },
+                () -> displayFunc.apply(enumValues[currentIndex[0]])
+        );
+
+        rows.add(new Row(labelText, button, 0xFFFFFF));
         nextY += rowHeight;
     }
 
@@ -525,7 +552,7 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
                 try {
                     EnumButtonInfo info = entry.getValue();
                     JsonElement jsonElement = settings.get(key);
-                    Enum<?> newEnumValue = info.deserializeFunc.apply(jsonElement);
+                    Enum<?> newEnumValue = (Enum<?>) info.deserializeFunc.apply(jsonElement);
                     for (int i = 0; i < info.enumValues.length; i++) {
                         if (info.enumValues[i] == newEnumValue) {
                             info.currentIndex[0] = i;
@@ -679,15 +706,15 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
     }
 
     protected static class EnumButtonInfo {
-        Enum<?>[] enumValues;
+        Object[] enumValues;
         int[] currentIndex;
-        Function<Enum<?>, String> displayFunc;
-        Function<Enum<?>, JsonElement> serializeFunc;
-        Function<JsonElement, Enum<?>> deserializeFunc;
+        Function<Object, String> displayFunc;
+        Function<Object, JsonElement> serializeFunc;
+        Function<JsonElement, Object> deserializeFunc;
 
         @SuppressWarnings("unchecked")
         EnumButtonInfo(
-                Enum<?>[] enumValues,
+                Object[] enumValues,
                 int[] currentIndex,
                 Function<?, String> displayFunc,
                 Function<?, JsonElement> serializeFunc,
@@ -695,9 +722,9 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
         ) {
             this.enumValues = enumValues;
             this.currentIndex = currentIndex;
-            this.displayFunc = (Function<Enum<?>, String>) displayFunc;
-            this.serializeFunc = (Function<Enum<?>, JsonElement>) serializeFunc;
-            this.deserializeFunc = (Function<JsonElement, Enum<?>>) deserializeFunc;
+            this.displayFunc = (Function<Object, String>) displayFunc;
+            this.serializeFunc = (Function<Object, JsonElement>) serializeFunc;
+            this.deserializeFunc = (Function<JsonElement, Object>) deserializeFunc;
         }
     }
 }

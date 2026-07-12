@@ -10,9 +10,17 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ZGRDebugCommand implements Command<CommandSourceStack> {
 
@@ -27,6 +35,26 @@ public class ZGRDebugCommand implements Command<CommandSourceStack> {
             ServerPlayer player = context.getSource().getPlayerOrException();
             debugItems(player);
             return 0;
+        })));
+        command.then(Commands.literal("heal").executes((context -> {
+            ServerPlayer player = context.getSource().getPlayerOrException();
+            player.removeAllEffects();
+            player.clearFire();
+            player.addEffect(new MobEffectInstance(MobEffects.SATURATION, 10, 8));
+            player.addEffect(new MobEffectInstance(MobEffects.HEAL, 10, 8));
+            return 0;
+        })));
+        command.then(Commands.literal("clean_all_zombies").executes((context -> {
+            ServerLevel level = context.getSource().getLevel();
+            List<Zombie> zombies = new ArrayList<>();
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof Zombie zombie) {
+                    zombies.add(zombie);
+                }
+            }
+            zombies.forEach(z -> z.remove(Entity.RemovalReason.DISCARDED));
+            context.getSource().sendSuccess(() -> Component.translatable("command.zombiegamereborn.debug.clean_all_zombies", zombies.size()), true);
+            return zombies.size();
         })));
     }
 

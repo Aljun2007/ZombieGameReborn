@@ -2,11 +2,13 @@ package com.aljun.zombiegamereborn.common.entity.zombieType.type;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
+import com.aljun.zombiegamereborn.common.entity.equipement.ZombieEquipmentHelper;
 import com.aljun.zombiegamereborn.common.entity.goal.attack.ZombieMeleeAndPathBuildGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.attack.ZombieSmartBreakAttackGoal;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.common.optimizer.ZombieGoalOptimizer;
+import com.aljun.zombiegamereborn.utils.RandomUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
@@ -25,7 +27,11 @@ public class MinerZombieType extends ZombieType {
 
     @Override
     public void onInitializeZombieEquipment(Zombie zombie, IZombieData data) {
-        super.onInitializeZombieEquipment(zombie, data);
+        if (RandomUtils.booleanByChance(0.4d)) {
+            ZombieEquipmentHelper.applyFullEquipmentWithPickaxe(zombie);
+        } else {
+            ZombieEquipmentHelper.applyFullEquipment(zombie);
+        }
     }
 
     @Override

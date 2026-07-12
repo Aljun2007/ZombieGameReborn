@@ -1,17 +1,7 @@
 package com.aljun.zombiegamereborn.network.packet;
 
-import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
-import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
-import com.aljun.zombiegamereborn.common.entity.capability.ZombieDataProvider;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
 
 public class ZombieCapacitySyncPacket {
 
@@ -37,18 +27,11 @@ public class ZombieCapacitySyncPacket {
         return new ZombieCapacitySyncPacket(buffer);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> {
-            if (context.getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
-                if (Minecraft.getInstance().level == null) return;
-                Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
-                if (entity instanceof Zombie zombie) {
-                    IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-                    ZombieDataProvider.applyData(data, this.dataTag);
-                }
-            }
-        });
-        context.setPacketHandled(true);
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public CompoundTag getDataTag() {
+        return dataTag;
     }
 }

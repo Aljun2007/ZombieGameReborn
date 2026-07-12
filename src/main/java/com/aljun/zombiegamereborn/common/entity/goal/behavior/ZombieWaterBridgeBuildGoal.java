@@ -33,7 +33,6 @@ public class ZombieWaterBridgeBuildGoal extends Goal {
     public ZombieWaterBridgeBuildGoal(Zombie zombie,IZombieData data) {
         this.zombie = zombie;
         this.data = data;
-        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
     public boolean isPathBuildCooldown() {

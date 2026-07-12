@@ -147,40 +147,46 @@ public class ZombieEquipmentHelper {
     }
 
     public static void applyFullEquipment(Zombie zombie) {
-        ServerLevel serverLevel = (ServerLevel) zombie.level();
-        var stageProperty = ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition());
-        float difficulty = stageProperty.calculateDifficulty(serverLevel, zombie.blockPosition());
-        double meanOffset = stageProperty.zombieProperty.equipmentQualityMeanOffset;
-        double probFactor = stageProperty.zombieProperty.equipmentProbabilityFactor;
+        applyWeapon(zombie);
+        applyArmor(zombie);
+    }
 
-        RandomSource random = zombie.getRandom();
-        ensurePoolsBuilt(meanOffset);
-        if (equipmentPool == null || materialPool == null || MATERIAL_DATA.isEmpty()) {
-            return;
-        }
+    public static void applyFullEquipmentWithPickaxe(Zombie zombie) {
+        applyWeaponWithPickaxe(zombie);
+        applyArmor(zombie);
+    }
 
-        float d = clamp(difficulty, 0.0f, 1.0f);
-
-        String materialId = zombie instanceof ZombifiedPiglin ? MATERIAL_GOLD : materialPool.nextValue();
-        MaterialData material = MATERIAL_DATA.get(materialId);
-        if (material == null) return;
-
-        float weaponChance = (0.01f + 0.04f * d) * (float) probFactor;
-        if (random.nextFloat() < weaponChance) {
+    public static void applyWeapon(Zombie zombie) {
+        var ctx = prepareContext(zombie);
+        if (ctx == null) return;
+        float d = ctx.d;
+        float weaponChance = (0.01f + 0.04f * d) * (float) ctx.probFactor;
+        if (ctx.random.nextFloat() < weaponChance) {
             String weaponType = equipmentPool.nextValue();
-            zombie.setItemSlot(EquipmentSlot.MAINHAND, material.getStack(weaponType));
+            zombie.setItemSlot(EquipmentSlot.MAINHAND, ctx.material.getStack(weaponType));
         }
+    }
 
-        float armorChance = 0.16f * (d - 0.10f) * (float) probFactor;
-        if (RandomUtils.booleanByChance(armorChance, random)) {
-            if (RandomUtils.booleanByChance(0.8f + 0.2f * d, random))
-                zombie.setItemSlot(EquipmentSlot.HEAD, material.getStack(SLOT_HELMET));
-            if (RandomUtils.booleanByChance(0.6f + 0.3f * d, random))
-                zombie.setItemSlot(EquipmentSlot.CHEST, material.getStack(SLOT_CHESTPLATE));
-            if (RandomUtils.booleanByChance(0.5f + 0.3f * d, random))
-                zombie.setItemSlot(EquipmentSlot.LEGS, material.getStack(SLOT_LEGGINGS));
-            if (RandomUtils.booleanByChance(0.4f + 0.3f * d, random))
-                zombie.setItemSlot(EquipmentSlot.FEET, material.getStack(SLOT_BOOTS));
+    public static void applyWeaponWithPickaxe(Zombie zombie) {
+        var ctx = prepareContext(zombie);
+        if (ctx == null) return;
+        zombie.setItemSlot(EquipmentSlot.MAINHAND, ctx.material.getStack(WEAPON_PICKAXE));
+    }
+
+    public static void applyArmor(Zombie zombie) {
+        var ctx = prepareContext(zombie);
+        if (ctx == null) return;
+        float d = ctx.d;
+        float armorChance = 0.16f * (d - 0.10f) * (float) ctx.probFactor;
+        if (RandomUtils.booleanByChance(armorChance, ctx.random)) {
+            if (RandomUtils.booleanByChance(0.8f + 0.2f * d, ctx.random))
+                zombie.setItemSlot(EquipmentSlot.HEAD, ctx.material.getStack(SLOT_HELMET));
+            if (RandomUtils.booleanByChance(0.6f + 0.3f * d, ctx.random))
+                zombie.setItemSlot(EquipmentSlot.CHEST, ctx.material.getStack(SLOT_CHESTPLATE));
+            if (RandomUtils.booleanByChance(0.5f + 0.3f * d, ctx.random))
+                zombie.setItemSlot(EquipmentSlot.LEGS, ctx.material.getStack(SLOT_LEGGINGS));
+            if (RandomUtils.booleanByChance(0.4f + 0.3f * d, ctx.random))
+                zombie.setItemSlot(EquipmentSlot.FEET, ctx.material.getStack(SLOT_BOOTS));
         }
     }
 
@@ -235,6 +241,29 @@ public class ZombieEquipmentHelper {
     private static float clamp(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
     }
+
+    private static EquipmentContext prepareContext(Zombie zombie) {
+        ServerLevel serverLevel = (ServerLevel) zombie.level();
+        var stageProperty = ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(), zombie.blockPosition());
+        float difficulty = stageProperty.calculateDifficulty(serverLevel, zombie.blockPosition());
+        double meanOffset = stageProperty.zombieProperty.equipmentQualityMeanOffset;
+        double probFactor = stageProperty.zombieProperty.equipmentProbabilityFactor;
+
+        RandomSource random = zombie.getRandom();
+        ensurePoolsBuilt(meanOffset);
+        if (equipmentPool == null || materialPool == null || MATERIAL_DATA.isEmpty()) {
+            return null;
+        }
+
+        float d = clamp(difficulty, 0.0f, 1.0f);
+        String materialId = zombie instanceof ZombifiedPiglin ? MATERIAL_GOLD : materialPool.nextValue();
+        MaterialData material = MATERIAL_DATA.get(materialId);
+        if (material == null) return null;
+
+        return new EquipmentContext(d, probFactor, material, random);
+    }
+
+    private record EquipmentContext(float d, double probFactor, MaterialData material, RandomSource random) {}
 
     public record EquipmentEntry(String id, double weight) {}
 

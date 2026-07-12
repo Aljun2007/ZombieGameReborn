@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerLevel;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -42,6 +41,8 @@ public class GameProperty {
     public int maxEmpoweredBuilderCount = 100;
     @SerializedName("max_empowered_miner_count")
     public int maxEmpoweredMinerCount = 100;
+    @SerializedName("disable_turtle_egg_seeking")
+    public boolean disableTurtleEggSeeking = false;
 
     private volatile ArrayList<StageProperty> sortedCache = null;
     private volatile int configHash = 0;
@@ -55,9 +56,14 @@ public class GameProperty {
         return new GameProperty();
     }
 
-    public static GameProperty globalDefault() {
+    public static GameProperty getGlobalDefault() {
         return ZGRConfigFileManager.getGlobalDefault();
     }
+
+    public static GameProperty getEmpty() {
+        return new GameProperty();
+    }
+
 
     /**
      * 从 JsonObject 反序列化（供适配器使用）
@@ -108,6 +114,11 @@ public class GameProperty {
         }
         if (obj.has("max_empowered_miner_count")) {
             property.maxEmpoweredMinerCount = obj.get("max_empowered_miner_count").getAsInt();
+        }
+
+        // 解析 disable_turtle_egg_seeking
+        if (obj.has("disable_turtle_egg_seeking")) {
+            property.disableTurtleEggSeeking = obj.get("disable_turtle_egg_seeking").getAsBoolean();
         }
 
         return property;
@@ -206,6 +217,7 @@ public class GameProperty {
         obj.addProperty("keep_mob_loot_table", keepMobLootTable);
         obj.addProperty("max_empowered_builder_count", maxEmpoweredBuilderCount);
         obj.addProperty("max_empowered_miner_count", maxEmpoweredMinerCount);
+        obj.addProperty("disable_turtle_egg_seeking", disableTurtleEggSeeking);
 
         return obj;
     }

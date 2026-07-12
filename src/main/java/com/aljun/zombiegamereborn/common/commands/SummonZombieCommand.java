@@ -6,36 +6,30 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Zombie;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class SummonZombieCommand {
 
-    public static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
+    public static void register(LiteralArgumentBuilder<CommandSourceStack> root, CommandBuildContext buildContext) {
         LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("summonZombie")
                 .requires(source -> source.hasPermission(2))
-                .then(Commands.argument("mob_id", ResourceLocationArgument.id())
-                        .suggests((context, builder) ->
-                                SharedSuggestionProvider.suggestResource(
-                                        ForgeRegistries.ENTITY_TYPES.getKeys().stream()
-                                                .filter(key -> {
-                                                    EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(key);
-                                                    return type != null && Zombie.class.isAssignableFrom(type.getBaseClass());
-                                                }),
-                                        builder
-                                )
-                        )
+                .then(Commands.argument("zombie", ResourceArgument.resource(buildContext, Registries.ENTITY_TYPE))
+                        .suggests(SuggestionProviders.SUMMONABLE_ENTITIES)
                         .then(Commands.argument("type", ResourceLocationArgument.id())
                                 .suggests((context, builder) ->
                                         SharedSuggestionProvider.suggestResource(ZGRRegistries.ZOMBIE_TYPE.get().getKeys(), builder)
@@ -60,30 +54,24 @@ public class SummonZombieCommand {
         root.then(command);
     }
 
-    @SuppressWarnings("unchecked")
     private static int execute(CommandContext<CommandSourceStack> context, int defaultCount, BlockPos defaultPos) throws CommandSyntaxException {
-        ResourceLocation mobId = ResourceLocationArgument.getId(context, "mob_id");
-        ResourceLocation typeId = ResourceLocationArgument.getId(context, "type");
-        ServerLevel level = context.getSource().getLevel();
-
-        EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(mobId);
-        if (entityType != null && !Zombie.class.isAssignableFrom(entityType.getBaseClass())) {
+        EntityType<?> entityType = ResourceArgument.getSummonableEntityType(context, "zombie").get();
+        if (!Zombie.class.isAssignableFrom(entityType.getBaseClass())) {
             context.getSource().sendFailure(
-                    Component.translatable("command.zombiegamereborn.summon.invalid_entity", mobId.toString())
+                    Component.translatable("command.zombiegamereborn.summon.invalid_entity", EntityType.getKey(entityType).toString())
             );
             return 0;
         }
+        ResourceLocation typeId = ResourceLocationArgument.getId(context, "type");
+        ServerLevel level = context.getSource().getLevel();
 
         BlockPos spawnBase = defaultPos != null ? defaultPos : BlockPos.containing(context.getSource().getPosition()).above();
         int count = Math.max(1, defaultCount);
 
-        EntityType<? extends Zombie> zombieType = (EntityType<? extends Zombie>) entityType;
-
         int spawned = 0;
         for (int i = 0; i < count; i++) {
-            Zombie zombie = zombieType.create(level);
-            if (zombie == null) continue;
-
+            Entity entity = entityType.create(level);
+            if (!(entity instanceof Zombie zombie)) return 0;
             ZombieTypeManager.initializeZombie(zombie, typeId);
 
             double offsetX = (Math.random() - 0.5) * 2;

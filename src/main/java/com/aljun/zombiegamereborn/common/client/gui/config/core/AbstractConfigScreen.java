@@ -238,8 +238,14 @@ public abstract class AbstractConfigScreen extends Screen {
     }
 
     /**
-     * 渲染底部按钮栏
+     * 子类可覆写此方法改变返回按钮文本
      */
+    protected Component getBackButtonText() {
+        return hasUnsavedChanges
+                ? Component.translatable("gui.zombiegamereborn.core.cancel")
+                : Component.translatable("gui.zombiegamereborn.core.exit");
+    }
+
     protected void renderBottomButtons(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int buttonY = bottomBarY + 10;
         int padding = 10;
@@ -247,11 +253,8 @@ public abstract class AbstractConfigScreen extends Screen {
         int buttonWidth = 55;
         int spacing = 5;
 
-        Component cancelButtonText = hasUnsavedChanges
-                ? Component.translatable("gui.zombiegamereborn.core.cancel")
-                : Component.translatable("gui.zombiegamereborn.core.exit");
         Button backButton = Button.builder(
-                        cancelButtonText,
+                        getBackButtonText(),
                         btn -> onClose()
                 )
                 .bounds(padding, buttonY, buttonWidth, 20)
@@ -330,10 +333,10 @@ public abstract class AbstractConfigScreen extends Screen {
             int buttonY = bottomBarY + 10;
             int padding = 10;
             int rightPadding = 10;
-            int buttonWidth = 100;
+            int buttonWidth = 55;
             int spacing = 5;
 
-            if (mouseX >= padding && mouseX < padding + 80 &&
+            if (mouseX >= padding && mouseX < padding + buttonWidth &&
                     mouseY >= buttonY && mouseY < buttonY + 20) {
                 Minecraft.getInstance().getSoundManager().play(
                         SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
