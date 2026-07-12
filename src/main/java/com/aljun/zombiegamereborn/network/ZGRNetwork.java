@@ -1,9 +1,10 @@
 package com.aljun.zombiegamereborn.network;
 
 import com.aljun.zombiegamereborn.ZombieGameReborn;
-import com.aljun.zombiegamereborn.network.packet.DebugGuiPacket;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyDownloadPacket;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyUploadPacket;
+import com.aljun.zombiegamereborn.network.packet.LoginWelcomePacket;
+import com.aljun.zombiegamereborn.network.packet.OpenClientConfigScreenPacket;
 import com.aljun.zombiegamereborn.network.packet.TimeBroadcastPacket;
 import com.aljun.zombiegamereborn.network.packet.ZombieCapacitySyncPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -27,12 +28,6 @@ public class ZGRNetwork {
     );
 
     public static void register() {
-        CHANNEL.messageBuilder(DebugGuiPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
-                .encoder(DebugGuiPacket::toBytes)
-                .decoder(DebugGuiPacket::new)
-                .consumerMainThread(DebugGuiPacket::handle)
-                .add();
-
         CHANNEL.messageBuilder(GamePropertyUploadPacket.class, packetId++, NetworkDirection.PLAY_TO_SERVER)
                 .encoder(GamePropertyUploadPacket::encode)
                 .decoder(GamePropertyUploadPacket::decode)
@@ -43,6 +38,12 @@ public class ZGRNetwork {
                 .encoder(GamePropertyDownloadPacket::encode)
                 .decoder(GamePropertyDownloadPacket::decode)
                 .consumerMainThread(GamePropertyDownloadPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(OpenClientConfigScreenPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(OpenClientConfigScreenPacket::encode)
+                .decoder(OpenClientConfigScreenPacket::decode)
+                .consumerMainThread(OpenClientConfigScreenPacket::handle)
                 .add();
 
         CHANNEL.messageBuilder(ZombieCapacitySyncPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
@@ -56,6 +57,13 @@ public class ZGRNetwork {
                 .decoder(TimeBroadcastPacket::new)
                 .consumerMainThread(TimeBroadcastPacket::handle)
                 .add();
+
+        CHANNEL.messageBuilder(LoginWelcomePacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(LoginWelcomePacket::encode)
+                .decoder(LoginWelcomePacket::decode)
+                .consumerMainThread(LoginWelcomePacket::handle)
+                .add();
+
     }
 
     // ==================== 发送方法 ====================

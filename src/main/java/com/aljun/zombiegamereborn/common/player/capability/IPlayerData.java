@@ -13,4 +13,7 @@ public interface IPlayerData {
 
     long getLastEstimatedDay();
     void setLastEstimatedDay(long day);
+
+    long getTotalZombieKills();
+    void setTotalZombieKills(long kills);
 }

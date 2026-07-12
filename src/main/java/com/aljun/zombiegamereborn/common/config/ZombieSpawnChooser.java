@@ -27,6 +27,13 @@ public class ZombieSpawnChooser {
         allKeys.add(SpawnType.DROWNED);
    }
 
+    public static ZombieSpawnChooser getDefault() {
+        ZombieSpawnChooser chooser = new ZombieSpawnChooser();
+        chooser.zombieTypes.add(new WrappedZombieType(SpawnType.NORMAL,1.0,ZGRZombieTypes.VANILLA));
+        chooser.zombieTypes.add(new WrappedZombieType(SpawnType.DROWNED,1.0,ZGRZombieTypes.VANILLA));
+        return chooser;
+    }
+
     public enum SpawnType {
         NORMAL("normal"),
         DROWNED("drowned");
@@ -54,8 +61,6 @@ public class ZombieSpawnChooser {
     private final transient Map<SpawnType, RandomUtils.RandomPool<ZombieType>> allPools = new HashMap<>();
 
     public ZombieSpawnChooser() {
-        zombieTypes.add(new WrappedZombieType(SpawnType.NORMAL,1.0,ZGRZombieTypes.VANILLA));
-        zombieTypes.add(new WrappedZombieType(SpawnType.DROWNED,1.0,ZGRZombieTypes.VANILLA));
     }
 
     public ZombieSpawnChooser(ArrayList<WrappedZombieType> zombieTypes) {

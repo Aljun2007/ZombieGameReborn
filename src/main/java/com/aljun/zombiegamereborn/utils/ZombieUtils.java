@@ -3,21 +3,21 @@ package com.aljun.zombiegamereborn.utils;
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biomes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.logging.Level;
 
 import static net.minecraft.world.level.Level.END;
 import static net.minecraft.world.level.Level.NETHER;
@@ -28,6 +28,16 @@ public class ZombieUtils {
         return zombie.distanceToSqr(entity) < ZGRZombieControlAPI.REACH_DISTANCE_TO_SQR;
     }
 
+    @SuppressWarnings("all")
+    public static boolean zombieAttackableEntity(LivingEntity livingEntity) {
+        if (!isTargetLegal(livingEntity)) return false;
+        if (livingEntity instanceof Player) return true;
+        if (livingEntity instanceof IronGolem) return true;
+        if (livingEntity instanceof AbstractVillager) return true;
+        if (livingEntity instanceof Turtle turtle && turtle.isBaby()) return true;
+        return false;
+    }
+
     public static boolean isTargetLegal(@Nullable Entity entity) {
         if (entity == null) return false;
         boolean b = true;
@@ -35,15 +45,6 @@ public class ZombieUtils {
             b = !player.isCreative() && !player.isSpectator();
         }
         return b && entity.isAlive();
-    }
-    @SuppressWarnings("all")
-    public static boolean zombieAttackableEntity(LivingEntity livingEntity) {
-        if (!isTargetLegal(livingEntity)) return false;
-        if (livingEntity instanceof Player) return true;
-        if (livingEntity instanceof IronGolem) return true;
-        if (livingEntity instanceof AbstractVillager) return true;
-        if (livingEntity instanceof Turtle turtle&& turtle.isBaby()) return true;
-        return false;
     }
 
     public static int threatLevel(LivingEntity entity) {
@@ -60,7 +61,6 @@ public class ZombieUtils {
         // ===== 下界 =====
         if (dimension.equals(NETHER)) {
             return switch (random.nextInt(5)) {
-                case 0 -> new ItemStack(Items.NETHERRACK);
                 case 1 -> new ItemStack(Items.BLACKSTONE);
                 case 2 -> new ItemStack(Items.BASALT);
                 case 3 -> new ItemStack(Items.CRIMSON_PLANKS);
@@ -75,15 +75,11 @@ public class ZombieUtils {
         }
 
         // ===== 主世界 =====
-        var biomeKey = level.getBiome(pos).unwrapKey();
-        if (biomeKey.isEmpty()) {
-            return new ItemStack(Items.COBBLESTONE);
-        }
-
-        var biome = biomeKey.get();
+        var biome = level.getBiome(pos);
 
         // ===== 沙漠系 =====
-        if (biome == Biomes.DESERT || biome == Biomes.BADLANDS || biome == Biomes.ERODED_BADLANDS || biome == Biomes.WOODED_BADLANDS) {
+        if (biome.is(Biomes.DESERT) || biome.is(Biomes.BADLANDS)
+                || biome.is(Biomes.ERODED_BADLANDS) || biome.is(Biomes.WOODED_BADLANDS)) {
             return switch (random.nextInt(4)) {
                 case 0, 1 -> new ItemStack(Items.SANDSTONE);
                 case 2 -> new ItemStack(Items.COBBLESTONE);
@@ -92,9 +88,9 @@ public class ZombieUtils {
         }
 
         // ===== 海洋系 =====
-        if (biome == Biomes.OCEAN || biome == Biomes.COLD_OCEAN || biome == Biomes.FROZEN_OCEAN ||
-                biome == Biomes.DEEP_OCEAN || biome == Biomes.DEEP_COLD_OCEAN || biome == Biomes.DEEP_FROZEN_OCEAN ||
-                biome == Biomes.LUKEWARM_OCEAN || biome == Biomes.DEEP_LUKEWARM_OCEAN || biome == Biomes.WARM_OCEAN) {
+        if (biome.is(Biomes.OCEAN) || biome.is(Biomes.COLD_OCEAN) || biome.is(Biomes.FROZEN_OCEAN) ||
+                biome.is(Biomes.DEEP_OCEAN) || biome.is(Biomes.DEEP_COLD_OCEAN) || biome.is(Biomes.DEEP_FROZEN_OCEAN) ||
+                biome.is(Biomes.LUKEWARM_OCEAN) || biome.is(Biomes.DEEP_LUKEWARM_OCEAN) || biome.is(Biomes.WARM_OCEAN)) {
             return switch (random.nextInt(3)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.PRISMARINE);
@@ -103,9 +99,9 @@ public class ZombieUtils {
         }
 
         // ===== 雪地系 =====
-        if (biome == Biomes.SNOWY_PLAINS || biome == Biomes.SNOWY_TAIGA || biome == Biomes.SNOWY_BEACH ||
-                biome == Biomes.FROZEN_RIVER || biome == Biomes.FROZEN_PEAKS || biome == Biomes.JAGGED_PEAKS ||
-                biome == Biomes.SNOWY_SLOPES || biome == Biomes.ICE_SPIKES || biome == Biomes.GROVE) {
+        if (biome.is(Biomes.SNOWY_PLAINS) || biome.is(Biomes.SNOWY_TAIGA) || biome.is(Biomes.SNOWY_BEACH) ||
+                biome.is(Biomes.FROZEN_RIVER) || biome.is(Biomes.FROZEN_PEAKS) || biome.is(Biomes.JAGGED_PEAKS) ||
+                biome.is(Biomes.SNOWY_SLOPES) || biome.is(Biomes.ICE_SPIKES) || biome.is(Biomes.GROVE)) {
             return switch (random.nextInt(3)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.SPRUCE_PLANKS);
@@ -113,11 +109,8 @@ public class ZombieUtils {
             };
         }
 
-        // ===== 海洋系 =====
-        // 海洋系已在上方处理
-
         // ===== 针叶林系 =====
-        if (biome == Biomes.TAIGA || biome == Biomes.OLD_GROWTH_PINE_TAIGA || biome == Biomes.OLD_GROWTH_SPRUCE_TAIGA) {
+        if (biome.is(Biomes.TAIGA) || biome.is(Biomes.OLD_GROWTH_PINE_TAIGA) || biome.is(Biomes.OLD_GROWTH_SPRUCE_TAIGA)) {
             return switch (random.nextInt(3)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.SPRUCE_PLANKS);
@@ -126,7 +119,7 @@ public class ZombieUtils {
         }
 
         // ===== 白桦林系 =====
-        if (biome == Biomes.BIRCH_FOREST || biome == Biomes.OLD_GROWTH_BIRCH_FOREST) {
+        if (biome.is(Biomes.BIRCH_FOREST) || biome.is(Biomes.OLD_GROWTH_BIRCH_FOREST)) {
             return switch (random.nextInt(3)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.BIRCH_PLANKS);
@@ -135,7 +128,7 @@ public class ZombieUtils {
         }
 
         // ===== 黑森林系 =====
-        if (biome == Biomes.DARK_FOREST) {
+        if (biome.is(Biomes.DARK_FOREST)) {
             return switch (random.nextInt(3)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.DARK_OAK_PLANKS);
@@ -144,7 +137,7 @@ public class ZombieUtils {
         }
 
         // ===== 丛林系 =====
-        if (biome == Biomes.JUNGLE || biome == Biomes.BAMBOO_JUNGLE || biome == Biomes.SPARSE_JUNGLE) {
+        if (biome.is(Biomes.JUNGLE) || biome.is(Biomes.BAMBOO_JUNGLE) || biome.is(Biomes.SPARSE_JUNGLE)) {
             return switch (random.nextInt(3)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.JUNGLE_PLANKS);
@@ -153,7 +146,7 @@ public class ZombieUtils {
         }
 
         // ===== 沼泽系 =====
-        if (biome == Biomes.SWAMP || biome == Biomes.MANGROVE_SWAMP) {
+        if (biome.is(Biomes.SWAMP) || biome.is(Biomes.MANGROVE_SWAMP)) {
             return switch (random.nextInt(3)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.OAK_PLANKS);
@@ -162,7 +155,7 @@ public class ZombieUtils {
         }
 
         // ===== 草甸/花海系 =====
-        if (biome == Biomes.MEADOW || biome == Biomes.FLOWER_FOREST) {
+        if (biome.is(Biomes.MEADOW) || biome.is(Biomes.FLOWER_FOREST)) {
             return switch (random.nextInt(3)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.OAK_PLANKS);
@@ -171,7 +164,7 @@ public class ZombieUtils {
         }
 
         // ===== 樱花系 =====
-        if (biome == Biomes.CHERRY_GROVE) {
+        if (biome.is(Biomes.CHERRY_GROVE)) {
             return switch (random.nextInt(3)) {
                 case 0 -> new ItemStack(Items.COBBLESTONE);
                 case 1 -> new ItemStack(Items.CHERRY_PLANKS);
@@ -185,6 +178,12 @@ public class ZombieUtils {
             case 1 -> new ItemStack(Items.OAK_PLANKS);
             default -> new ItemStack(Items.STONE);
         };
+    }
+
+    public static boolean isCuring(Zombie zombie) {
+        if (zombie instanceof ZombieVillager villager) {
+            return villager.isConverting() || villager.hasEffect(MobEffects.WEAKNESS);
+        } else return false;
     }
 
 }

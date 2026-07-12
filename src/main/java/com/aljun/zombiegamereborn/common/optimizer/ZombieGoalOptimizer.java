@@ -28,10 +28,10 @@ public class ZombieGoalOptimizer {
         }
     }
 
-    public static void refreshQuota(StageProperty stageProperty) {
-        ZombieProperty zombieProperty = stageProperty.zombieProperty;
-        newBuilderQuota = zombieProperty.maxEmpoweredZombieBuilderCount - ZombieStatic.getEmpoweredBuilderCount();
-        newMinerQuota = zombieProperty.maxEmpoweredZombieMinerCount - ZombieStatic.getEmpoweredMinerCount();
+    public static void refreshQuota() {
+        var gameProperty = ZGRGame.getGameProperty();
+        newBuilderQuota = gameProperty.maxEmpoweredBuilderCount - ZombieStatic.getEmpoweredBuilderCount();
+        newMinerQuota = gameProperty.maxEmpoweredMinerCount - ZombieStatic.getEmpoweredMinerCount();
     }
 
 }

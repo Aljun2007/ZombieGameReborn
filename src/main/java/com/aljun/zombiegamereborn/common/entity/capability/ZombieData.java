@@ -28,6 +28,13 @@ public class ZombieData implements IZombieData {
     private @Nullable ZombieShieldGoal zombieShieldGoal = null;
     private boolean enhancedSense = false;
     private boolean fleeSun = false;
+    private ResourceLocation customLootTable = null;
+
+    @Override @Nullable
+    public ResourceLocation getCustomLootTable() { return customLootTable; }
+
+    @Override
+    public void setCustomLootTable(@Nullable ResourceLocation lootTable) { this.customLootTable = lootTable; }
 
     @Override
     public @Nullable ZombieSenseTargetGoal getZombieSenseTargetGoalGoal() {

@@ -4,6 +4,7 @@ import com.aljun.zombiegamereborn.common.client.gui.config.core.AbstractConfigSc
 import com.aljun.zombiegamereborn.common.client.gui.config.core.ListEditScreen;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.SimpleSettingsPanel;
 import com.aljun.zombiegamereborn.common.config.GameProperty;
+import com.aljun.zombiegamereborn.common.config.MobReplacement;
 import com.aljun.zombiegamereborn.common.config.StageProperty;
 import com.aljun.zombiegamereborn.network.ZGRNetwork;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyUploadPacket;
@@ -40,15 +41,50 @@ public class GamePropertyScreen extends AbstractConfigScreen {
     protected void initializeTabs() {
         ConfigTab ruleTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.gameproperty.tab.rules"), this::initializeRuleTab);
         ConfigTab stageTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.gameproperty.tab.stages"), this::initializeStageTab);
+        ConfigTab performanceTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.zombieproperty.tab.performance"), this::initializePerformanceTab);
+        ConfigTab mobReplaceTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.mobreplacement.settings"), this::initializeMobReplaceTab);
         this.tabs.add(ruleTab);
         this.tabs.add(stageTab);
+        this.tabs.add(performanceTab);
+        this.tabs.add(mobReplaceTab);
+    }
+
+    private void initializePerformanceTab(SimpleSettingsPanel panel) {
+        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.performance");
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_miner", "max_empowered_miner_count", 100, 0, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_builder", "max_empowered_builder_count", 100, 0, Integer.MAX_VALUE);
+
+    }
+
+    private void initializeMobReplaceTab(SimpleSettingsPanel panel) {
+        panel.addCallbackabeScreen(
+                "gui.zombiegamereborn.mobreplacement.mobs",
+                this,
+                "mob_replacement",
+                (parentScreen, saveCallback) -> {
+                    JsonObject mobReplaceJson = localJson.has("mob_replacement") && localJson.get("mob_replacement").isJsonObject()
+                            ? localJson.getAsJsonObject("mob_replacement")
+                            : MobReplacement.getDefault().toJsonObject();
+                    return new MobReplacementScreen(
+                            "gui.zombiegamereborn.mobreplacement.settings",
+                            mobReplaceJson,
+                            updated -> {
+                                saveCallback.accept(updated);
+                                hasUnsavedChanges = true;
+                                hasInteracted = true;
+                            },
+                            parentScreen
+                    );
+                }
+        );
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.keep_mob_loot_table", "keep_mob_loot_table", true);
     }
 
     private void initializeRuleTab(SimpleSettingsPanel panel) {
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_break", "can_zombie_break_block", true);
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_place", "can_zombie_place_block", true);
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_piglin_infection", "can_piglin_infection", true);
-        
+
         panel.setOnValueChanged((key, value) -> {
             if (!isInitializing) {
                 localJson.add(key, value);

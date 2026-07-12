@@ -34,12 +34,12 @@ public class ZGRConfigFileManager {
      * @return 读取到的 GameProperty，如果文件不存在则返回默认配置
      */
     public static GameProperty loadConfig(MinecraftServer server) {
-        Path configPath = getWorldConfigPath(server);
-        
+        Path configPath = getServerConfigPath(server);
+
         if (!Files.exists(configPath)) {
             return GameProperty.globalDefault();
         }
-        
+
         try (Reader reader = Files.newBufferedReader(configPath)) {
             JsonObject jsonObject = GSON.fromJson(reader, JsonObject.class);
             return GameProperty.fromJsonObject(jsonObject != null ? jsonObject : new JsonObject());
@@ -49,48 +49,31 @@ public class ZGRConfigFileManager {
         }
     }
 
-    private static final Logger LOGGER = LogUtils.getLogger();
-    
-    /**
-     * 保存配置文件到世界存档根目录
-     * 
-     * @param server Minecraft 服务器实例
-     * @param gameProperty 要保存的游戏配置
-     */
     public static void saveConfig(MinecraftServer server, GameProperty gameProperty) {
-        Path configPath = getWorldConfigPath(server);
-        
+        Path configPath = getServerConfigPath(server);
+
         try {
-            // 确保父目录存在
             Files.createDirectories(configPath.getParent());
-            
-            // 序列化并写入文件
             JsonObject jsonObject = gameProperty.toJsonObject();
             String jsonString = GSON.toJson(jsonObject);
-            
+
             try (Writer writer = Files.newBufferedWriter(configPath)) {
                 writer.write(jsonString);
             }
-
         } catch (Exception e) {
             LOGGER.error("保存配置文件失败: {}", configPath, e);
         }
     }
-    
-    /**
-     * 获取世界存档中的配置文件路径
-     * 
-     * @param server Minecraft 服务器实例
-     * @return 配置文件的完整路径
-     */
-    private static Path getWorldConfigPath(MinecraftServer server) {
-        // 获取世界文件夹路径，配置文件保存在世界根目录
-        return server.getWorldPath(CONFIG_PATH).resolve(CONFIG_FILE_NAME);
+
+    private static Path getServerConfigPath(MinecraftServer server) {
+        return server.getServerDirectory().toPath().resolve("serverconfig").resolve(CONFIG_FILE_NAME);
     }
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final LevelResource CONFIG_PATH = new LevelResource(ZombieGameReborn.MOD_ID);
 
-    private static final String GLOBAL_DEFAULT_CONFIG_FILE = "game_property.json";
+    private static final String GLOBAL_DEFAULT_CONFIG_FILE = "default_game_property.json";
     
     private static GameProperty globalDefault = null;
 

@@ -32,7 +32,11 @@ public class StageProperty {
     @SerializedName("zombie_property")
     public ZombieProperty zombieProperty = new ZombieProperty();
     @SerializedName("zombie_spawn_chooser")
-    public ZombieSpawnChooser zombieSpawnChooser = new ZombieSpawnChooser();
+    public ZombieSpawnChooser zombieSpawnChooser = ZombieSpawnChooser.getDefault();
+    @SerializedName("replace_chance")
+    public double replaceChance = 0.0d;
+    @SerializedName("remove_chance")
+    public double removeChance = 0.0d;
     @SerializedName("blood_moon_chance")
     public double bloodMoonChance = 0.0d;
     @SerializedName("day")
@@ -67,6 +71,8 @@ public class StageProperty {
                 property.zombieSpawnChooser = GSON.fromJson(element, ZombieSpawnChooser.class);
             }
         }
+        property.replaceChance = getDoubleOrDefault(jsonObject, "replace_chance", 0.0d);
+        property.removeChance = getDoubleOrDefault(jsonObject, "remove_chance", 0.0d);
         property.bloodMoonChance = getDoubleOrDefault(jsonObject, "blood_moon_chance", 0.0d);
         property.zombieCountModify = getDoubleOrDefault(jsonObject, "zombie_count_modify", 1.0d);
         property.holyCleansing = getBooleanOrDefault(jsonObject, "holy_cleansing", false);
@@ -108,6 +114,8 @@ public class StageProperty {
             obj.add("zombie_spawn_chooser", GSON.toJsonTree(this.zombieSpawnChooser));
         }
 
+        obj.addProperty("replace_chance", this.replaceChance);
+        obj.addProperty("remove_chance", this.removeChance);
         obj.addProperty("blood_moon_chance", this.bloodMoonChance);
         obj.addProperty("zombie_count_modify", this.zombieCountModify);
         obj.addProperty("holy_cleansing", this.holyCleansing);

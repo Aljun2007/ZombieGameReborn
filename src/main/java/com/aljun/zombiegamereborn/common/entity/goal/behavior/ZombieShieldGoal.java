@@ -2,6 +2,8 @@ package com.aljun.zombiegamereborn.common.entity.goal.behavior;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
+import com.aljun.zombiegamereborn.network.packet.AdvancementHandler;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -130,6 +132,9 @@ public class ZombieShieldGoal extends Goal {
             zombie.level().playSound(null, zombie.getX(), zombie.getY(), zombie.getZ(),
                     SoundEvents.PLAYER_ATTACK_NODAMAGE, SoundSource.HOSTILE,
                     1.0F, 1.0F / (zombie.getRandom().nextFloat() * 0.4F + 0.8F));
+        }
+        if (attacker instanceof ServerPlayer player) {
+            AdvancementHandler.grantShieldBlock(player);
         }
     }
 

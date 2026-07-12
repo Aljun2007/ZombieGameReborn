@@ -42,4 +42,12 @@ public class ZGRPlayerAPI {
     public static void setLastEstimatedDay(IPlayerData data, long day) {
         data.setLastEstimatedDay(day);
     }
+
+    public static long getTotalZombieKills(IPlayerData data) {
+        return data.getTotalZombieKills();
+    }
+
+    public static void setTotalZombieKills(IPlayerData data, long kills) {
+        data.setTotalZombieKills(kills);
+    }
 }

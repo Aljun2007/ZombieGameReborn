@@ -10,25 +10,25 @@ import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoa
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.common.game.ZombieStatic;
 import com.aljun.zombiegamereborn.network.ZGRNetwork;
+import com.aljun.zombiegamereborn.network.packet.AdvancementHandler;
 import com.aljun.zombiegamereborn.network.packet.ZombieCapacitySyncPacket;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 
 import java.util.function.Supplier;
 
 public class ZombieTypeManager {
-
 
     public static void initializeZombie(Zombie zombie, ResourceLocation typeID) {
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
@@ -51,7 +51,6 @@ public class ZombieTypeManager {
             type.onInitializeZombieEnchantment(zombie,data);
         }
 
-        // 空手僵尸猪灵补发金剑
         if (zombie instanceof ZombifiedPiglin && zombie.getMainHandItem().isEmpty()) {
             zombie.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
         }
@@ -85,11 +84,6 @@ public class ZombieTypeManager {
         }
     }
 
-    /**
-     * 每刻更新僵尸状态（服务端）
-     *
-     * @param zombie 僵尸实体
-     */
     public static void tickZombie(Zombie zombie) {
         if (zombie.level().isClientSide) {
             return;
@@ -107,7 +101,6 @@ public class ZombieTypeManager {
                 initialGoal(zombie, data, type);
             }
 
-            // 每 tick 触发感知衰减
             ZombieSenseTargetGoal senseGoal = data.getZombieSenseTargetGoalGoal();
             if (senseGoal != null) {
                 senseGoal.tickDecay();
@@ -115,6 +108,38 @@ public class ZombieTypeManager {
 
             type.onTick(zombie, data, tickCount);
             data.incrementTick();
+
+            if (tickCount > 0 && tickCount % 100 == 0) {
+                checkArmorAchievements(zombie);
+            }
+        }
+    }
+
+    private static void checkArmorAchievements(Zombie zombie) {
+        int netheritePieces = 0;
+        int diamondPieces = 0;
+
+        for (ItemStack stack : zombie.getArmorSlots()) {
+            if (!(stack.getItem() instanceof ArmorItem armor)) continue;
+            if (armor.getMaterial() == ArmorMaterials.NETHERITE) {
+                netheritePieces++;
+            } else if (armor.getMaterial() == ArmorMaterials.DIAMOND) {
+                diamondPieces++;
+            }
+        }
+
+        // 既没有下界合金也没有钻石 → 直接返回
+        if (netheritePieces < 2 && diamondPieces < 2) return;
+
+        AABB range = zombie.getBoundingBox().inflate(30.0);
+        for (Player player : zombie.level().getEntitiesOfClass(Player.class, range)) {
+            if (!(player instanceof ServerPlayer sp)) continue;
+            if (netheritePieces >= 2) {
+                AdvancementHandler.grantCoverInDebris(sp);
+            }
+            if (diamondPieces >= 2) {
+                AdvancementHandler.grantDiamondProtects(sp);
+            }
         }
     }
 
@@ -163,7 +188,5 @@ public class ZombieTypeManager {
             zombie.goalSelector.addGoal(3, new ZombieFleeSunGoal(zombie));
         }
     }
-
-
 }
 

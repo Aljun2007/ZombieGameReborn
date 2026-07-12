@@ -31,7 +31,7 @@ public class ZombieSpawnChooserScreen extends AbstractBranchConfigScreen {
 
     @Override
     protected void loadDefaultSettings() {
-        this.localJson = GSON.toJsonTree(new ZombieSpawnChooser()).getAsJsonObject();
+        this.localJson = GSON.toJsonTree(ZombieSpawnChooser.getDefault()).getAsJsonObject();
     }
 
     @Override
@@ -59,8 +59,12 @@ public class ZombieSpawnChooserScreen extends AbstractBranchConfigScreen {
                             },
 
                             (jsonElement) -> {
-                                 ZombieSpawnChooser.WrappedZombieType wrappedType = GSON.fromJson(jsonElement, ZombieSpawnChooser.WrappedZombieType.class);
-                                 return wrappedType.toString();
+                                ZombieSpawnChooser.WrappedZombieType wrappedType = GSON.fromJson(jsonElement, ZombieSpawnChooser.WrappedZombieType.class);
+                                String name = Component.translatable(
+                                        "zombie_type." + wrappedType.zombieType.getId().getNamespace() + "." + wrappedType.zombieType.getId().getPath()
+                                ).getString();
+                                return Component.translatable("gui.zombiegamereborn.wrappedzombietype.display_format",
+                                        name, wrappedType.chance, wrappedType.type.name).getString();
                             },
 
                             (lastScreen1, jsonElement1, itemSaveCallback) -> {

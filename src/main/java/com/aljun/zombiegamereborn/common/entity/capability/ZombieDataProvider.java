@@ -57,6 +57,9 @@ public class ZombieDataProvider implements ICapabilityProvider, INBTSerializable
         tag.putBoolean("fleeSun",data.fleeSun());
         tag.putDouble("ambientVolumeModify", data.getAmbientVolumeModify());
         tag.putDouble("stepVolumeModify", data.getStepVolumeModify());
+        if (data.getCustomLootTable() != null) {
+            tag.putString("customLootTable", data.getCustomLootTable().toString());
+        }
         return tag;
     }
 
@@ -82,5 +85,8 @@ public class ZombieDataProvider implements ICapabilityProvider, INBTSerializable
         data.setFleeSun(tag.getBoolean("fleeSun"));
         data.setAmbientVolumeModify(tag.getDouble("ambientVolumeModify"));
         data.setStepVolumeModify(tag.getDouble("stepVolumeModify"));
+        if (tag.contains("customLootTable")) {
+            data.setCustomLootTable(ResourceLocation.parse(tag.getString("customLootTable")));
+        }
     }
 }

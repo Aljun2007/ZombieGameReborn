@@ -62,6 +62,9 @@ public interface IZombieData {
     void setAttributesMovementSpeedModify(double modify);
     double getTotalMovementSpeedModify();
 
+    @Nullable
+    ResourceLocation getCustomLootTable();
+    void setCustomLootTable(@Nullable ResourceLocation lootTable);
 
     boolean canJumpAttack();
     void enableJumpAttack(boolean value);

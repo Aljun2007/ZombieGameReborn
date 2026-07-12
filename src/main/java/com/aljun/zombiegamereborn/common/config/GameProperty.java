@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameProperty {
 
@@ -33,10 +34,18 @@ public class GameProperty {
     public boolean canZombiePlaceBlock = true;
     @SerializedName("can_piglin_infection")
     public boolean canPiglinInfection = true;
+    @SerializedName("mob_replacement")
+    public MobReplacement mobReplacement = MobReplacement.getDefault();
+    @SerializedName("keep_mob_loot_table")
+    public boolean keepMobLootTable = true;
+    @SerializedName("max_empowered_builder_count")
+    public int maxEmpoweredBuilderCount = 100;
+    @SerializedName("max_empowered_miner_count")
+    public int maxEmpoweredMinerCount = 100;
 
     private volatile ArrayList<StageProperty> sortedCache = null;
     private volatile int configHash = 0;
-    private final Map<Double, StageProperty> dayCache = new HashMap<>();
+    private final Map<Double, StageProperty> dayCache = new ConcurrentHashMap<>();
 
     private GameProperty() {
         stageProperties.add(new StageProperty());
@@ -81,6 +90,24 @@ public class GameProperty {
         // 解析 can_piglin_infection
         if (obj.has("can_piglin_infection")) {
             property.canPiglinInfection = obj.get("can_piglin_infection").getAsBoolean();
+        }
+
+        // 解析 mob_replacement
+        if (obj.has("mob_replacement") && obj.get("mob_replacement").isJsonObject()) {
+            property.mobReplacement = MobReplacement.fromJsonObject(obj.getAsJsonObject("mob_replacement"));
+        }
+
+        // 解析 keep_mob_loot_table
+        if (obj.has("keep_mob_loot_table")) {
+            property.keepMobLootTable = obj.get("keep_mob_loot_table").getAsBoolean();
+        }
+
+        // 解析性能参数
+        if (obj.has("max_empowered_builder_count")) {
+            property.maxEmpoweredBuilderCount = obj.get("max_empowered_builder_count").getAsInt();
+        }
+        if (obj.has("max_empowered_miner_count")) {
+            property.maxEmpoweredMinerCount = obj.get("max_empowered_miner_count").getAsInt();
         }
 
         return property;
@@ -175,6 +202,10 @@ public class GameProperty {
         obj.addProperty("can_zombie_break_block", canZombieBreakBlock);
         obj.addProperty("can_zombie_place_block", canZombiePlaceBlock);
         obj.addProperty("can_piglin_infection", canPiglinInfection);
+        obj.add("mob_replacement", mobReplacement.toJsonObject());
+        obj.addProperty("keep_mob_loot_table", keepMobLootTable);
+        obj.addProperty("max_empowered_builder_count", maxEmpoweredBuilderCount);
+        obj.addProperty("max_empowered_miner_count", maxEmpoweredMinerCount);
 
         return obj;
     }

@@ -42,6 +42,8 @@ public class PlayerDataProvider implements ICapabilityProvider, INBTSerializable
         tag.putLong("undergroundDay", data.getUndergroundDay());
         tag.putLong("undergroundGameTime", data.getUndergroundGameTime());
         tag.putLong("lastEstimatedDay", data.getLastEstimatedDay());
+        tag.putLong("totalZombieKills", data.getTotalZombieKills());
+
         return tag;
     }
 
@@ -52,5 +54,7 @@ public class PlayerDataProvider implements ICapabilityProvider, INBTSerializable
         data.setUndergroundDay(tag.getLong("undergroundDay"));
         data.setUndergroundGameTime(tag.getLong("undergroundGameTime"));
         data.setLastEstimatedDay(tag.getLong("lastEstimatedDay"));
+        data.setTotalZombieKills(tag.getLong("totalZombieKills"));
+
     }
 }

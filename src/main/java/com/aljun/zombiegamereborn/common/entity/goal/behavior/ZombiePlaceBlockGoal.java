@@ -9,11 +9,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.function.Supplier;
+
+import static com.aljun.zombiegamereborn.utils.ZombieUtils.isCuring;
 
 public class ZombiePlaceBlockGoal extends Goal {
     private final Zombie zombie;
@@ -28,6 +31,7 @@ public class ZombiePlaceBlockGoal extends Goal {
     private Supplier<BlockState> defaultPlaceBlock = Blocks.DIRT::defaultBlockState;
 
     public boolean place(BlockPos blockPos, BlockState blockState) {
+        if (isCuring(this.zombie)) return false;
         if (this.lastPlaceTime + PLACE_COOLDOWN >= this.zombie.level().getGameTime()) {
             return true;
         }
@@ -40,6 +44,7 @@ public class ZombiePlaceBlockGoal extends Goal {
     }
 
     public boolean placeIgnoreCoolDown(BlockPos blockPos, BlockState blockState) {
+        if (isCuring(this.zombie)) return false;
         if (this.checkState(blockState) && this.checkPos(blockPos)) {
             this.succeedPlace(blockPos, blockState);
             return true;

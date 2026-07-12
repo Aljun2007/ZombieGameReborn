@@ -1,0 +1,24 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:clock"
+    },
+    "title": {
+      "translate": "advancements.zombiegamereborn.epic_void_time_correction.title"
+    },
+    "description": {
+      "translate": "advancements.zombiegamereborn.epic_void_time_correction.description"
+      "color": "gray"
+    },
+
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "clock_underground": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

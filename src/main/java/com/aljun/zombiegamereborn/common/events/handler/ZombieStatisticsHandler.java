@@ -15,7 +15,8 @@ public class ZombieStatisticsHandler {
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             ZombieStatic.resetZombieCount();
-            ZombieGoalOptimizer.refreshQuota(ZGRGame.getGameProperty().getGlobalStage(event.getServer()));
+            ZombieGoalOptimizer.refreshQuota();
+
         }
     }
 }

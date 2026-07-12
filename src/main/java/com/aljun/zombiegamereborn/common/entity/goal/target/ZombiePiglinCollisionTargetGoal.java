@@ -1,9 +1,11 @@
 package com.aljun.zombiegamereborn.common.entity.goal.target;
 
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
+import com.aljun.zombiegamereborn.network.packet.AdvancementHandler;
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.monster.Zombie;
@@ -52,6 +54,8 @@ public class ZombiePiglinCollisionTargetGoal extends TargetGoal {
         this.lastAlertTime = gameTime;
 
         if (this.mob.getRandom().nextFloat() >= zombieProperty.piglinCollisionAngerChance) return false;
+
+        AdvancementHandler.grantPiglinCollision((ServerPlayer) squeezer);
 
         this.mob.setTarget(squeezer);
         alertNearbyPiglins(squeezer);

@@ -27,6 +27,8 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
+import static com.aljun.zombiegamereborn.utils.ZombieUtils.isCuring;
+
 public class ZombieBreakBlockGoal extends Goal {
 
     private final Zombie zombie;
@@ -49,7 +51,16 @@ public class ZombieBreakBlockGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return !this.isDone&& ZGRGame.Rules.canZombieBreakBlock(this.zombie.getServer());
+        return !this.isDone() && ZGRGame.Rules.canZombieBreakBlock(this.zombie.getServer())
+                && !isCuring(this.zombie);
+    }
+
+    private boolean canContinueBreaking() {
+        return positionVerification(this.pos)
+                && this.zombie.isAlive()
+                && blockVerification(this.pos, this.state)
+                && ZGRGame.Rules.canZombieBreakBlock(this.zombie.getServer())
+                && !isCuring(this.zombie);
     }
 
     @Override
@@ -63,15 +74,6 @@ public class ZombieBreakBlockGoal extends Goal {
     public boolean requiresUpdateEveryTick() {
         return true;
     }
-
-    private boolean canContinueBreaking() {
-        return positionVerification(this.pos)
-                && this.zombie.isAlive()
-                && blockVerification(this.pos,this.state)
-                && ZGRGame.Rules.canZombieBreakBlock(this.zombie.getServer());
-    }
-
-
 
     @Override
     public void tick() {

@@ -8,6 +8,7 @@ import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieWaterBridgeB
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.utils.MathUtils;
 import com.aljun.zombiegamereborn.utils.PathConstructor;
+import com.aljun.zombiegamereborn.utils.RandomUtils;
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -61,7 +62,15 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     private long lastGiveUpBuildTime = 0L;
     private boolean isTried = false;
     private long lastHurtAndCanReachPlayerTime = 0L;
-    private PathConstructor.Style style = PathConstructor.Style.JUMP_PRIORITIZED;
+    private PathConstructor.Style style = randomStyle();
+
+    private PathConstructor.Style randomStyle() {
+        if (RandomUtils.booleanByChance(0.6)) {
+            return PathConstructor.Style.JUMP_PRIORITIZED;
+        } else return PathConstructor.Style.NORMAL;
+
+    }
+
     private Boolean cachedCanBreak = null;
     private Boolean cachedCanPlace = null;
     private IZombieData data;

@@ -2,6 +2,9 @@ package com.aljun.zombiegamereborn.common.events.handler;
 
 import com.aljun.zombiegamereborn.common.player.PlayerStatic;
 import com.aljun.zombiegamereborn.common.player.TimeBroadcast;
+import com.aljun.zombiegamereborn.network.ZGRNetwork;
+import com.aljun.zombiegamereborn.network.packet.LoginWelcomePacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -49,6 +52,12 @@ public class TimeBroadcastHandler {
         if (event.getEntity().level().isClientSide) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         TimeBroadcast.scheduleLoginBroadcast(player);
+        MinecraftServer server = player.getServer();
+        boolean isOp = false;
+        if (server != null) {
+            isOp = server.getPlayerList().isOp(player.getGameProfile());
+        }
+        ZGRNetwork.sendToClient(new LoginWelcomePacket(isOp), player);
     }
 
     @SubscribeEvent

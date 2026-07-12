@@ -41,7 +41,7 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
         this.tabs.add(new ConfigTab(Component.translatable("gui.zombiegamereborn.zombieproperty.tab.volume"), this::initVolumeTab));
         this.tabs.add(new ConfigTab(Component.translatable("gui.zombiegamereborn.zombieproperty.tab.sense"), this::initSenseTab));
         this.tabs.add(new ConfigTab(Component.translatable("gui.zombiegamereborn.zombieproperty.tab.mod_compat"), this::initModCompatTab));
-        this.tabs.add(new ConfigTab(Component.translatable("gui.zombiegamereborn.zombieproperty.tab.performance"), this::initPerformanceTab));
+
     }
 
     private void initAttributesTab(SimpleSettingsPanel panel) {
@@ -76,12 +76,6 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.ambient_volume_modify", "ambient_volume_modify", 1.0d, 0.0d, 1.0d);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.step_volume_modify", "step_volume_modify", 1.0d, 0.0d, 1.0d);
 
-    }
-
-    private void initPerformanceTab(SimpleSettingsPanel panel) {
-        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.performance");
-        panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.max_empowered_miner", "max_empowered_zombie_miner_count", 100, 0, Integer.MAX_VALUE);
-        panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.max_empowered_builder", "max_empowered_zombie_builder_count", 100, 0, Integer.MAX_VALUE);
     }
 
     private void initSenseTab(SimpleSettingsPanel panel) {

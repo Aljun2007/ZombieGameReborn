@@ -12,6 +12,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -66,7 +67,7 @@ public class SummonZombieCommand {
         ServerLevel level = context.getSource().getLevel();
 
         EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(mobId);
-        if (entityType == null || !Zombie.class.isAssignableFrom(entityType.getBaseClass())) {
+        if (entityType != null && !Zombie.class.isAssignableFrom(entityType.getBaseClass())) {
             context.getSource().sendFailure(
                     Component.translatable("command.zombiegamereborn.summon.invalid_entity", mobId.toString())
             );

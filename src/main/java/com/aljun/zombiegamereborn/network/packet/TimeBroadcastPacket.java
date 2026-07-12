@@ -1,11 +1,14 @@
 package com.aljun.zombiegamereborn.network.packet;
 
+import com.aljun.zombiegamereborn.common.client.config.ClientConfigManager;
 import com.aljun.zombiegamereborn.common.game.DayTime;
+import com.aljun.zombiegamereborn.sounds.ZGRSoundEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -20,6 +23,7 @@ public class TimeBroadcastPacket {
     private final long dayTime;
     private final long estimatedDay;
     private final boolean showTime;
+    private boolean timeAlarmEnabled = false; // 默认不响，仅 CHAT_MESSAGE 时传 true
 
     // CENTER_SUBTITLE: (day, dayTimeID, dayTime, showTime)
     public TimeBroadcastPacket(long day, DayTime dayTimeID, long dayTime, boolean showTime) {
@@ -55,15 +59,16 @@ public class TimeBroadcastPacket {
         this.chatComponentJson = "";
     }
 
-    // CHAT_MESSAGE: (chatComponent)
+    // CHAT_MESSAGE 构造器：
     public TimeBroadcastPacket(Component chatComponent) {
         this.displayType = DisplayType.CHAT_MESSAGE;
+        this.chatComponentJson = Component.Serializer.toJson(chatComponent);
+        this.timeAlarmEnabled = true;
         this.day = -1;
         this.dayTimeID = -1;
         this.dayTime = -1;
         this.showTime = false;
         this.estimatedDay = -1;
-        this.chatComponentJson = Component.Serializer.toJson(chatComponent);
     }
 
     public TimeBroadcastPacket(FriendlyByteBuf buf) {
@@ -74,6 +79,7 @@ public class TimeBroadcastPacket {
         this.showTime = buf.readBoolean();
         this.estimatedDay = buf.readLong();
         this.chatComponentJson = buf.readUtf();
+        this.timeAlarmEnabled = buf.readBoolean();
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -84,17 +90,25 @@ public class TimeBroadcastPacket {
         buf.writeBoolean(this.showTime);
         buf.writeLong(this.estimatedDay);
         buf.writeUtf(this.chatComponentJson);
+        buf.writeBoolean(this.timeAlarmEnabled);
+    }
+
+    private static long getDisplayDay(long day, long dayTime) {
+        return dayTime >= 0 && Math.floorMod(dayTime, 24000L) >= 18000 ? day + 1 : day;
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> {
             if (context.getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
+                if (!ClientConfigManager.get().timeBroadcastEnabled) return;
+
                 Minecraft mc = Minecraft.getInstance();
                 switch (displayType) {
                     case CENTER_SUBTITLE -> {
                         DayTime dt = DayTime.values()[dayTimeID];
-                        Component title = Component.translatable("gui.zombiegamereborn.time_broadcast.day_title", this.day);
+                        Component title = Component.translatable("gui.zombiegamereborn.time_broadcast.day_title",
+                                getDisplayDay(this.day, this.dayTime));
                         MutableComponent subTitle = Component.translatable("daytime.zombiegamereborn." + dt.id);
                         if (showTime) {
                             subTitle.append("§l | §r").append(DayTime.transformToTime(this.dayTime));
@@ -105,7 +119,8 @@ public class TimeBroadcastPacket {
                         mc.gui.setTimes(10, 70, 20);
                     }
                     case DAY_ONLY -> {
-                        mc.gui.setTitle(Component.translatable("gui.zombiegamereborn.time_broadcast.day_title", this.day));
+                        mc.gui.setTitle(Component.translatable("gui.zombiegamereborn.time_broadcast.day_title",
+                                getDisplayDay(this.day, this.dayTime)));
                         mc.gui.setTimes(10, 70, 20);
                     }
                     case UNDERGROUND_ESTIMATE -> {
@@ -120,10 +135,16 @@ public class TimeBroadcastPacket {
                         if (!chatComponentJson.isEmpty()) {
                             Component chatMsg = Component.Serializer.fromJson(chatComponentJson);
                             if (chatMsg != null && mc.player != null) {
-                                mc.player.displayClientMessage(chatMsg, false);
+                                if (ClientConfigManager.get().timeBroadcastEnabled) {
+                                    mc.player.displayClientMessage(chatMsg, false);
+                                    if (timeAlarmEnabled && ClientConfigManager.get().timeAlarmEnabled) {
+                                        mc.player.playSound(ZGRSoundEvents.CLOCK_RING, 0.5f, 1.5f);
+                                    }
+                                }
                             }
                         }
                     }
+
                 }
             }
         });

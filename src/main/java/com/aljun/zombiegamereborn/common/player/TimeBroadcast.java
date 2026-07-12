@@ -4,6 +4,7 @@ import com.aljun.zombiegamereborn.api.ZGRPlayerAPI;
 import com.aljun.zombiegamereborn.common.game.DayTime;
 import com.aljun.zombiegamereborn.common.player.capability.IPlayerData;
 import com.aljun.zombiegamereborn.network.ZGRNetwork;
+import com.aljun.zombiegamereborn.network.packet.AdvancementHandler;
 import com.aljun.zombiegamereborn.network.packet.TimeBroadcastPacket;
 import com.aljun.zombiegamereborn.sounds.ZGRSoundEvents;
 import net.minecraft.network.chat.Component;
@@ -25,7 +26,7 @@ public class TimeBroadcast {
     private static final Map<UUID, PlayerBroadcastData> PLAYER_DATA_MAP = new ConcurrentHashMap<>();
 
     private static final int LEAVE_SURFACE_THRESHOLD_TICKS = 14400;
-    private static final int UNDERGROUND_ESTIMATE_THRESHOLD = 3600;
+    public static final int UNDERGROUND_ESTIMATE_THRESHOLD = 36000; // 1.5天后模糊时间概念
     private static final int LOGIN_BROADCAST_DELAY = 40;
 
     public static void scheduleLoginBroadcast(ServerPlayer player) {
@@ -47,8 +48,6 @@ public class TimeBroadcast {
         PlayerBroadcastData data = PLAYER_DATA_MAP.computeIfAbsent(uuid, k -> new PlayerBroadcastData());
 
         IPlayerData playerData = ZGRPlayerAPI.getPlayerData(player);
-        if (playerData == null) return;
-
         ServerLevel overworld = player.server.overworld();
         long dayTime = overworld.getDayTime();
         long days = playerData.getSurvivedDay();
@@ -72,7 +71,7 @@ public class TimeBroadcast {
                     ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, current, dayTime, true), player);
                 } else if (isOnSurface) {
                     DayTime current = DayTime.fromDayTime(dayTime);
-                    ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, current, dayTime, true), player);
+                    ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, current, dayTime, false), player);
                 } else {
                     long undergroundSince = readUndergroundGameTime(player);
                     if (undergroundSince > 0 && gameTime - undergroundSince >= UNDERGROUND_ESTIMATE_THRESHOLD) {
@@ -139,8 +138,6 @@ public class TimeBroadcast {
 
     private static long calculateEstimatedDay(ServerPlayer player, ServerLevel overworld, PlayerBroadcastData data) {
         IPlayerData playerData = ZGRPlayerAPI.getPlayerData(player);
-        if (playerData == null) return 1L;
-
         long lastSurfaceDay = playerData.getUndergroundDay();
         long lastSurfaceGameTime = playerData.getUndergroundGameTime();
         long lastEstimatedDay = playerData.getLastEstimatedDay();
@@ -164,8 +161,6 @@ public class TimeBroadcast {
 
     private static void saveUndergroundEntry(ServerPlayer player, long currentDay, long gameTime) {
         IPlayerData data = ZGRPlayerAPI.getPlayerData(player);
-        if (data == null) return;
-
         if (data.getUndergroundDay() <= 0) {
             data.setUndergroundDay(currentDay);
             data.setUndergroundGameTime(gameTime);
@@ -177,13 +172,11 @@ public class TimeBroadcast {
 
     private static long readUndergroundGameTime(ServerPlayer player) {
         IPlayerData data = ZGRPlayerAPI.getPlayerData(player);
-        return data != null ? data.getUndergroundGameTime() : 0L;
+        return data.getUndergroundGameTime();
     }
 
     private static void clearUndergroundData(ServerPlayer player) {
         IPlayerData data = ZGRPlayerAPI.getPlayerData(player);
-        if (data == null) return;
-
         data.setUndergroundDay(0L);
         data.setUndergroundGameTime(0L);
         data.setLastEstimatedDay(0L);
@@ -198,8 +191,6 @@ public class TimeBroadcast {
     }
 
     private static void triggerUndergroundAlarm(ServerPlayer player) {
-        playSoundForPlayer(player, ZGRSoundEvents.CLOCK_RING, SoundSource.PLAYERS, 0.5f);
-
         Component chatMsg = buildChatComponent(player);
         ZGRNetwork.sendToClient(new TimeBroadcastPacket(chatMsg), player);
     }

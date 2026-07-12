@@ -4,6 +4,7 @@ import com.aljun.zombiegamereborn.common.config.GameProperty;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.network.ZGRNetwork;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyDownloadPacket;
+import com.aljun.zombiegamereborn.network.packet.OpenClientConfigScreenPacket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -20,13 +21,22 @@ public class ConfigCommand {
 
     public static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
         root.then(Commands.literal("config").then(
-                Commands.literal("gameProperty").executes(context -> {
+                Commands.literal("gameProperty")
+                        .requires(source -> source.hasPermission(2))
+                        .executes(context -> {
+                            ServerPlayer player = context.getSource().getPlayerOrException();
+                            GameProperty currentProperty = ZGRGame.getGameProperty();
+                            JsonObject configData = currentProperty.toJsonObject();
+                            ZGRNetwork.sendToClient(new GamePropertyDownloadPacket(configData), player);
+                            return 0;
+                        })
+        ).then(
+                Commands.literal("client").executes(context -> {
                     ServerPlayer player = context.getSource().getPlayerOrException();
-                    GameProperty currentProperty = ZGRGame.getGameProperty();
-                    JsonObject configData = currentProperty.toJsonObject();
-                    ZGRNetwork.sendToClient(new GamePropertyDownloadPacket(configData), player);
+                    ZGRNetwork.sendToClient(new OpenClientConfigScreenPacket(), player);
                     return 0;
                 })
         ));
     }
+
 }

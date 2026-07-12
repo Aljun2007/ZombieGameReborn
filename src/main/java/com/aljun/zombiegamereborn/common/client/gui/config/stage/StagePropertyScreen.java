@@ -49,6 +49,8 @@ public class StagePropertyScreen extends AbstractBranchConfigScreen {
         panel.addCallbackabeScreen("gui.zombiegamereborn.stageproperty.zombie_spawn", this, "zombie_spawn_chooser",
                 (screen, callback) -> new ZombieSpawnChooserScreen("", this.localJson.getAsJsonObject("zombie_spawn_chooser"),
                         callback, screen));
+        panel.addDoubleEditBox("gui.zombiegamereborn.stageproperty.replace_chance", "replace_chance", 0.0, 0.0, 1.0);
+        panel.addDoubleEditBox("gui.zombiegamereborn.stageproperty.remove_chance", "remove_chance", 0.0, 0.0, 1.0);
         panel.addDoubleEditBox("gui.zombiegamereborn.stageproperty.zombie_count_modify","zombie_count_modify", 1.0, 0.0, Double.MAX_VALUE);
         panel.addCheckBox("gui.zombiegamereborn.stageproperty.holy_cleansing","holy_cleansing", true);
 
