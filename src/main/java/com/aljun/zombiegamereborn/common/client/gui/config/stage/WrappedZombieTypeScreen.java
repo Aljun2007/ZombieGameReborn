@@ -1,13 +1,12 @@
 package com.aljun.zombiegamereborn.common.client.gui.config.stage;
 
 import com.aljun.zombiegamereborn.common.client.gui.config.core.AbstractBranchConfigScreen;
-import com.aljun.zombiegamereborn.common.client.gui.config.core.ListChooseScreen;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.SimpleSettingsPanel;
 import com.aljun.zombiegamereborn.common.config.ZombieSpawnChooser;
-import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.register.ZGRRegistries;
 import com.google.gson.*;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -59,14 +58,15 @@ public class WrappedZombieTypeScreen extends AbstractBranchConfigScreen {
                     .toList();
         });
         panel.addDoubleEditBox("gui.zombiegamereborn.wrappedzombietype.weight", "chance", 1.0, 0.0, Double.MAX_VALUE);
-        panel.addEnumCycleButton(
+        panel.addFakeEnumCycleButton(
                 "gui.zombiegamereborn.wrappedzombietype.spawn_type",
                 "type",
                 ZombieSpawnChooser.SpawnType.values(),
                 ZombieSpawnChooser.SpawnType.NORMAL,
-                type -> ((ZombieSpawnChooser.SpawnType) type).name,
-                e -> new JsonPrimitive(((ZombieSpawnChooser.SpawnType) e).name),
-                json -> ZombieSpawnChooser.SpawnType.byName(json.getAsString())
+                type -> I18n.get("gui.zombiegamereborn.spawntype." + type.name ),
+                type -> new JsonPrimitive(type.name),
+                json -> ZombieSpawnChooser.SpawnType.byName(((JsonPrimitive) json).getAsString())
         );
+
     }
 }

@@ -4,4 +4,5 @@ import net.minecraft.world.level.Level;
 
 public interface IEnhancedCelestialsProvider {
     void setBloodMoon(Level level);
+    boolean isBloodMoon(Level level);
 }

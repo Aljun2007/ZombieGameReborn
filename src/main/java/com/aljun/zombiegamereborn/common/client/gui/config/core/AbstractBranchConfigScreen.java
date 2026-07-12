@@ -3,6 +3,7 @@ package com.aljun.zombiegamereborn.common.client.gui.config.core;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -26,6 +27,11 @@ public abstract class AbstractBranchConfigScreen extends AbstractConfigScreen im
         List<ButtonInfo> buttons = new ArrayList<>();
         buttons.add(new ButtonInfo("gui.zombiegamereborn.core.save", this::onSave));
         return buttons;
+    }
+
+    @Override
+    protected Component getBackButtonText() {
+        return Component.translatable("gui.zombiegamereborn.core.cancel");
     }
 
     protected void onSave() {

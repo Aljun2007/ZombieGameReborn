@@ -66,7 +66,7 @@ public class ZGRConfigFileManager {
     }
 
     private static Path getServerConfigPath(MinecraftServer server) {
-        return server.getServerDirectory().toPath().resolve("serverconfig").resolve(CONFIG_FILE_NAME);
+        return server.getWorldPath(LevelResource.ROOT).resolve("serverconfig").resolve(CONFIG_FILE_NAME);
     }
 
     private static final Logger LOGGER = LogUtils.getLogger();

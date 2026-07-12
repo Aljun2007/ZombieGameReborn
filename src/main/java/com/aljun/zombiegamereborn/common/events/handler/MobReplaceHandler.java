@@ -2,8 +2,10 @@ package com.aljun.zombiegamereborn.common.events.handler;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.common.config.MobReplacement;
+import com.aljun.zombiegamereborn.common.config.StageProperty;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
+import com.aljun.zombiegamereborn.utils.RandomUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -31,12 +33,18 @@ public class MobReplaceHandler {
         MobReplacement.ReplaceableType action = ZGRGame.getGameProperty().mobReplacement.get(typeId);
         if (action == null) return;
 
+        StageProperty stage = ZGRGame.getGameProperty().getGlobalStage(event.getEntity().getServer());
+
         if (action == MobReplacement.ReplaceableType.REMOVE) {
-            event.setCanceled(true);
+            if (RandomUtils.booleanByChance(stage.removeChance)) {
+                event.setCanceled(true);
+            }
             return;
         }
 
-        // REPLACE → 按群系替换为僵尸变种
+        // REPLACE → 概率判定
+        if (!RandomUtils.booleanByChance(stage.replaceChance)) return;
+
         ResourceLocation lootTable = mob.getLootTable();
 
         // 疣猪 → 僵尸疣猪

@@ -131,11 +131,10 @@ public class MobReplacement {
         replacement.add(ResourceLocation.parse("minecraft:axolotl"), ReplaceableType.REMOVE);
         replacement.add(ResourceLocation.parse("minecraft:camel"), ReplaceableType.REMOVE);
         replacement.add(ResourceLocation.parse("minecraft:sniffer"), ReplaceableType.REMOVE);
-
+        replacement.add(ResourceLocation.parse("minecraft:slime"), ReplaceableType.REMOVE);
 
         // ===== 替换为僵尸 =====
         replacement.add(ResourceLocation.parse("minecraft:hoglin"), ReplaceableType.REPLACE);
-        replacement.add(ResourceLocation.parse("minecraft:slime"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:ghast"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:skeleton"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:stray"), ReplaceableType.REPLACE);
