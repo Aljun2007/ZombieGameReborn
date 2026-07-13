@@ -46,7 +46,7 @@ public class ZGRConfigFileManager {
             return GameProperty.fromJsonObject(jsonObject != null ? jsonObject : new JsonObject());
         } catch (Exception e) {
             LOGGER.error("读取配置文件失败: {}", configPath, e);
-            return GameProperty.empty();
+            return GamePropertyPresentUtils.disabled();
         }
     }
 
@@ -99,7 +99,7 @@ public class ZGRConfigFileManager {
             }
         } catch (Exception e) {
             LOGGER.error("读取全局默认配置文件失败: {}", configPath, e);
-            globalDefault = GamePropertyPresentUtils.generalDefault();
+            globalDefault = GamePropertyPresentUtils.initialDefault();
             return globalDefault;
         }
     }
@@ -124,11 +124,11 @@ public class ZGRConfigFileManager {
             return defaultProperty;
         } catch (Exception e) {
             LOGGER.error("创建全局默认配置文件失败", e);
-            return GameProperty.empty();
+            return GamePropertyPresentUtils.disabled();
         }
     }
 
     private static GameProperty createDefault() {
-        return GameProperty.empty();
+        return GamePropertyPresentUtils.disabled();
     }
 }

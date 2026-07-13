@@ -119,7 +119,7 @@ public abstract class ZombieMixin implements IZombieAccessor {
         if (zombie.level().isClientSide) return;
         MinecraftServer server = zombie.getServer();
         if (server != null && (zombie.level().getGameTime() + zombie.getBlockY()) % 20 == 0) {
-            if (ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).holyCleansing) {
+            if (ZGRGame.getGameProperty().getGlobalStage(zombie.getServer()).holyCleansing) {
                 zombie.setSecondsOnFire(8);
             }
         }
