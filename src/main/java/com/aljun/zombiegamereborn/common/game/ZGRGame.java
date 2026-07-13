@@ -1,10 +1,11 @@
 package com.aljun.zombiegamereborn.common.game;
 
 import com.aljun.zombiegamereborn.common.config.GameProperty;
+import com.aljun.zombiegamereborn.utils.GamePropertyPresentUtils;
 import net.minecraft.server.MinecraftServer;
 
 public class ZGRGame {
-    private static GameProperty gameProperty = GameProperty.empty();
+    private static GameProperty gameProperty = GamePropertyPresentUtils.disabled();
 
     public static void newGameProperty(GameProperty gameProperty) {
         ZGRGame.gameProperty = gameProperty;

@@ -8,6 +8,7 @@ import com.aljun.zombiegamereborn.common.config.MobReplacement;
 import com.aljun.zombiegamereborn.common.config.StageProperty;
 import com.aljun.zombiegamereborn.network.ZGRNetwork;
 import com.aljun.zombiegamereborn.network.packet.GamePropertyUploadPacket;
+import com.aljun.zombiegamereborn.utils.GamePropertyPresentUtils;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
@@ -34,7 +35,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
 
     @Override
     protected void loadDefaultSettings() {
-        this.localJson = GSON.toJsonTree( GameProperty.empty()).getAsJsonObject();
+        this.localJson = GSON.toJsonTree(GamePropertyPresentUtils.initialDefault()).getAsJsonObject();
     }
 
     @Override

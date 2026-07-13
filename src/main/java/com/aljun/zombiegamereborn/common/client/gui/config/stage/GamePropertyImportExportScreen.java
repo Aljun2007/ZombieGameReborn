@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.common.client.gui.config.stage;
 
 import com.aljun.zombiegamereborn.ZombieGameReborn;
+import com.aljun.zombiegamereborn.utils.GamePropertyPresentUtils;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -57,7 +58,6 @@ public class GamePropertyImportExportScreen extends Screen {
     private Button openFolderButton;
     private Button renameButton;
     private Button refreshButton;
-    private Button importButton;
 
     public GamePropertyImportExportScreen(
             JsonObject currentConfig,
@@ -73,6 +73,20 @@ public class GamePropertyImportExportScreen extends Screen {
 
     private void refreshFileList() {
         fileEntries.clear();
+        // 1. 加载三个内置预设（置顶）
+        addPresetEntry("gui.zombiegamereborn.gameproperty.preset_global_default", GamePropertyPresentUtils.globalDefault().toJsonObject());
+        addPresetEntry("gui.zombiegamereborn.gameproperty.preset_initial_default", GamePropertyPresentUtils.initialDefault().toJsonObject());
+        addPresetEntry("gui.zombiegamereborn.gameproperty.preset_disabled", GamePropertyPresentUtils.disabled().toJsonObject());
+        // 2. 加载用户预设（磁盘文件）
+        loadUserPresets();
+    }
+
+    private void addPresetEntry(String translationKey, JsonObject json) {
+        String localizedName = I18n.get(translationKey);
+        fileEntries.add(new FileEntry(localizedName, json, null, 0L, true, true));
+    }
+
+    private void loadUserPresets() {
         Path dir = getPresetDirectory();
         try {
             Files.createDirectories(dir);
@@ -95,7 +109,7 @@ public class GamePropertyImportExportScreen extends Screen {
                     }
                 } catch (Exception ignored) {
                 }
-                fileEntries.add(new FileEntry(fileName, json, path, lastModified, valid));
+                fileEntries.add(new FileEntry(fileName, json, path, lastModified, valid, false));
             }
         } catch (Exception ignored) {
         }
@@ -137,7 +151,9 @@ public class GamePropertyImportExportScreen extends Screen {
         renderScrollbar(guiGraphics, mouseX, mouseY, partialTick);
 
         if (selectedIndex >= 0 && selectedIndex < fileEntries.size()) {
-            String selectedText = I18n.get("gui.zombiegamereborn.core.selected_prefix") + fileEntries.get(selectedIndex).name;
+            FileEntry entry = fileEntries.get(selectedIndex);
+            String displayName = entry.builtIn ? (entry.name + " §l[预设]§r") : entry.name;
+            String selectedText = I18n.get("gui.zombiegamereborn.core.selected_prefix") + displayName;
             guiGraphics.drawString(this.font, selectedText, 10, this.height - BOTTOM_BAR_HEIGHT - 15, 0xAAAAAA);
         }
     }
@@ -372,6 +388,14 @@ public class GamePropertyImportExportScreen extends Screen {
             return;
         }
         FileEntry entry = fileEntries.get(selectedIndex);
+        if (entry.builtIn) {
+            if (Minecraft.getInstance().player != null) {
+                Minecraft.getInstance().player.displayClientMessage(
+                        Component.translatable("gui.zombiegamereborn.gameproperty.cannot_rename_default"), false
+                );
+            }
+            return;
+        }
         Minecraft.getInstance().setScreen(new RenameScreen(this, entry.name, newName -> {
             Path oldPath = entry.path;
             Path newPath = oldPath.resolveSibling(newName + ".json");
@@ -428,18 +452,22 @@ public class GamePropertyImportExportScreen extends Screen {
                 }
 
                 FileEntry entry = fileEntries.get(i);
-                String timeStr = LocalDateTime.ofInstant(
+                String timeStr = entry.builtIn ? "" : LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(entry.lastModified),
                         ZoneId.systemDefault()
                 ).format(DATE_FORMATTER);
-                String timeText = "§7" + timeStr;
-                String displayText = entry.valid ? entry.name : (entry.name + " §c[错误]");
+                String timeText = entry.builtIn ? "" : ("§7" + timeStr);
+                String displayText = entry.valid
+                        ? (entry.builtIn ? (entry.name + " §l[预设]§r") : entry.name)
+                        : (entry.name + " §c[错误]");
 
                 int nameColor = entry.valid ? (isSelected ? 0xFFFFAA : 0xDDDDDD) : (isSelected ? 0xFFAA55 : 0xFF7777);
                 guiGraphics.drawString(this.font, displayText, 25, itemY + 7, nameColor);
-                guiGraphics.drawString(this.font, timeText,
-                        this.width - 25 - this.font.width(timeText), itemY + 7,
-                        isSelected ? 0xAAAAAA : 0x888888);
+                if (!entry.builtIn && !timeText.isEmpty()) {
+                    guiGraphics.drawString(this.font, timeText,
+                            this.width - 25 - this.font.width(timeText), itemY + 7,
+                            isSelected ? 0xAAAAAA : 0x888888);
+                }
             }
         }
 
@@ -558,7 +586,7 @@ public class GamePropertyImportExportScreen extends Screen {
         return true;
     }
 
-    private record FileEntry(String name, JsonObject content, Path path, long lastModified, boolean valid) {}
+    private record FileEntry(String name, JsonObject content, Path path, long lastModified, boolean valid, boolean builtIn) {}
 
     @OnlyIn(Dist.CLIENT)
     private static class ExportNameScreen extends Screen {

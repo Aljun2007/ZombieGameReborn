@@ -15,6 +15,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.Zoglin;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -55,6 +56,11 @@ public class MobReplaceHandler {
         // 疣猪 → 僵尸疣猪
         if (mob.getType() == EntityType.HOGLIN) {
             replace(event, mob, lootTable, EntityType.ZOGLIN);
+            return;
+        }
+
+        if (mob.getType().getBaseClass().isAssignableFrom(AbstractVillager.class)) {
+            replace(event, mob, lootTable, EntityType.ZOMBIE_VILLAGER);
             return;
         }
 
