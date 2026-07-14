@@ -36,6 +36,7 @@ public class MobMixin {
         Mob self = (Mob) (Object) this;
         if (self.getClass().getName().equals(GUARD_CLASS_NAME)) {
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+            if (data == null) return;
             if (!data.isTypeInitialized()) {
                 ZombieTypeManager.initializeZombieWithNoWeaponAndArmor(
                         zombie, ZGRZombieTypes.ZOMBIE_GUARD_VILLAGER.getId());
@@ -54,7 +55,10 @@ public class MobMixin {
         Mob mob = (Mob) (Object) this;
         if (mob instanceof Zombie zombie) {
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-            return (float) (originalVolume * data.getAmbientVolumeModify());
+            if (data != null) {
+                return (float) (originalVolume * data.getAmbientVolumeModify());
+            }
+            return originalVolume;
         }
         return originalVolume;
     }

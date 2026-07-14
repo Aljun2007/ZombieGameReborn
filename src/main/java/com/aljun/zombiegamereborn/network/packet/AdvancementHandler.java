@@ -57,6 +57,7 @@ public class AdvancementHandler {
 
     private static boolean meetsUndergroundCondition(ServerPlayer player) {
         IPlayerData data = ZGRPlayerAPI.getPlayerData(player);
+        if (data == null) return false;
 
         long undergroundGameTime = data.getUndergroundGameTime();
         if (undergroundGameTime <= 0) return false;
@@ -112,6 +113,7 @@ public class AdvancementHandler {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
 
         IPlayerData data = ZGRPlayerAPI.getPlayerData(player);
+        if (data == null) return;
 
         long kills = data.getTotalZombieKills() + 1;
         data.setTotalZombieKills(kills);

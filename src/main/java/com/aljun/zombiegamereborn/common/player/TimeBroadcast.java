@@ -66,22 +66,22 @@ public class TimeBroadcast {
             if (data.loginBroadcastDelay == 0) {
                 if (!isInOverworld) {
                     ZGRNetwork.sendToClient(new TimeBroadcastPacket(), player);
-                    return;
-                }
-                boolean hasClock = hasClock(player);
-                if (hasClock) {
-                    DayTime current = DayTime.fromDayTime(dayTime);
-                    ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, current, dayTime, true), player);
-                } else if (isOnSurface) {
-                    DayTime current = DayTime.fromDayTime(dayTime);
-                    ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, current, dayTime, false), player);
                 } else {
-                    long undergroundSince = readUndergroundGameTime(player);
-                    if (undergroundSince > 0 && gameTime - undergroundSince >= UNDERGROUND_ESTIMATE_THRESHOLD) {
-                        long estimated = calculateEstimatedDay(player, overworld, data);
-                        ZGRNetwork.sendToClient(new TimeBroadcastPacket(estimated, true), player);
+                    boolean hasClock = hasClock(player);
+                    if (hasClock) {
+                        DayTime current = DayTime.fromDayTime(dayTime);
+                        ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, current, dayTime, true), player);
+                    } else if (isOnSurface) {
+                        DayTime current = DayTime.fromDayTime(dayTime);
+                        ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, current, dayTime, false), player);
                     } else {
-                        ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, false), player);
+                        long undergroundSince = readUndergroundGameTime(player);
+                        if (undergroundSince > 0 && gameTime - undergroundSince >= UNDERGROUND_ESTIMATE_THRESHOLD) {
+                            long estimated = calculateEstimatedDay(player, overworld, data);
+                            ZGRNetwork.sendToClient(new TimeBroadcastPacket(estimated, true), player);
+                        } else {
+                            ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, false), player);
+                        }
                     }
                 }
             }
@@ -199,7 +199,8 @@ public class TimeBroadcast {
     }
 
     private static void triggerReturnBroadcast(ServerPlayer player, long days, DayTime dayTime, boolean hasClock) {
-        ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, dayTime, player.level().dayTime(), hasClock), player);
+        ServerLevel overworld = player.server.overworld();
+        ZGRNetwork.sendToClient(new TimeBroadcastPacket(days, dayTime, overworld.getDayTime(), hasClock), player);
     }
 
     private static Component buildChatComponent(ServerPlayer player) {

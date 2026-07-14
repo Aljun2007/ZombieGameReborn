@@ -25,7 +25,7 @@ import java.util.List;
 public class ZGRDebugCommand implements Command<CommandSourceStack> {
 
     public static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
-        LiteralArgumentBuilder<CommandSourceStack> debugCommand = Commands.literal("debug").requires(context -> ZGRDebug.isDebugMode());
+        LiteralArgumentBuilder<CommandSourceStack> debugCommand = Commands.literal("debug") .requires(source -> source.hasPermission(2)&&ZGRDebug.isDebugMode());
         load(debugCommand);
         root.then(debugCommand);
     }

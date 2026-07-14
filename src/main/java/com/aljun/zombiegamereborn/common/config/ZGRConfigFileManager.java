@@ -129,6 +129,6 @@ public class ZGRConfigFileManager {
     }
 
     private static GameProperty createDefault() {
-        return GamePropertyPresentUtils.disabled();
+        return GamePropertyPresentUtils.initialDefault();
     }
 }

@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
@@ -161,7 +162,9 @@ public class ZombieTypeManager {
             zombie.goalSelector.addGoal(1, placeBlockGoal);
         }
         if (data.canSwim()) {
-            zombie.goalSelector.addGoal(1, new ZombieFloatGoal(zombie));
+            if (!(zombie instanceof Drowned)) {
+                zombie.goalSelector.addGoal(1, new ZombieFloatGoal(zombie));
+            }
         }
         if (data.canJumpAttack()) {
             zombie.goalSelector.addGoal(3, new JumpAttackGoal(zombie));

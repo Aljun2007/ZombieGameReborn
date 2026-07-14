@@ -134,6 +134,13 @@ public class MobReplacement {
         replacement.add(ResourceLocation.parse("minecraft:slime"), ReplaceableType.REMOVE);
         replacement.add(ResourceLocation.parse("minecraft:phantom"), ReplaceableType.REMOVE);
 
+        // ===== Quark 模组被动生物移除 =====
+        replacement.add(ResourceLocation.parse("quark:stoneling"), ReplaceableType.REMOVE);
+        replacement.add(ResourceLocation.parse("quark:crab"), ReplaceableType.REMOVE);
+        replacement.add(ResourceLocation.parse("quark:foxhound"), ReplaceableType.REMOVE);
+        replacement.add(ResourceLocation.parse("quark:toretoise"), ReplaceableType.REMOVE);
+        replacement.add(ResourceLocation.parse("quark:shiba"), ReplaceableType.REMOVE);
+
         // ===== 替换为僵尸 =====
         replacement.add(ResourceLocation.parse("minecraft:hoglin"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:ghast"), ReplaceableType.REPLACE);
@@ -151,8 +158,13 @@ public class MobReplacement {
         replacement.add(ResourceLocation.parse("mekanismadditions:baby_skeleton"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("mekanismadditions:baby_enderman"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("mekanismadditions:baby_stray"), ReplaceableType.REPLACE);
+        replacement.add(ResourceLocation.parse("mekanismadditions:baby_creeper"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("mekanismadditions:baby_wither_skeleton"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("touhou_little_maid:entity.monster.fairy"), ReplaceableType.REPLACE);
+
+        // ===== Quark 模组敌怪替换 =====
+        replacement.add(ResourceLocation.parse("quark:forgotten"), ReplaceableType.REPLACE);
+        replacement.add(ResourceLocation.parse("quark:wraith"), ReplaceableType.REPLACE);
 
         return replacement;
     }

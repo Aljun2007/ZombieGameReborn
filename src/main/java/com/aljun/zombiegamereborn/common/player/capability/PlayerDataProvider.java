@@ -50,11 +50,20 @@ public class PlayerDataProvider implements ICapabilityProvider, INBTSerializable
     @Override
     public void deserializeNBT(CompoundTag tag) {
         createData();
-        data.setSurvivedDay(tag.getLong("survivedDay"));
-        data.setUndergroundDay(tag.getLong("undergroundDay"));
-        data.setUndergroundGameTime(tag.getLong("undergroundGameTime"));
-        data.setLastEstimatedDay(tag.getLong("lastEstimatedDay"));
-        data.setTotalZombieKills(tag.getLong("totalZombieKills"));
-
+        if (tag.contains("survivedDay")) {
+            data.setSurvivedDay(tag.getLong("survivedDay"));
+        }
+        if (tag.contains("undergroundDay")) {
+            data.setUndergroundDay(tag.getLong("undergroundDay"));
+        }
+        if (tag.contains("undergroundGameTime")) {
+            data.setUndergroundGameTime(tag.getLong("undergroundGameTime"));
+        }
+        if (tag.contains("lastEstimatedDay")) {
+            data.setLastEstimatedDay(tag.getLong("lastEstimatedDay"));
+        }
+        if (tag.contains("totalZombieKills")) {
+            data.setTotalZombieKills(tag.getLong("totalZombieKills"));
+        }
     }
 }

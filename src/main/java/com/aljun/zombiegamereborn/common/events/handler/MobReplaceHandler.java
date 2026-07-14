@@ -59,7 +59,7 @@ public class MobReplaceHandler {
             return;
         }
 
-        if (mob.getType().getBaseClass().isAssignableFrom(AbstractVillager.class)) {
+        if (AbstractVillager.class.isAssignableFrom(mob.getType().getBaseClass())) {
             replace(event, mob, lootTable, EntityType.ZOMBIE_VILLAGER);
             return;
         }

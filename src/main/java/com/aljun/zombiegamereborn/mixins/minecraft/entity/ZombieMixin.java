@@ -34,14 +34,16 @@ public abstract class ZombieMixin implements IZombieAccessor {
     private void isSunSensitiveMixin(CallbackInfoReturnable<Boolean> cir) {
         Zombie zombie = (Zombie) (Object) this;
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-        cir.setReturnValue(cir.getReturnValue() && data.isSunSensitive());
+        if (data != null) {
+            cir.setReturnValue(cir.getReturnValue() && data.isSunSensitive());
+        }
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void tickMixin(CallbackInfo ci) {
         Zombie zombie = (Zombie) (Object) this;
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-        if (data.fleeSun()) {// 着火且不在水中时临时允许寻水，否则恢复默认避水
+        if (data != null && data.fleeSun()) {// 着火且不在水中时临时允许寻水，否则恢复默认避水
             if (zombie.isOnFire() && !zombie.isInWater()) {
                 zombie.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
             }
@@ -95,7 +97,10 @@ public abstract class ZombieMixin implements IZombieAccessor {
         if (zombie.level().isClientSide) return;
         MinecraftServer server = zombie.getServer();
         if (server != null && ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieProperty.doSwimmingZombieConvert) {
-            cir.setReturnValue(cir.getReturnValue() && !ZGRZombieAttributesAPI.canSwim(ZGRZombieAttributesAPI.getZombieData(zombie)));
+            IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+            if (data != null) {
+                cir.setReturnValue(cir.getReturnValue() && !ZGRZombieAttributesAPI.canSwim(data));
+            }
         }
     }
 
@@ -109,7 +114,10 @@ public abstract class ZombieMixin implements IZombieAccessor {
     )
     private float modifyStepVolume(float originalVolume) {
         IZombieData data = ZGRZombieAttributesAPI.getZombieData((Zombie) (Object) this);
-        return (float) (originalVolume * data.getStepVolumeModify());
+        if (data != null) {
+            return (float) (originalVolume * data.getStepVolumeModify());
+        }
+        return originalVolume;
     }
 
 

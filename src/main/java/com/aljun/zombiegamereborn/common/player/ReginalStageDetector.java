@@ -150,6 +150,7 @@ public class ReginalStageDetector {
      */
     private static double getPlayerSurvivedDay(ServerPlayer player, ServerLevel level) {
         var data = player.getCapability(PlayerDataProvider.PLAYER_DATA).orElse(null);
+        if (data == null) return 1.0;
         long day = data.getSurvivedDay();
         double timeFraction = Math.floorMod(level.getDayTime(), 24000L) / 24000.0;
         return (double) day + timeFraction;
@@ -157,6 +158,7 @@ public class ReginalStageDetector {
 
     public static void setPlayerSurvivedDay(ServerPlayer player, long survivedDay) {
         var data = player.getCapability(PlayerDataProvider.PLAYER_DATA).orElse(null);
+        if (data == null) return;
         data.setSurvivedDay(survivedDay);
     }
 

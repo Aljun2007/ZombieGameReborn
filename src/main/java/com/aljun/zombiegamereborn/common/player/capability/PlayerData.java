@@ -12,7 +12,7 @@ public class PlayerData implements IPlayerData {
     public long getSurvivedDay() { return survivedDay; }
 
     @Override
-    public void setSurvivedDay(long day) { this.survivedDay = Math.max(0L, day); }
+    public void setSurvivedDay(long day) { this.survivedDay = Math.max(1L, day); }
 
     @Override
     public long getUndergroundDay() { return undergroundDay; }

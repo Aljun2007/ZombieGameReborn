@@ -20,6 +20,7 @@ public class EntityMixin {
         if (entity.level().isClientSide) return;
         if (entity instanceof Zombie zombie) {
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+            if (data == null) return;
 
             MinecraftServer server = zombie.getServer();
             if (server != null && ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(), zombie.blockPosition()).holyCleansing) {
