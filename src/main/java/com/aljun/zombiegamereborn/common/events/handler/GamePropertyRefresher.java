@@ -2,13 +2,13 @@ package com.aljun.zombiegamereborn.common.events.handler;
 
 import com.aljun.zombiegamereborn.common.config.StageProperty;
 import com.aljun.zombiegamereborn.common.entity.sense.ZombieSenseManager;
+import com.aljun.zombiegamereborn.common.game.DayTime;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.aljun.zombiegamereborn.utils.RandomUtils;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 public class GamePropertyRefresher {
 
     private static long lastDayChecked = -1;
+    private static boolean bloodMoonTriggeredThisDay = false;
+    private static boolean bloodMoonActive = false;
 
     private static Logger LOGGER = LogUtils.getLogger();
 
@@ -47,11 +49,34 @@ public class GamePropertyRefresher {
             long t1 = System.nanoTime();
             // === 血月重载 ===
             ServerLevel overworld = event.getServer().overworld();
-            long currentDay = overworld.getDayTime() / 24000;
+            long dayTime = overworld.getDayTime();
+            long currentDay = dayTime / 24000;
+
+            // 检测天数变化，重置当天血月触发标记
             if (currentDay != lastDayChecked) {
                 lastDayChecked = currentDay;
-                if (RandomUtils.booleanByChance(stageProperty.bloodMoonChance)) {
-                    ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.setBloodMoon(overworld);
+                bloodMoonTriggeredThisDay = false;
+                bloodMoonActive = false;
+            }
+
+            long timeOfDay = Math.floorMod(dayTime, 24000L);
+
+            // 在入夜时(>=13000)触发血月检查
+            if (!bloodMoonTriggeredThisDay) {
+                if (timeOfDay >= DayTime.EARLY_NIGHT.start) {
+                    bloodMoonTriggeredThisDay = true;
+                    bloodMoonActive = RandomUtils.booleanByChance(stageProperty.bloodMoonChance);
+                    if (bloodMoonActive) {
+                        setBloodMoonSafe(overworld);
+                    }
+                }
+            }
+
+            // 夜间每 40 tick 检查血月是否被 forecast 重算清掉，若丢失则重新设置
+            if (bloodMoonActive && timeOfDay >= DayTime.EARLY_NIGHT.start
+                    && event.getServer().getTickCount() % 40 == 0) {
+                if (!ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(overworld)) {
+                    setBloodMoonSafe(overworld);
                 }
             }
             long elapsed = System.nanoTime() - nanos;
@@ -62,5 +87,14 @@ public class GamePropertyRefresher {
                         (System.nanoTime() - t1) / 1_000);
             }
         }
+    }
+
+    /**
+     * 安全调用 setBloodMoon，避免 Enhanced Celestials 内部 setDayTime 造成时间跳跃
+     */
+    private static void setBloodMoonSafe(ServerLevel overworld) {
+        long savedDayTime = overworld.getDayTime();
+        ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.setBloodMoon(overworld);
+        overworld.setDayTime(savedDayTime);
     }
 }

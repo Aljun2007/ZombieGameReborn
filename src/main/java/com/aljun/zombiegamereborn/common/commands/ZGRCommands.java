@@ -16,6 +16,7 @@ public class ZGRCommands {
         ConfigCommand.register(ROOT);
         ZGRDebugCommand.register(ROOT);
         SummonZombieCommand.register(ROOT, buildContext);
+        PlayerCommand.register(ROOT);
         return dispatcher.register(ROOT);
     }
 }

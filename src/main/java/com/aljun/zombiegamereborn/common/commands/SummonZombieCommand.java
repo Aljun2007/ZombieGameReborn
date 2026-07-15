@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.common.commands;
 
+import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieTypeManager;
 import com.aljun.zombiegamereborn.register.ZGRRegistries;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -63,6 +64,12 @@ public class SummonZombieCommand {
             return 0;
         }
         ResourceLocation typeId = ResourceLocationArgument.getId(context, "type");
+        if (ZombieType.getById(typeId) == null) {
+            context.getSource().sendFailure(
+                    Component.translatable("command.zombiegamereborn.summon.unknown_type", typeId)
+            );
+            return 0;
+        }
         ServerLevel level = context.getSource().getLevel();
 
         BlockPos spawnBase = defaultPos != null ? defaultPos : BlockPos.containing(context.getSource().getPosition()).above();
@@ -92,15 +99,13 @@ public class SummonZombieCommand {
 
         if (spawned == 1) {
             context.getSource().sendSuccess(() ->
-                    Component.translatable("command.zombiegamereborn.summon.success_with_pos",
-                            typeId.toString(), spawnBase.toShortString()),
+                            Component.translatable("command.zombiegamereborn.summon.success_with_pos", spawnBase.toShortString(), typeId.toString()),
                     true
             );
         } else {
             int finalSpawned = spawned;
             context.getSource().sendSuccess(() ->
-                    Component.translatable("command.zombiegamereborn.summon.success_with_count",
-                            finalSpawned, typeId.getPath()),
+                            Component.translatable("command.zombiegamereborn.summon.success_with_count", finalSpawned, typeId.getPath()),
                     true
             );
         }

@@ -142,6 +142,7 @@ public class MobReplacement {
         replacement.add(ResourceLocation.parse("quark:shiba"), ReplaceableType.REMOVE);
 
         // ===== 替换为僵尸 =====
+        replacement.add(ResourceLocation.parse("minecraft:blaze"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:hoglin"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:ghast"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:skeleton"), ReplaceableType.REPLACE);

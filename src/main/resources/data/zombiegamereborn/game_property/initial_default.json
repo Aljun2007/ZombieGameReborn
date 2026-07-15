@@ -659,7 +659,16 @@
       { "mob_id": "minecraft:witch", "action": "replace" },
       { "mob_id": "minecraft:glow_squid", "action": "remove" },
       { "mob_id": "minecraft:enderman", "action": "replace" },
-      { "mob_id": "minecraft:squid", "action": "remove" }
+      { "mob_id": "minecraft:squid", "action": "remove" },
+      { "mob_id": "minecraft:blaze", "action": "replace" },
+      { "mob_id": "quark:stoneling", "action": "remove" },
+      { "mob_id": "quark:crab", "action": "remove" },
+      { "mob_id": "quark:foxhound", "action": "remove" },
+      { "mob_id": "quark:toretoise", "action": "remove" },
+      { "mob_id": "quark:shiba", "action": "remove" },
+      { "mob_id": "quark:forgotten", "action": "replace" },
+      { "mob_id": "quark:wraith", "action": "replace" },
+      { "mob_id": "mekanismadditions:baby_creeper", "action": "replace" }
     ]
   },
   "keep_mob_loot_table": true,
