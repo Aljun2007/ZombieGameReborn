@@ -8,7 +8,6 @@ import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieTypeManager;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
-import com.aljun.zombiegamereborn.diplomat.enhancedcelestials.EnhancedCelestialsDiplomat;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobSpawnType;
@@ -74,11 +73,11 @@ public class ZombieSpawnHandler {
             chooserType = ZombieSpawnChooser.SpawnType.NORMAL;
         }
         if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isLoaded()) {
-            if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(zombie.level())) {
+            if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(zombie.level().getServer()) && zombie.level().dayTime() >= 12000L) {
                 chooserType = ZombieSpawnChooser.SpawnType.BLOOD_MOON;
             }
         }
-        ZombieType type = ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieSpawnChooser.randomType(chooserType);
+        ZombieType type = ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(), zombie.blockPosition()).zombieSpawnChooser.randomType(chooserType);
         return type != null ? type.getId() : ZGRZombieTypes.DUMMY.getId();
     }
 }

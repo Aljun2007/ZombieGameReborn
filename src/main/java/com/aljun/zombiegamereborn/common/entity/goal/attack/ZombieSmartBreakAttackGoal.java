@@ -6,7 +6,9 @@ import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGo
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -15,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraftforge.common.Tags;
 
 import java.util.*;
 
@@ -617,14 +620,15 @@ public class ZombieSmartBreakAttackGoal extends Goal {
 
     public void onZombieHurt() {
         if (this.zombie.getLastDamageSource() != null) {
-            if (this.zombie.getLastDamageSource().getEntity() != null) {
-                if (this.zombie.getLastDamageSource().getEntity() instanceof LivingEntity livingEntity) {
-                    if (this.state == State.BREAK) {
-                        this.setMelee();
-                        if (this.zombie.getTarget() == livingEntity) {
-                            if (ZombieUtils.isZombieVeryCloseToTarget(this.zombie, livingEntity)) {
-                                this.lastHurtAndCanReachPlayerTime = this.zombie.level().getGameTime();
-                            }
+            // 检查是否为近战伤害 (Melee Attack)
+            if (this.zombie.getLastDamageSource().is(DamageTypes.MOB_ATTACK) || this.zombie.getLastDamageSource().is(DamageTypes.PLAYER_ATTACK)) {
+                if (this.state == State.BREAK) {
+                    LivingEntity attacker = this.zombie.getLastDamageSource().getEntity() instanceof LivingEntity livingEntity ? livingEntity : null;
+                    if (attacker != null && this.zombie.getTarget() == attacker) {
+                        // 判断玩家位置，小于2格
+                        if (this.zombie.distanceToSqr(attacker) < 4.0D) {
+                            this.setMelee();
+                            this.lastHurtAndCanReachPlayerTime = this.zombie.level().getGameTime();
                         }
                     }
                 }

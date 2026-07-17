@@ -2,6 +2,7 @@ package com.aljun.zombiegamereborn.common.config;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
+import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.aljun.zombiegamereborn.utils.RandomUtils;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
@@ -235,8 +236,14 @@ public class ZombieProperty {
         ZGRZombieAttributesAPI.setArmorToughness(zombie, this.armorToughness);
         ZGRZombieAttributesAPI.setKnockbackResistance(zombie, this.knockbackResistance);
         ZGRZombieAttributesAPI.setMaxHealth(zombie, this.maxHealth);
-        ZGRZombieAttributesAPI.setFollowRange(zombie, this.followRange);
-        data.setFollowMustSee(this.followMustSee);
+
+        if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(zombie.level().getServer())) {
+            ZGRZombieAttributesAPI.setFollowRange(zombie, this.followRange * 2);
+            data.setFollowMustSee(true);
+        } else {
+            ZGRZombieAttributesAPI.setFollowRange(zombie, this.followRange);
+            data.setFollowMustSee(this.followMustSee);
+        }
 
         double baseAttackDamage = ZGRZombieAttributesAPI.getAttackDamageOptional(zombie).orElse(3.0);
         ZGRZombieAttributesAPI.setAttackDamage(zombie, this.attackDamageModify * baseAttackDamage);

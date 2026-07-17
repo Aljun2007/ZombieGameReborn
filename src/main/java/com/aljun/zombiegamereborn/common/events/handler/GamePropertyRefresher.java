@@ -75,7 +75,7 @@ public class GamePropertyRefresher {
             // 夜间每 40 tick 检查血月是否被 forecast 重算清掉，若丢失则重新设置
             if (bloodMoonActive && timeOfDay >= DayTime.EARLY_NIGHT.start
                     && event.getServer().getTickCount() % 40 == 0) {
-                if (!ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(overworld)) {
+                if (!ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(event.getServer())) {
                     setBloodMoonSafe(overworld);
                 }
             }
@@ -94,7 +94,7 @@ public class GamePropertyRefresher {
      */
     private static void setBloodMoonSafe(ServerLevel overworld) {
         long savedDayTime = overworld.getDayTime();
-        ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.setBloodMoon(overworld);
+        ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.setBloodMoon(overworld.getServer());
         overworld.setDayTime(savedDayTime);
     }
 }

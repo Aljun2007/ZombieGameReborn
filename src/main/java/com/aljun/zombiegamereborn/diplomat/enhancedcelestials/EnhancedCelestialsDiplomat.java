@@ -1,11 +1,16 @@
 package com.aljun.zombiegamereborn.diplomat.enhancedcelestials;
 
 import com.aljun.zombiegamereborn.diplomat.Diplomat;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 
 public class EnhancedCelestialsDiplomat extends Diplomat {
 
     private IEnhancedCelestialsProvider provider = null;
+
+    // 缓存
+    private long cacheDay = -1;
+    private boolean cachedIsBloodMoon = false;
 
     @Override
     public String getModID() {
@@ -27,13 +32,27 @@ public class EnhancedCelestialsDiplomat extends Diplomat {
         }
     }
 
-    public void setBloodMoon(Level level) {
+    public void setBloodMoon(MinecraftServer server) {
         if (provider != null) {
-            provider.setBloodMoon(level);
+            provider.setBloodMoon(server);
+            invalidateCache();
         }
     }
 
-    public boolean isBloodMoon(Level level) {
-        return provider != null && provider.isBloodMoon(level);
+    public boolean isBloodMoon(MinecraftServer server) {
+        if (provider == null) return false;
+        ServerLevel overworld = server.overworld();
+        if (overworld == null) return false;
+        long currentDay = overworld.getDayTime() / 24000;
+        if (currentDay != cacheDay) {
+            cacheDay = currentDay;
+            cachedIsBloodMoon = provider.isBloodMoon(server);
+        }
+        return cachedIsBloodMoon;
+    }
+
+    public void invalidateCache() {
+        cacheDay = -1;
+        cachedIsBloodMoon = false;
     }
 }

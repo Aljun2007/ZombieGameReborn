@@ -36,8 +36,8 @@ public class AdvancementHandler {
     private static final ResourceLocation DIAMOND_PROTECTS =
             ResourceLocation.fromNamespaceAndPath(ZombieGameReborn.MOD_ID, "epic_diamond_protects");
     private static final long UNDERGROUND_THRESHOLD = TimeBroadcast.UNDERGROUND_ESTIMATE_THRESHOLD;
-    public static final int HORDE_THRESHOLD = 120;
-    private static final long KILL_THRESHOLD = 500;
+    public static final int HORDE_THRESHOLD = 160;
+    private static final long KILL_THRESHOLD = 999;
 
     private static void award(ServerPlayer player, ResourceLocation id, String criterion) {
         if (player == null) return;

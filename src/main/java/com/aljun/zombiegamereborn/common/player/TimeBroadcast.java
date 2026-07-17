@@ -95,6 +95,11 @@ public class TimeBroadcast {
             clearUndergroundData(player);
         }
 
+        // 兜底：地下登录后 lastLeftSurfaceTime 未被初始化的问题
+        if (isInOverworld && !isOnSurface && data.lastLeftSurfaceTime == -1) {
+            data.lastLeftSurfaceTime = gameTime;
+        }
+
         // === 时刻过渡播报 ===
         DayTime currentDayTime = DayTime.fromDayTime(dayTime);
 

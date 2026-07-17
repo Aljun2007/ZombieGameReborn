@@ -57,7 +57,8 @@ public class SummonZombieCommand {
 
     private static int execute(CommandContext<CommandSourceStack> context, int defaultCount, BlockPos defaultPos) throws CommandSyntaxException {
         EntityType<?> entityType = ResourceArgument.getSummonableEntityType(context, "zombie").get();
-        if (!Zombie.class.isAssignableFrom(entityType.getBaseClass())) {
+        Entity test = entityType.create(context.getSource().getLevel());
+        if (!(test instanceof Zombie)) {
             context.getSource().sendFailure(
                     Component.translatable("command.zombiegamereborn.summon.invalid_entity", EntityType.getKey(entityType).toString())
             );
