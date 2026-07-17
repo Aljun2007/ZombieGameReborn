@@ -12,19 +12,9 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class SurvivedDayHandler {
 
-    private static long survivedDays = 1;
     private static long lastGameTime = -1;
     private static boolean wasAnyPlayerOnline = false;
     private static boolean wasNight = false;
-
-    public static long getSurvivedDays() {
-        return survivedDays;
-    }
-
-    public static void setSurvivedDays(long days) {
-        if (days < 1) days = 1;
-        survivedDays = days;
-    }
 
     @SuppressWarnings("ConstantConditions")
     @SubscribeEvent
@@ -55,14 +45,11 @@ public class SurvivedDayHandler {
         long delta = currentGameTime - lastGameTime;
         if (delta == 1) {
             if (wasNight && !isNight) {
-                survivedDays++;
-                if (survivedDays < 0) survivedDays = 1;
-
-                // 同步到所有在线玩家的 Capability
+                // 分别增加每个在线玩家的个人生存天数
                 for (ServerPlayer player : overworld.getServer().getPlayerList().getPlayers()) {
                     IPlayerData playerData = ZGRPlayerAPI.getPlayerData(player);
                     if (playerData != null) {
-                        playerData.setSurvivedDay(survivedDays);
+                        playerData.setSurvivedDay(playerData.getSurvivedDay() + 1);
                     }
                 }
             }

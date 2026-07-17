@@ -5,11 +5,14 @@ import com.aljun.zombiegamereborn.common.config.ZGRConfigFileManager;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.aljun.zombiegamereborn.network.ZGRNetwork;
 import com.mojang.logging.LogUtils;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -39,7 +42,9 @@ public class ZombieGameReborn {
             // 在 FML 启动时创建配置目录并生成默认配置文件
             createConfigDirectories();
             LOGGER.info("正在生成默认配置文件...");
-            ClientConfigManager.load();
+            if (FMLEnvironment.dist == Dist.CLIENT) {
+                ClientConfigManager.load();
+            }
             ZGRConfigFileManager.getGlobalDefault();
             LOGGER.info("默认配置文件生成完成");
 

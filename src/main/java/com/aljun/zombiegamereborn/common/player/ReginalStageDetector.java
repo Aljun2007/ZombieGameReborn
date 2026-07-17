@@ -16,8 +16,6 @@ public class ReginalStageDetector {
 
     private static final int REGION_SIZE = 64;
     private static final int SEARCH_RADIUS = 3;
-    private static final double MAX_PLAYER_DISTANCE = 256.0;
-
     /**
      * 区域存活天数缓存的过期间隔（tick 数）
      */
@@ -81,8 +79,6 @@ public class ReginalStageDetector {
 
         for (ServerPlayer player : players) {
             double distance = centerVec.distanceTo(player.position());
-            if (distance > MAX_PLAYER_DISTANCE) continue;
-
             double playerSurvivedDay = getPlayerSurvivedDay(player, level);
             double weight = 1.0 / (distance + 1.0);
             influences.add(new PlayerInfluence(player, distance, weight, playerSurvivedDay));

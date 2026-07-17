@@ -1,8 +1,8 @@
 package com.aljun.zombiegamereborn.diplomat.enhancedcelestials;
 
-import net.minecraft.world.level.Level;
+import net.minecraft.server.MinecraftServer;
 
 public interface IEnhancedCelestialsProvider {
-    void setBloodMoon(Level level);
-    boolean isBloodMoon(Level level);
+    void setBloodMoon(MinecraftServer server);
+    boolean isBloodMoon(MinecraftServer server);
 }

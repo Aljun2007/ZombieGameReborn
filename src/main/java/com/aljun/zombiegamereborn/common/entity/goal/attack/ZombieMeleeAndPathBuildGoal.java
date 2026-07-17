@@ -12,6 +12,7 @@ import com.aljun.zombiegamereborn.utils.RandomUtils;
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -91,14 +92,15 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
     public void onZombieHurt() {
         if (this.zombie.getLastDamageSource() != null) {
-            if (this.zombie.getLastDamageSource().getEntity() != null) {
-                if (this.zombie.getLastDamageSource().getEntity() instanceof LivingEntity livingEntity) {
-                    if (this.state.is(State.BUILD)) {
-                        this.setMelee();
-                        if (this.zombie.getTarget() == livingEntity) {
-                            if (ZombieUtils.isZombieVeryCloseToTarget(this.zombie, livingEntity)) {
-                                this.lastHurtAndCanReachPlayerTime = this.zombie.level().getGameTime();
-                            }
+            // 检查是否为近战伤害 (Melee Attack)
+            if (this.zombie.getLastDamageSource().is(DamageTypes.MOB_ATTACK) || this.zombie.getLastDamageSource().is(DamageTypes.PLAYER_ATTACK)) {
+                if (this.state == State.BUILD) {
+                    LivingEntity attacker = this.zombie.getLastDamageSource().getEntity() instanceof LivingEntity livingEntity ? livingEntity : null;
+                    if (attacker != null && this.zombie.getTarget() == attacker) {
+                        // 判断玩家位置，小于2格
+                        if (this.zombie.distanceToSqr(attacker) < 4.0D) {
+                            this.setMelee();
+                            this.lastHurtAndCanReachPlayerTime = this.zombie.level().getGameTime();
                         }
                     }
                 }
@@ -496,10 +498,8 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                     return this.destroyBlock(blockPos);
                 } else {
                     if (this.zombie.blockPosition().above().equals(blockPos) || this.zombie.blockPosition().equals(blockPos)) {
-                        if (this.zombie.onGround()) {
-                            this.zombie.getJumpControl().jump();
-                            return true;
-                        } else return !this.zombie.isSwimming();
+                        this.zombie.getJumpControl().jump();
+                        return true;
                     }
                     if (this.zombie.distanceToSqr(MathUtils.blockPosToVec3(blockPos)) <= PLACE_BLOCK_DISTANCE_SQR) {
                         return this.placeBlock(blockPos);

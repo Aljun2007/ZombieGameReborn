@@ -6,7 +6,8 @@ import dev.corgitaco.enhancedcelestials.api.lunarevent.LunarEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 
 public class EnhancedCelestialsProviderImpl implements IEnhancedCelestialsProvider {
 
@@ -17,14 +18,19 @@ public class EnhancedCelestialsProviderImpl implements IEnhancedCelestialsProvid
             EnhancedCelestialsRegistry.LUNAR_EVENT_KEY, BLOOD_MOON_ID);
 
     @Override
-    public void setBloodMoon(Level level) {
-        EnhancedCelestials.lunarForecastWorldData(level).ifPresent(data ->
-                data.setLunarEvent(BLOOD_MOON_KEY));
+    public void setBloodMoon(MinecraftServer server) {
+        ServerLevel overworld = server.overworld();
+        if (overworld != null) {
+            EnhancedCelestials.lunarForecastWorldData(overworld).ifPresent(data ->
+                    data.setLunarEvent(BLOOD_MOON_KEY));
+        }
     }
 
     @Override
-    public boolean isBloodMoon(Level level) {
-        return EnhancedCelestials.lunarForecastWorldData(level)
+    public boolean isBloodMoon(MinecraftServer server) {
+        ServerLevel overworld = server.overworld();
+        if (overworld == null) return false;
+        return EnhancedCelestials.lunarForecastWorldData(overworld)
                 .map(data -> {
                     long currentDay = data.getCurrentDay();
                     Holder<LunarEvent> event = data.getLunarEventForDay(currentDay);

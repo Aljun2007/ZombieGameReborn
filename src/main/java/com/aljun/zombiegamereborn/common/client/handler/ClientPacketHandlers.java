@@ -102,8 +102,8 @@ public class ClientPacketHandlers {
                             Component chatMsg = Component.Serializer.fromJson(packet.getChatComponentJson());
                             if (chatMsg != null && mc.player != null) {
                                 if (ClientConfigManager.get().timeBroadcastEnabled) {
-                                    mc.player.displayClientMessage(chatMsg, false);
                                     if (packet.isTimeAlarmEnabled() && ClientConfigManager.get().timeAlarmEnabled) {
+                                        mc.player.displayClientMessage(chatMsg, false);
                                         mc.player.playSound(ZGRSoundEvents.CLOCK_RING, 0.5f, 1.5f);
                                     }
                                 }
@@ -142,6 +142,11 @@ public class ClientPacketHandlers {
 
                 mc.player.displayClientMessage(
                         Component.translatable("gui.zombiegamereborn.login_welcome.line2"),
+                        false
+                );
+
+                mc.player.displayClientMessage(
+                        Component.translatable("gui.zombiegamereborn.login_welcome.line4"),
                         false
                 );
 

@@ -68,11 +68,11 @@
 
 ### ⚠️ Important Notes
 
-| Parameter | Description | Performance |
-|-----------|-------------|-------------|
-| `max_empowered_builder_count` | Max active builder zombies | Solo~30, Small MP~50, Large~80 |
-| `max_empowered_miner_count` | Max active miner zombies | Same as above |
-| `disable_turtle_egg_seeking` | Disable zombie turtle egg seeking | Enable on coastal maps to save CPU |
+| Parameter | Description | Performance                        |
+|-----------|-------------|------------------------------------|
+| `max_empowered_builder_count` | Max active builder zombies | Default 100 is  recommended                    |
+| `max_empowered_miner_count` | Max active miner zombies | Same as above                      |
+| `disable_turtle_egg_seeking` | Disable zombie turtle egg seeking | Enable to save CPU |
 
 ---
 
