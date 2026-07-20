@@ -22,9 +22,12 @@ public class ZombieSenseManager {
         AABB area = entity.getBoundingBox().inflate(MAX_SENSE_RADIUS);
         for (Zombie zombie : level.getEntitiesOfClass(Zombie.class, area)) {
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-            ZombieSenseTargetGoal goal = data.getZombieSenseTargetGoalGoal();
-            if (goal != null) {
-                goal.sense(entity, senseType);
+            ZombieSenseTargetGoal goal = null;
+            if (data != null) {
+                goal = data.getZombieSenseTargetGoalGoal();
+                if (goal != null) {
+                    goal.sense(entity, senseType);
+                }
             }
         }
     }
