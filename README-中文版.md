@@ -1,167 +1,294 @@
-# 🧟 ZombieGame:Reborn — 僵尸游戏：重生
+# ZombieGame:Reborn
 
-作者列表：
-- **Aljun2007**：策划 & 代码
-- **Deepseek**：助手 & 顾问
+**版本**: 1.4 | **Minecraft**: 1.20.1 | **Forge**: 47.4.20
 
----
-
-## 🧟 这是什么模组？
-
-这是一个让 Minecraft 僵尸变得更聪明、更危险的模组！
-如果你玩过“惊变100天”，就会知道被一群聪明的僵尸追杀是什么感觉。
-在这个模组中，僵尸不再是那种傻傻追你的原版笨蛋，而是会思考、会拆家、
-会搭路、会用武器——让你重新认识僵尸的恐怖！🫣
+**作者**:
+- **Aljun2007**: 设计 & 开发
+- **DeepSeek**: 助手 & 顾问
 
 ---
 
-## 🤔 重生版有什么不一样？
+## 技术栈
 
-- ⚡ **性能优化**：寻路调用大幅优化，游戏更流畅
-- 👀 **融合僵尸意识特色**：感知系统全面升级——僵尸能闻到血腥味、听到方块震动和枪声，
-  再也不是那个你躲在墙后就找不到你的傻子了
-- 🧟 **10 种特化僵尸类型**：每种都有自己的 AI 和武器
-- 🎮 **难度曲线可自由配置**：通过游戏内 GUI 或直接编辑 JSON，你可以精确控制
-  每一天的僵尸强度、种类、数量、血月概率等——100 天完整剧情由你定义
-- 🔧 **内置预设管理器**：一键切换“全局默认值”、“初始默认值”、“禁用”等预设，
-  也可以导出/导入自己调配的配置方案
-- 🤝 **多模组联动**：TACZ、Point Blank、Musket Mod 枪声感知 + 火枪手僵尸，
-  Enhanced Celestials 血月联动，Guard Villagers 警卫感染
-- 🌐 **多人游戏友好**：基于玩家的难度阶段系统，新老玩家都能找到自己的挑战
+- **Minecraft Forge 1.20.1** (MDK 47.4.20)
+- **Java 17+** (Gradle JVM 参数 3G)
+- **Gradle** (ForgeGradle 构建系统)
+- **Mixin** (SpongePowered Mixin 0.8.5，运行时字节码注入)
+- **Gson** (配置文件的序列化/反序列化)
 
----
+### 外部依赖
 
-## 🎮 僵尸有多聪明？
+| 依赖 | 类型 | 用途 |
+|------|------|------|
+| Cloth Config 11.1.136 | 编译期 | 客户端配置 GUI 渲染 |
+| CorgiLib 4.0.3.4 | 编译期 | 工具库 |
+| Data Anchor 1.0.0.20 | 编译期 | 数据锚点 |
+| Enhanced Celestials 5.0.3.2 | 编译期 | 血月联动 |
+| Guard Villagers 1.6.18 | 编译期 | 警卫感染系统 |
+| Musket Mod 1.5.4 | 编译期 | 火枪手僵尸 + 枪声感知 |
+| Spartan Shields 3.1.1 | 编译期 | 盾牌适配 |
+| Spartan Weaponry 3.2.1 | 编译期 | 武器适配 |
+| TACZ 1.1.7 | 编译期 | 枪声感知 |
+| GeckoLib 4.8.4 | 编译期 | 动画系统 |
+| Point Blank 1.11.1 | 编译期 | 枪声感知 |
+| MineTraps 2.3.0 | 编译期 | 陷阱联动 |
 
-### 🧱 会拆家！
-
-僵尸发现你躲在墙后面？它们会直接拆过去！
-- **Builder（建造者）**——破墙、铺路、搭桥、清头顶方块，甚至能在水面上搭路过来
-- **Miner（挖掘者）**——智能破坏，优先挖通向你的方块
-
-### 🛡️ 会用盾牌！
-
-盾卫僵尸会举盾格挡正面攻击——**用斧头才能破盾！** 💥
-
-### 🏹 会用远程武器！
-
-- **弓箭手**——持弓远程射击
-- **弩手**——持弩射击（猪灵手持弩时也会自动变身为弩手）
-- **火枪手**——需要安装 Musket Mod，远程火力压制 🔫
-
-### 👃 感知超强！
-
-开启 `enhanced_sense` 后，僵尸可以：
-- 闻到 64 格内玩家受伤的血腥味 🩸
-- 感受到 16 格内的方块破坏震动
-- 听到 64 格内的枪声（消音器可降低至 16 格）🔇
-
-### 🏗️ 会搭路！
-
-前面有坑？Builder 僵尸会自己搭路过来——甚至在水面上造桥！
-
-### 🏊 会游泳！
-
-配置打开游泳概率后，僵尸可以游泳追击，
-游泳僵尸不会被转化为溺尸（保护机制）。
-
-### 💪 属性全面可调
-
-通过配置文件，你可以控制僵尸的：血量、护甲、速度、伤害、击退抗性、
-装备品质和附魔等级、阳光/火焰免疫概率等。
+> 编译期依赖无需在最终运行环境中安装，但若安装了对应模组则会启用对应联动功能。
 
 ---
 
-## 🧟 僵尸类型一览（共 10 种）
+## 项目结构
 
-| 类型 | 特点 |
-|------|------|
-| `Dummy` | 🤖 无 AI，站着不动（占位/保底用） |
-| `Vanilla` | 🧟 原版僵尸行为，带装备和附魔增强 |
-| `Enhanced Vanilla` | 💪 近战 AI 增强版 |
-| `Builder` | 🔨 拆墙+铺路+搭桥+放置方块 |
-| `Miner` | ⛏️ 智能挖掘方块，优先挖向玩家 |
-| `Bow Attacker` | 🏹 持弓远程射击 |
-| `Crossbow Attacker` | 🎯 持弩远程射击 |
-| `Shield User` | 🛡️ 举盾格挡+盾击（用斧头破盾！） |
-| `Musket Gunner` | 🔫 火枪远程射击（需 Musket Mod） |
-| `Zombie Guard Villager` | ⚔️ 感染警卫，保留弓/弩/火枪/盾牌全能武器 |
+```
+src/main/java/com/aljun/zombiegamereborn/
+├── ZombieGameReborn.java           # Mod 主入口（@Mod 注解）
+├── api/                            # 公开 API
+│   ├── ZGRCommonAPI.java
+│   ├── ZGRPlayerAPI.java
+│   ├── ZGRZombieAttributesAPI.java
+│   └── ZGRZombieControlAPI.java
+├── common/                         # 核心逻辑
+│   ├── client/ResourcePackDetector.java
+│   ├── commands/                   # 指令系统
+│   │   ├── ConfigCommand.java      # /zombiegamereborn config
+│   │   ├── PlayerCommand.java
+│   │   ├── SummonZombieCommand.java
+│   │   └── ZGRCommands.java
+│   ├── config/                     # 配置系统（核心）
+│   │   ├── GameProperty.java       # 游戏主配置
+│   │   ├── MobReplacement.java     # 生物替换配置
+│   │   ├── StageProperty.java      # 阶段配置
+│   │   ├── ZombieProperty.java     # 僵尸属性配置
+│   │   ├── ZGRConfigFileManager.java # 配置文件管理器
+│   │   └── ZombieSpawnChooser.java # 生成选择器
+│   ├── game/                       # 游戏运行时
+│   │   ├── DayTime.java            # 时间系统
+│   │   ├── ZGRGame.java            # 游戏状态单例
+│   │   └── ZombieStatic.java       # 僵尸静态数据
+│   ├── optimizer/                  # 性能优化
+│   │   └── ZombieGoalOptimizer.java
+│   └── player/                     # 玩家管理
+│       ├── PlayerStatic.java
+│       ├── ReginalStageDetector.java # 区域阶段检测
+│       └── TimeBroadcast.java      # 时间广播
+├── debug/                          # 调试模式
+│   ├── ZGRDebug.java
+│   └── events/ZGRDebugEvents.java
+├── diplomat/                       # 模组联动层（多态外交系统）
+│   ├── Diplomat.java               # 外交官接口
+│   ├── ZGRDiplomacyCenter.java     # 外交中心（初始化所有外交官）
+│   ├── enhancedcelestials/         # 血月联动
+│   ├── guardvillagers/             # 警卫联动
+│   ├── musketmod/                  # 火枪模组联动
+│   ├── pointblank/                 # Point Blank 联动
+│   └── tacz/                       # TACZ 联动
+├── mixins/                         # Mixin 注入
+│   ├── client/                     # 客户端 Mixin
+│   │   ├── AbstractZombieModelMixin.java
+│   │   ├── HumanoidModelMixin.java
+│   │   └── ZombieVillagerModelMixin.java
+│   ├── musketmod/                  # Musket Mod Mixin
+│   │   ├── BulletEntityMixin.java
+│   │   └── GunItemFireMixin.java
+│   └── pointblank/                 # Point Blank Mixin
+│       └── MainHeldSimplifiedStateSyncRequestMixin.java
+├── network/                        # 网络同步
+│   ├── ZGRNetwork.java             # 网络通道注册
+│   └── packet/                     # 数据包
+│       ├── GamePropertyDownloadPacket.java
+│       ├── GamePropertyUploadPacket.java
+│       ├── LoginWelcomePacket.java
+│       ├── OpenClientConfigScreenPacket.java
+│       ├── TimeBroadcastPacket.java
+│       └── ZombieCapacitySyncPacket.java
+├── register/                       # 注册系统
+│   ├── ZGRCommonRegister.java
+│   ├── ZGRRegistries.java
+│   └── ZGRSpecialRegisterEvents.java
+├── sounds/                         # 音效
+│   └── ZGRSoundEvents.java
+└── utils/                          # 工具类
+    ├── GamePropertyPresentUtils.java
+    ├── JsonUtils.java
+    ├── MathUtils.java
+    ├── PathConstructor.java
+    ├── RandomUtils.java
+    └── ZombieUtils.java
+```
+
+### 资源文件
+
+```
+src/main/resources/
+├── META-INF/mods.toml              # Mod 元信息
+├── pack.mcmeta                     # 资源包描述
+├── mixins.zombiegamereborn.json    # Mixin 配置
+├── logo.png                        # Mod 图标
+└── assets/zombiegamereborn/
+    ├── sounds.json                  # 音效注册
+    ├── lang/
+    │   ├── en_us.json               # 英文语言文件
+    │   └── zh_cn.json               # 中文语言文件
+    └── sounds/                      # 音频资源
+        ├── clock_ring.ogg
+        ├── evening_howl.ogg
+        └── morning_roast.ogg
+```
+
+```
+Documentury/                         # 文档目录
+├── en_us/ConfigFileGuide.md         # 英文配置文件指南
+└── zh_cn/配置文件指南.md             # 中文配置文件指南
+```
 
 ---
 
-## ⚙️ 配置方式
+## 架构设计与核心原则
 
-**游戏内 GUI 编辑：**
-1. 管理员输入指令 `/zombiegamereborn config gameProperty`
-2. 在可视化界面中调整所有参数，实时预览
-3. 内置预设管理器，可保存/加载/导入导出配置方案
+### 1. 配置系统（Config System）
 
-**JSON 文件编辑（进阶）：**
-- 配置文件位置见 [`配置文件指南.md`](Documentury/zh_cn/配置文件指南.md)
-- 支持 10+ 阶段 × 每 10 天的难度曲线
-- 每个阶段独立控制僵尸属性、生成种类、血月概率等
+配置采用 **三层级结构**：
+
+```
+GameProperty (游戏主配置)
+├── 全局字段（max_empowered_*、global_*、behavior switches）
+└── stages[] (阶段列表)
+    └── stage (阶段序号)
+```
+
+- **序列化**：使用自定义 `GamePropertyAdapter`（Gson TypeAdapter）处理 JSON 序列化/反序列化
+- **配置加载优先级**：服务器世界存档 > 全局默认配置 > 内置初始默认值
+- **配置目录**：`config/zombiegamereborn/`（客户端配置 + 预设）
+- **预设管理器**：游戏内 GUI 可通过 `/zombiegamereborn config gameProperty` 编辑所有参数
+
+### 2. 僵尸类型系统（Zombie Type System）
+
+每种僵尸类型对应一个 `ZombieProperty`，通过 `zombie_type` 字段区分（非原生的 NBT 标签）。共有 12 种类型：
+
+| 类型 | 核心 AI |
+|------|---------|
+| `dummy` | 无 AI，站桩 |
+| `vanilla` | 原版行为 + 装备/附魔增强 |
+| `enhanced_vanilla` | 近战 AI 增强 |
+| `builder` | `ZombieBreakBlockGoal` + `ZombiePlaceBlockGoal` + 搭桥 |
+| `miner` | `ZombieSmartBreakAttackGoal`（智能挖掘路径） |
+| `bow_attacker` | `ZombieBowAttackGoal` |
+| `crossbow_attacker` | 远程弩攻击（猪灵持弩自动变身） |
+| `shield_user` | `ZombieShieldGoal` + 格挡 + 盾击 |
+| `tnt_attacker` | `ZombieTNTAttackGoal`（投掷/自爆 TNT） |
+| `musket_mod_gunner` | 火枪远程射击（需 Musket Mod） |
+| `zombie_guard_villager` | 感染警卫，可持有弓/弩/火枪/盾牌 |
+
+Builder 和 Miner 类型使用 **Empower 机制**：通过配置竞争机制动态决定哪些僵尸被激活为"强化状态"（`isEmpowered`），受 `max_empowered_builder_count` / `max_empowered_miner_count` 上限控制。
+
+### 3. 模组联动系统（Diplomat System — 多态外交）
+
+采用 **策略模式 + 运行时检测** 实现可插拔联动：
+
+```
+ZGRDiplomacyCenter
+├── init() → 依次初始化各 Diplomat
+│
+├── EnhancedCelestialsDiplomat
+│   └── IEnhancedCelestialsProvider (接口)
+│       ├── EnhancedCelestialsProviderImpl (有模组时)
+│       └── (无模组时返回空实现)
+├── TaczDiplomat → ITaczProvider
+├── MusketmodDiplomat → IMusketmodProvider
+├── PointblankDiplomat → IPointblankProvider
+└── GuardVillagersDiplomat
+```
+
+每个外交官在 `init()` 时检测对应模组是否加载（`ModList.get().isLoaded()`），若未加载则降级为空实现，对外提供一致的 API 接口，调用方无需关心模组是否存在。
+
+### 4. 网络同步
+
+基于 **Forge SimpleChannel** 实现服务端↔客户端双向同步：
+
+| 数据包 | 方向 | 用途 |
+|--------|------|------|
+| `GamePropertyUploadPacket` | C→S | 客户端上传配置 |
+| `GamePropertyDownloadPacket` | S→C | 服务端下发配置 |
+| `LoginWelcomePacket` | S→C | 登录时初始化配置 |
+| `TimeBroadcastPacket` | S→C | 游戏内时间广播 |
+| `ZombieCapacitySyncPacket` | S→C | 僵尸容量同步 |
+| `OpenClientConfigScreenPacket` | S→C | 请求客户端打开配置界面 |
+
+### 5. Goal 系统与优化
+
+所有僵尸类型的行为继承/重写了原版 `Zombie` 的 Goal（目标）系统。`ZombieGoalOptimizer` 对寻路调用进行了大幅优化。
+
+Goal 优先级参考（任务优先级表）：
+| 优先级 | Goal 列表 |
+|--------|-----------|
+| 1（最高） | `ZombieShieldGoal`, `ZombieBreakBlockGoal`, `ZombiePlaceBlockGoal`, `ZombieRemoveLightSourceGoal`, `ZombieFloatGoal` |
+| 2 | `ZombieRestrictSunGoal`, `ZombieWaterBridgeBuildGoal`, `ZombieTNTAttackGoal` |
+| 3 | `ZombieBowAttackGoal`, `ZombieMeleeAttackGoal` |
+| ... | ... |
 
 ---
 
-## 📦 前置与联动
+## 构建与开发
 
-**必需：**
-- Minecraft Forge（1.20.1）
+### 前置要求
 
-**联动模组（可选）：**
-| 模组 | 作用 |
-|------|------|
-| 🎵 **TACZ 1.1.7** | 僵尸感知枪声 |
-| 🎵 **Vic's Point Blank 1.11.1** | 僵尸感知枪声 |
-| 🔫 **Musket Mod 1.5.4** | 僵尸感知枪声 + 火枪手僵尸使用火枪 |
-| 🌕 **Enhanced Celestials 5.0.3.2** | 血月联动（可配置触发概率） |
-| 🛡️ **Guard Villagers 1.6.18** | 警卫被感染后保留武器能力（默认关闭） |
+- JDK 17+
+- Git
+- 至少 4GB 可用内存（IDE + Gradle 并行）
 
----
+### 构建步骤
 
-## ⚠️ 注意事项
+```bash
+# Windows (PowerShell)
+gradlew build
 
-- 本模组的**僵尸类型系统**（`zombie_type`）与原版不同：只有对应类型的僵尸才能使用对应的武器（例如只有弓箭手才会射箭）
-- 对僵尸/僵尸村民的模型存在 **Mixin 注入**，如有模组冲突崩溃请报告（此前版本与凋零风暴的僵尸模型 Mixin 存在冲突）
-- 斯巴达克模组的弓、盾已适配，弩未适配（与原版 MC 一致）
+# 构建完成后 Mod JAR 位于 build/libs/
+```
 
----
+### 开发运行
 
-## ❓ 常见问题
+```bash
+# 启动 Minecraft 客户端
+gradlew runClient
 
-**Q: 僵尸太强了，打不过怎么办？** 😰
+# 启动专用服务器
+gradlew runServer
 
-> A: 可以在配置文件里降低数值，或者安装强力枪械模组！
+# 运行数据生成器（自动生成部分资源文件）
+gradlew runData
+```
 
-**Q: 为什么有些僵尸有弓/弩/盾牌/枪？**
+### IDE 配置
 
-> A: 这些是特化僵尸类型，每种类型有自己的武器和 AI，可以在配置中调整它们的出现概率。
-
-**Q: 能和其他僵尸模组一起用吗？**
-
-> A: 可能可以，但需要测试。如有冲突请报告。
-
-**Q: 服务器能用吗？**
-
-> A: 可以！服务端和客户端都需要安装。
-
-**Q: 能放在我的整合包里吗？**
-
-> A: 随便拿去（非商用）👍
+推荐使用 IntelliJ IDEA：
+1. 克隆仓库后执行 `gradlew idea` 生成项目文件
+2. 打开 `build.gradle` 作为项目
+3. ForgeGradle 会自动配置运行配置（`runClient`、`runServer`）
 
 ---
 
-## 💡 游戏建议
+## 开发注意事项
 
-1. 🏗️ 前期赶紧发育，建造你的末日堡垒
-2. 🧱 不要以为躲在墙后就安全了——僵尸会拆墙！
-3. 🪓 看到拿盾牌的僵尸，记得用斧头破盾
-4. 🏃 如果发现一群僵尸在搭路向你靠近……快跑！
-5. 🔇 有枪械模组的话，记得装消音器
-6. 📅 默认配置下，每 10 天提升一次难度，体验完整的 100 天末日
+### Mixin
 
----
+- Mixin 配置文件：`src/main/resources/mixins.zombiegamereborn.json`
+- 客户端 Mixin 类位于 `mixins/client/` 包下（必须在服务端兼容，通过 `@OnlyIn(Dist.CLIENT)` 限制）
+- 对第三方模组的 Mixin（如 Musket Mod、Point Blank）位于对应的子包中
+- 调试模式：`mixins.zombiegamereborn.json` 中 `debug.verbose = true` 可开启详细输出
 
-## 🎇 最后
+### 客户端类引用
 
-有问题或建议？欢迎在 [Github](https://github.com/Aljun2007/ZombieGameReborn) 上反馈！
+客户端特定的类（如 GUI 屏幕、模型）通过反射调用（参见 `ZGRNetwork.java` 中 `Class.forName()` 模式），避免服务端加载时 `ClassNotFoundException`。如需新增客户端功能，请遵循以下模式：
+- 客户端处理类放在 `common.client` 包下
+- 服务端通过反射调用客户端方法
+- 在 `ZGRNetwork.java` 中使用 `ctx.get().enqueueWork()` + `Class.forName()` 分发
+
+### 语言文件
+
+- 英文：`assets/zombiegamereborn/lang/en_us.json`
+- 中文：`assets/zombiegamereborn/lang/zh_cn.json`
+- 所有实体本地化键名格式：`entity.zombiegamereborn.<zombie_type_name>`
+
+### 配置文件文档
+
+- 如果新增、修改或删除配置字段，请同步更新 `Documentury/zh_cn/配置文件指南.md` 和 `Documentury/en_us/ConfigFileGuide.md`

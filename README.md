@@ -1,161 +1,296 @@
-# 💀 ZombieGame:Reborn — README (English)
+# ZombieGame:Reborn
 
-**Authors:**
-- **Aljun2007**: Design & Code
-- **Deepseek**: Assistant & Advisor
+**Version**: 1.4 | **Minecraft**: 1.20.1 | **Forge**: 47.4.20
 
----
-
-## 🧟 What is this mod?
-
-A mod that makes Minecraft zombies smarter and more dangerous!
-If you've played "Zombie Apocalypse 100 Days" scenarios, you know the thrill of being hunted by intelligent zombies.
-In this mod, zombies are no longer mindless vanilla husks — they think, they break walls, they build bridges, they use weapons.
-They will make you fear the undead all over again! 🫣
+**Authors**:
+- **Aljun2007**: Design & Development
+- **DeepSeek**: Assistant & Advisor
 
 ---
 
-## 🤔 What's new in Reborn?
+## Tech Stack
 
-- ⚡ **Performance optimized**: Pathfinding calls massively optimized for smoother gameplay
-- 👀 **Zombie Awareness fused**: Sensory system overhauled — zombies can smell blood, hear block breaking and gunshots. No more hiding behind a wall and being safe!
-- 🧟 **10 specialized zombie types**: Each with unique AI and weapons
-- 🎮 **Fully customizable difficulty**: Control zombie stats, spawn rates, blood moon chance, day-by-day progression through in-game GUI or JSON editing — define your own 100-day apocalypse
-- 🔧 **Built-in preset manager**: One-click switch between "Global Default", "Initial Default", "Disabled" presets, plus export/import your own configs
-- 🤝 **Multi-mod integration**: TACZ, Point Blank, Musket Mod sound sensing + gunner zombies, Enhanced Celestials blood moon, Guard Villagers infection
-- 🌐 **Multiplayer friendly**: Stage-based difficulty system scales with in-game days, giving both new and veteran players a balanced challenge
+- **Minecraft Forge 1.20.1** (MDK 47.4.20)
+- **Java 17+** (Gradle JVM 3G)
+- **Gradle** (ForgeGradle build system)
+- **Mixin** (SpongePowered Mixin 0.8.5, runtime bytecode injection)
+- **Gson** (Config serialization/deserialization)
 
----
+### Dependencies
 
-## 🎮 How smart are zombies?
+| Dependency | Type | Purpose |
+|------------|------|---------|
+| Cloth Config 11.1.136 | Compile-only | Client config GUI rendering |
+| CorgiLib 4.0.3.4 | Compile-only | Utility library |
+| Data Anchor 1.0.0.20 | Compile-only | Data persistence |
+| Enhanced Celestials 5.0.3.2 | Compile-only | Blood moon integration |
+| Guard Villagers 1.6.18 | Compile-only | Guard infection system |
+| Musket Mod 1.5.4 | Compile-only | Musket gunner zombie + sound sensing |
+| Spartan Shields 3.1.1 | Compile-only | Shield compatibility |
+| Spartan Weaponry 3.2.1 | Compile-only | Weapon compatibility |
+| TACZ 1.1.7 | Compile-only | Gunshot sensing |
+| GeckoLib 4.8.4 | Compile-only | Animation system |
+| Point Blank 1.11.1 | Compile-only | Gunshot sensing |
+| MineTraps 2.3.0 | Compile-only | Trap integration |
 
-### 🧱 They break your base!
-
-Zombies detect you behind walls and dig right through!
-- **Builder** — breaks walls, paves paths, builds bridges, clears overhead blocks, even builds over water
-- **Miner** — smart digging, prioritizes blocks between them and you
-
-### 🛡️ They use shields!
-
-Shield zombies block frontal attacks — **use an axe to break their guard!** 💥
-
-### 🏹 They use ranged weapons!
-
-- **Bow Attacker** — shoots arrows from range
-- **Crossbow Attacker** — uses crossbows (Piglins holding crossbows automatically become this type)
-- **Musket Gunner** — requires Musket Mod, devastating ranged firepower 🔫
-
-### 👃 Super sensing!
-
-With `enhanced_sense` enabled, zombies can:
-- Smell your blood from 64 blocks away 🩸
-- Feel block vibrations from 16 blocks
-- Hear gunshots from 64 blocks (silencers reduce to 16 blocks) 🔇
-
-### 🏗️ They build bridges!
-
-Gap in the way? Builder zombies will bridge it themselves — even over water!
-
-### 🏊 They swim!
-
-With swimming probability enabled, zombies can chase you through water. Swimming zombies won't convert to drowned (protection mechanic).
-
-### 💪 All stats are configurable
-
-Through the config file, you can control: health, armor, speed, damage, knockback resistance, equipment quality and enchantments, sun/fire immunity chance, and more.
+> Compile-only dependencies do not need to be installed at runtime. Integration features will be enabled automatically when the corresponding mod is detected.
 
 ---
 
-## 🧟 Zombie Types (10 total)
+## Project Structure
 
-| Type | Description |
-|------|-------------|
-| `Dummy` | 🤖 No AI, stands still (placeholder/fallback) |
-| `Vanilla` | 🧟 Vanilla behavior with enhanced equipment & enchants |
-| `Enhanced Vanilla` | 💪 Upgraded melee AI |
-| `Builder` | 🔨 Breaks blocks + places paths + bridges + places blocks |
-| `Miner` | ⛏️ Smart digging, prioritizes tunneling toward you |
-| `Bow Attacker` | 🏹 Ranged bow attacks |
-| `Crossbow Attacker` | 🎯 Ranged crossbow attacks |
-| `Shield User` | 🛡️ Blocks frontal attacks + shield bash (use an axe!) |
-| `Musket Gunner` | 🔫 Ranged musket attacks (requires Musket Mod) |
-| `Zombie Guard Villager` | ⚔️ Infected guard retains bow/crossbow/musket/shield — all four weapons |
+```
+src/main/java/com/aljun/zombiegamereborn/
+├── ZombieGameReborn.java           # Mod entry point (@Mod annotation)
+├── api/                            # Public API
+│   ├── ZGRCommonAPI.java
+│   ├── ZGRPlayerAPI.java
+│   ├── ZGRZombieAttributesAPI.java
+│   └── ZGRZombieControlAPI.java
+├── common/                         # Core logic
+│   ├── client/ResourcePackDetector.java
+│   ├── commands/                   # Command system
+│   │   ├── ConfigCommand.java      # /zombiegamereborn config
+│   │   ├── PlayerCommand.java
+│   │   ├── SummonZombieCommand.java
+│   │   └── ZGRCommands.java
+│   ├── config/                     # Config system (core)
+│   │   ├── GameProperty.java       # Game master config
+│   │   ├── MobReplacement.java     # Mob replacement config
+│   │   ├── StageProperty.java      # Stage config
+│   │   ├── ZombieProperty.java     # Zombie property config
+│   │   ├── ZGRConfigFileManager.java # Config file manager
+│   │   └── ZombieSpawnChooser.java # Spawn selector
+│   ├── game/                       # Game runtime
+│   │   ├── DayTime.java            # Time system
+│   │   ├── ZGRGame.java            # Game state singleton
+│   │   └── ZombieStatic.java       # Zombie static data
+│   ├── optimizer/                  # Performance optimization
+│   │   └── ZombieGoalOptimizer.java
+│   └── player/                     # Player management
+│       ├── PlayerStatic.java
+│       ├── ReginalStageDetector.java # Regional stage detection
+│       └── TimeBroadcast.java      # Time broadcasting
+├── debug/                          # Debug mode
+│   ├── ZGRDebug.java
+│   └── events/ZGRDebugEvents.java
+├── diplomat/                       # Mod integration layer (polymorphic diplomat)
+│   ├── Diplomat.java               # Diplomat interface
+│   ├── ZGRDiplomacyCenter.java     # Diplomacy center (init all diplomats)
+│   ├── enhancedcelestials/         # Blood moon integration
+│   ├── guardvillagers/             # Guard villager integration
+│   ├── musketmod/                  # Musket mod integration
+│   ├── pointblank/                 # Point Blank integration
+│   └── tacz/                       # TACZ integration
+├── mixins/                         # Mixin injection
+│   ├── client/                     # Client mixins
+│   │   ├── AbstractZombieModelMixin.java
+│   │   ├── HumanoidModelMixin.java
+│   │   └── ZombieVillagerModelMixin.java
+│   ├── musketmod/                  # Musket Mod mixins
+│   │   ├── BulletEntityMixin.java
+│   │   └── GunItemFireMixin.java
+│   └── pointblank/                 # Point Blank mixins
+│       └── MainHeldSimplifiedStateSyncRequestMixin.java
+├── network/                        # Network sync
+│   ├── ZGRNetwork.java             # Network channel registration
+│   └── packet/                     # Packets
+│       ├── GamePropertyDownloadPacket.java
+│       ├── GamePropertyUploadPacket.java
+│       ├── LoginWelcomePacket.java
+│       ├── OpenClientConfigScreenPacket.java
+│       ├── TimeBroadcastPacket.java
+│       └── ZombieCapacitySyncPacket.java
+├── register/                       # Registry system
+│   ├── ZGRCommonRegister.java
+│   ├── ZGRRegistries.java
+│   └── ZGRSpecialRegisterEvents.java
+├── sounds/                         # Sound effects
+│   └── ZGRSoundEvents.java
+└── utils/                          # Utilities
+    ├── GamePropertyPresentUtils.java
+    ├── JsonUtils.java
+    ├── MathUtils.java
+    ├── PathConstructor.java
+    ├── RandomUtils.java
+    └── ZombieUtils.java
+```
+
+### Resources
+
+```
+src/main/resources/
+├── META-INF/mods.toml              # Mod metadata
+├── pack.mcmeta                     # Resource pack description
+├── mixins.zombiegamereborn.json    # Mixin config
+├── logo.png                        # Mod icon
+└── assets/zombiegamereborn/
+    ├── sounds.json                  # Sound registry
+    ├── lang/
+    │   ├── en_us.json               # English localization
+    │   └── zh_cn.json               # Chinese localization
+    └── sounds/                      # Audio assets
+        ├── clock_ring.ogg
+        ├── evening_howl.ogg
+        └── morning_roast.ogg
+```
+
+```
+Documentury/                         # Documentation
+├── en_us/ConfigFileGuide.md         # English config guide
+└── zh_cn/配置文件指南.md             # Chinese config guide
+```
 
 ---
 
-## ⚙️ Configuration
+## Architecture & Design Principles
 
-**In-game GUI editing:**
-1. OP enters `/zombiegamereborn config gameProperty`
-2. Adjust all parameters visually in real-time
-3. Built-in preset manager lets you save/load/import/export presets
+### 1. Config System
 
-**JSON file editing (advanced):**
-- See [`ConfigFileGuide.md`](Documentury/en_us/ConfigFileGuide.md)
-- Supports 10+ stages × 10-day intervals for a full difficulty curve
-- Each stage independently controls zombie stats, spawn types, blood moon chance, etc.
+Three-tier configuration structure:
+
+```
+GameProperty (master config)
+├── Global fields (max_empowered_*, global_*, behavior switches)
+└── stages[] (stage list)
+    └── stage (index)
+```
+
+- **Serialization**: Custom `GamePropertyAdapter` (Gson TypeAdapter) for JSON serialization/deserialization
+- **Load priority**: Server world save > global default config > built-in initial defaults
+- **Config directory**: `config/zombiegamereborn/` (client config + presets)
+- **Preset manager**: In-game GUI via `/zombiegamereborn config gameProperty`
+
+### 2. Zombie Type System
+
+Each zombie type has its own `ZombieProperty`, differentiated by `zombie_type` field (not native NBT). Total 12 types:
+
+| Type | Core AI |
+|------|---------|
+| `dummy` | No AI, stationary |
+| `vanilla` | Vanilla behavior + equipment/enchant boost |
+| `enhanced_vanilla` | Enhanced melee AI |
+| `builder` | `ZombieBreakBlockGoal` + `ZombiePlaceBlockGoal` + bridging |
+| `miner` | `ZombieSmartBreakAttackGoal` (smart tunneling) |
+| `bow_attacker` | `ZombieBowAttackGoal` |
+| `crossbow_attacker` | Ranged crossbow (piglins auto-convert) |
+| `shield_user` | `ZombieShieldGoal` + blocking + shield bash |
+| `tnt_attacker` | `ZombieTNTAttackGoal` (throw/self-destruct TNT) |
+| `musket_mod_gunner` | Musket ranged attack (requires Musket Mod) |
+| `zombie_guard_villager` | Infected guard, can wield bow/crossbow/musket/shield |
+
+Builder and Miner types use the **Empower system**: zombies compete dynamically for "empowered" status (`isEmpowered`), controlled by `max_empowered_builder_count` / `max_empowered_miner_count` caps.
+
+### 3. Diplomat System (Polymorphic Mod Integration)
+
+Strategy pattern + runtime detection for pluggable integration:
+
+```
+ZGRDiplomacyCenter
+├── init() → initializes each Diplomat
+│
+├── EnhancedCelestialsDiplomat
+│   └── IEnhancedCelestialsProvider (interface)
+│       ├── EnhancedCelestialsProviderImpl (when mod is loaded)
+│       └── (no-op fallback otherwise)
+├── TaczDiplomat → ITaczProvider
+├── MusketmodDiplomat → IMusketmodProvider
+├── PointblankDiplomat → IPointblankProvider
+└── GuardVillagersDiplomat
+```
+
+Each Diplomat detects whether its target mod is loaded (`ModList.get().isLoaded()`) during `init()`. If absent, it falls back to a no-op implementation, providing a consistent API to callers.
+
+### 4. Network Sync
+
+Built on **Forge SimpleChannel** for server↔client bidirectional sync:
+
+| Packet | Direction | Purpose |
+|--------|-----------|---------|
+| `GamePropertyUploadPacket` | C→S | Client uploads config |
+| `GamePropertyDownloadPacket` | S→C | Server distributes config |
+| `LoginWelcomePacket` | S→C | Init config on login |
+| `TimeBroadcastPacket` | S→C | In-game time broadcasting |
+| `ZombieCapacitySyncPacket` | S→C | Zombie capacity sync |
+| `OpenClientConfigScreenPacket` | S→C | Request client config screen |
+
+### 5. Goal System & Optimization
+
+All zombie types extend/override the vanilla `Zombie` Goal system. `ZombieGoalOptimizer` significantly optimizes pathfinding calls.
+
+Goal priority reference:
+| Priority | Goals |
+|----------|-------|
+| 1 (Highest) | `ZombieShieldGoal`, `ZombieBreakBlockGoal`, `ZombiePlaceBlockGoal`, `ZombieRemoveLightSourceGoal`, `ZombieFloatGoal` |
+| 2 | `ZombieRestrictSunGoal`, `ZombieWaterBridgeBuildGoal`, `ZombieTNTAttackGoal` |
+| 3 | `ZombieBowAttackGoal`, `ZombieMeleeAttackGoal` |
+| ... | ... |
 
 ---
 
-## 📦 Dependencies & Integration
+## Build & Development
 
-**Required:**
-- Minecraft Forge (1.20.1)
+### Prerequisites
 
-**Optional integration mods:**
-| Mod | Effect |
-|-----|--------|
-| 🎵 **TACZ 1.1.7** | Zombies hear gunshots |
-| 🎵 **Vic's Point Blank 1.11.1** | Zombies hear gunshots |
-| 🔫 **Musket Mod 1.5.4** | Zombies hear gunshots + Gunner zombies use muskets |
-| 🌕 **Enhanced Celestials 5.0.3.2** | Blood moon support (configurable trigger chance) |
-| 🛡️ **Guard Villagers 1.6.18** | Infected guards retain weapon skills (default: off) |
+- JDK 17+
+- Git
+- At least 4GB RAM (IDE + Gradle concurrent)
 
----
+### Build
 
-## ⚠️ Notes
+```bash
+# Windows (PowerShell)
+gradlew build
 
-- This mod uses a **zombie type system** (`zombie_type`) different from vanilla: only the correct zombie type can use its corresponding weapon (e.g., only bow attackers shoot bows)
-- Mixin injection is applied to zombie/zombie villager models — report any mod conflicts (previously conflicted with Wither Storm's zombie model mixin)
-- Spartan Weaponry bows and shields are supported; crossbows are not (same as vanilla MC)
+# Output JAR at build/libs/
+```
 
----
+### Dev Run
 
-## ❓ FAQ
+```bash
+# Start Minecraft client
+gradlew runClient
 
-**Q: Zombies are too hard, I can't survive!** 😰
+# Start dedicated server
+gradlew runServer
 
-> A: Lower the values in the config file, or install a powerful gun mod!
+# Run data generators (auto-generates some resources)
+gradlew runData
+```
 
-**Q: Why do some zombies have bows/crossbows/shields/guns?**
+### IDE Setup
 
-> A: These are specialized zombie types, each with their own weapons and AI. Adjust their spawn weights in the config.
-
-**Q: Can this work with other zombie mods?**
-
-> A: Possibly, but test carefully. Report any conflicts.
-
-**Q: Can this be used on servers?**
-
-> A: Yes! Install on both server and client.
-
-**Q: Can I put this in my modpack?**
-
-> A: Feel free (non-commercial use) 👍
+Recommended: IntelliJ IDEA
+1. Clone repo and run `gradlew idea` to generate project files
+2. Open `build.gradle` as project
+3. ForgeGradle auto-configures run configurations (`runClient`, `runServer`)
 
 ---
 
-## 💡 Tips
+## Development Notes
 
-1. 🏗️ Build your doomsday fortress early
-2. 🧱 Don't think walls will save you — zombies will tear them down!
-3. 🪓 See a shield zombie? Use an axe to break its guard
-4. 🏃 See a group of zombies building a bridge toward you? RUN!
-5. 🔇 Install silencers on your guns
-6. 📅 The default config ramps difficulty every 10 days — experience a full 100-day apocalypse
+### Mixin
 
----
+- Mixin config: `src/main/resources/mixins.zombiegamereborn.json`
+- Client mixins go in `mixins/client/` package (must be server-safe via `@OnlyIn(Dist.CLIENT)`)
+- Third-party mod mixins (Musket Mod, Point Blank) go in their respective subpackages
+- Debug: set `debug.verbose = true` in mixin config for verbose output
 
-## 🎇 Finally
+### Client Class References
 
-Questions or suggestions? Feel free to open an issue on [Github](https://github.com/Aljun2007/ZombieGameReborn)!
+Client-specific classes (GUI screens, models) are referenced via reflection (see `ZGRNetwork.java` `Class.forName()` pattern) to avoid `ClassNotFoundException` on dedicated servers. When adding client features:
+- Place client handler classes in `common.client` package
+- Call client methods via reflection from server code
+- Use `ctx.get().enqueueWork()` + `Class.forName()` dispatch pattern (see `ZGRNetwork.java`)
+
+### Localization
+
+- English: `assets/zombiegamereborn/lang/en_us.json`
+- Chinese: `assets/zombiegamereborn/lang/zh_cn.json`
+- Entity localization key format: `entity.zombiegamereborn.<zombie_type_name>`
+
+### Config Documentation
+
+When adding, modifying, or removing config fields, synchronize both:
+- `Documentury/zh_cn/配置文件指南.md`
+- `Documentury/en_us/ConfigFileGuide.md`
