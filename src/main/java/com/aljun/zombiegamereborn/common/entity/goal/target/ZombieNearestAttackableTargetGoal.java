@@ -58,9 +58,9 @@ public class ZombieNearestAttackableTargetGoal extends TargetGoal {
     // ==================== 目标条目管理 ====================
 
     /**
-     * 添加目标条目，指定优先度（数值越大越优先）。
+     * 添加目标条目，指定优先度（数值越小越优先）。
      *
-     * @param priority    优先度，越大越优先
+     * @param priority    优先度，越小越优先
      * @param targetClass 目标实体 Class
      * @param condition   TargetingConditions，可为 null
      */
@@ -93,7 +93,7 @@ public class ZombieNearestAttackableTargetGoal extends TargetGoal {
 
         // 按优先度排序（高优先度在前）
         if (!this.sorted) {
-            this.targetEntries.sort(Comparator.<TargetEntry>comparingInt(e -> e.priority).reversed());
+            this.targetEntries.sort(Comparator.comparingInt(e -> e.priority));
             this.sorted = true;
         }
 
@@ -156,7 +156,7 @@ public class ZombieNearestAttackableTargetGoal extends TargetGoal {
         double followDist = this.getFollowDistance();
 
         for (TargetEntry entry : this.targetEntries) {
-            if (entry.priority <= higherThanPriority) continue; // 只检查更高优先度
+            if (entry.priority >= higherThanPriority) continue; // 只检查更高优先度（数值更小）
 
             TargetingConditions conditions = entry.condition;
             if (conditions == null) {

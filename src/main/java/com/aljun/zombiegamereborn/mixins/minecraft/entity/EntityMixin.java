@@ -60,10 +60,11 @@ public class EntityMixin {
                 if (blockState.is(Blocks.CACTUS)) {
                     return;
                 } else if (blockState.is(Blocks.SWEET_BERRY_BUSH)) {
+                    zombie.makeStuckInBlock(blockState, new Vec3((double)0.8F, 0.75D, (double)0.8F));
                     return;
                 } else if (blockState.getBlock().getClass().getName().equals("xxrexraptorxx.minetraps.blocks.BlockBarbedWire")
                         || blockState.getBlock().getClass().getName().equals("xxrexraptorxx.minetraps.blocks.BlockBarbedWireFence")) {
-                    entity.makeStuckInBlock(blockState, new Vec3(0.25F, 0.05F, 0.25F));
+                    zombie.makeStuckInBlock(blockState, new Vec3(0.25F, 0.05F, 0.25F));
                     return;
                 } else if (blockState.getBlock().getClass().getName().equals("xxrexraptorxx.minetraps.blocks.BlockNailTrap")
                 || blockState.getBlock().getClass().getName().equals("xxrexraptorxx.minetraps.blocks.BlockSpikes")) {

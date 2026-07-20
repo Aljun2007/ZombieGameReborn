@@ -1,5 +1,8 @@
 ZombieGame:Reborn Changelog
 =============================
+1.4.1 - Hotfix
+- 取消僵尸优先攻击村民，改为玩家
+- 恢复浆果灌木对免疫僵尸的减速
 
 1.4 - Development version
 - 修复玩家死亡时候生存天数数据丢失问题
