@@ -1,11 +1,13 @@
 package com.aljun.zombiegamereborn.common.events.handler;
 
 import com.aljun.zombiegamereborn.ZombieGameReborn;
+import com.aljun.zombiegamereborn.common.config.StageProperty;
 import com.aljun.zombiegamereborn.common.entity.sense.SenseType;
 import com.aljun.zombiegamereborn.common.entity.sense.ZombieSenseManager;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
@@ -85,15 +87,19 @@ public class ZombieSenseHandler {
         if (event.player.level().isClientSide) return;
 
         Player player = event.player;
-        
-        // 检查玩家血量是否低于4点 (2颗心)
-        if (player.getHealth() < 4.0F || ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(player.level().getServer())) {
-            // 使用游戏总刻数作为计时器，每1000tick触发一次
-            long gameTime = player.level().getGameTime();
-            if (gameTime % 1000 == 0) {
+
+        long gameTime = player.level().getGameTime();
+        if (gameTime % 100 == 0) {
+            StageProperty property = ZGRGame.getGameProperty().getStageProperty((ServerLevel) player.level(), player.blockPosition());
+            if (property.zombieProperty.boundlessHunting) {
+                ZombieSenseManager.broadcastSense(player, player.level(), SenseType.BROADCAST);
+            } else if (property.zombieProperty.bloodMoonBoundlessHunting && ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(player.level().getServer())) {
+                ZombieSenseManager.broadcastSense(player, player.level(), SenseType.BROADCAST);
+            } else if (player.getHealth() <= 4.0F) {
                 ZombieSenseManager.broadcastSense(player, player.level(), SenseType.BLEEDING);
             }
         }
+
     }
 }
 

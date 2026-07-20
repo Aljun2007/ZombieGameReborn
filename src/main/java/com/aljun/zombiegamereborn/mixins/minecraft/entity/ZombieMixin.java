@@ -30,6 +30,12 @@ public abstract class ZombieMixin implements IZombieAccessor {
     @Shadow
     protected abstract boolean isSunSensitive();
 
+    @Shadow
+    private int conversionTime;
+
+    @Shadow
+    private int inWaterTime;
+
     @Inject(method = "isSunSensitive", at = @At("RETURN"), cancellable = true)
     private void isSunSensitiveMixin(CallbackInfoReturnable<Boolean> cir) {
         Zombie zombie = (Zombie) (Object) this;
@@ -42,8 +48,16 @@ public abstract class ZombieMixin implements IZombieAccessor {
     @Inject(method = "tick", at = @At("HEAD"))
     private void tickMixin(CallbackInfo ci) {
         Zombie zombie = (Zombie) (Object) this;
+        if (zombie.level().isClientSide) return;
+
+        // 离开水时强制取消水下转化，防止爬岸后仍在倒计时
+        if (this.conversionTime > 0 && !zombie.isInWater()) {
+            this.conversionTime = -1;
+            this.inWaterTime = -1;
+        }
+
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-        if (data != null && data.fleeSun()) {// 着火且不在水中时临时允许寻水，否则恢复默认避水
+        if (data != null && data.fleeSun()) {
             if (zombie.isOnFire() && !zombie.isInWater()) {
                 zombie.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
             }

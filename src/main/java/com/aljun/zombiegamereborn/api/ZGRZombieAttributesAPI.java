@@ -25,6 +25,7 @@ public class ZGRZombieAttributesAPI {
     /**
      * 获取僵尸的数据能力
      */
+    @Nullable
     public static IZombieData getZombieData(Zombie zombie) {
         return zombie.getCapability(ZombieDataProvider.ZOMBIE_DATA).orElse(null);
     }
@@ -395,5 +396,21 @@ public class ZGRZombieAttributesAPI {
 
     public static double getStepVolumeModify(IZombieData data) {
         return data.getStepVolumeModify();
+    }
+
+    public static boolean isBlockStabImmune(IZombieData data) {
+        return data.isBlockStabImmune();
+    }
+
+    public static void setBlockStabImmune(IZombieData data, boolean value) {
+        data.setBlockStabImmune(value);
+    }
+
+    public static boolean isLadderClimb(IZombieData data) {
+        return data.canLadderClimb();
+    }
+
+    public static void setLadderClimb(IZombieData data, boolean value) {
+        data.setLadderClimb(value);
     }
 }

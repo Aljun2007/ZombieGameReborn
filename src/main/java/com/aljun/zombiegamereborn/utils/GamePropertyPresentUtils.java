@@ -1,13 +1,11 @@
 package com.aljun.zombiegamereborn.utils;
 
 import com.aljun.zombiegamereborn.common.config.GameProperty;
+import com.aljun.zombiegamereborn.common.config.MobReplacement;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
-
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 public class GamePropertyPresentUtils {
 
@@ -19,24 +17,740 @@ public class GamePropertyPresentUtils {
             .registerTypeAdapter(GameProperty.class, new GameProperty.GamePropertyAdapter())
             .create();
 
-    private static final String INITIAL_DEFAULT_PATH = "/data/zombiegamereborn/game_property/initial_default.json";
+    private static final String INITIAL_DEFAULT_JSON = """
+            {
+              "stage_properties": [
+                {
+                  "day": 1.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.0,
+                    "movement_speed_modify": 1.0,
+                    "armor": 2.0,
+                    "armor_toughness": 0.0,
+                    "knockback_resistance": 0.0,
+                    "follow_range": 40.0,
+                    "mining_speed_modify": 1.0,
+                    "follow_must_see": true,
+                    "flee_sun": false,
+                    "can_jump_attack": false,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": false,
+                    "enhanced_sense": false,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": false,
+                    "enable_piglin_collision_anger": false,
+                    "piglin_angry_mode": false,
+                    "break_light_sources": false,
+                    "can_swim_probability": 0.2,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 0.0,
+                    "fire_immune_probability": 0.0,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.55,
+                    "sense_bleeding_radius": 64.0,
+                    "sense_bleeding_lifespan": 400,
+                    "sense_block_radius": 16.0,
+                    "sense_block_lifespan": 100,
+                    "sense_gun_shot_radius": 64.0,
+                    "sense_gun_shot_lifespan": 400,
+                    "sense_gun_shot_silenced_radius": 16.0,
+                    "sense_gun_shot_silenced_lifespan": 100,
+                    "ambient_volume_modify": 1.0,
+                    "step_volume_modify": 1.0,
+                    "equipment_quality_mean_offset": 0.0,
+                    "equipment_probability_factor": 1.0,
+                    "equipment_enchantment_factor": 1.0,
+                    "musket_mod_gun_damage_modify": 0.5,
+                    "block_stab_immune_probability": 0.0,
+                                                            "ladder_climb_probability": 0.0
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 0.0,
+                  "blood_moon_chance": 0.0,
+                  "zombie_count_modify": 1.0,
+                  "holy_cleansing": false
+                },
+                {
+                  "day": 11.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.05,
+                    "movement_speed_modify": 1.02,
+                    "armor": 2.3,
+                    "armor_toughness": 0.2,
+                    "knockback_resistance": 0.0,
+                    "follow_range": 45.0,
+                    "mining_speed_modify": 1.05,
+                    "follow_must_see": true,
+                    "flee_sun": false,
+                    "can_jump_attack": false,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": false,
+                    "enhanced_sense": false,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": false,
+                    "enable_piglin_collision_anger": false,
+                    "piglin_angry_mode": false,
+                    "break_light_sources": false,
+                    "can_swim_probability": 0.22,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 0.01,
+                    "fire_immune_probability": 0.0,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.55,
+                    "sense_bleeding_radius": 64.0,
+                    "sense_bleeding_lifespan": 400,
+                    "sense_block_radius": 16.0,
+                    "sense_block_lifespan": 100,
+                    "sense_gun_shot_radius": 64.0,
+                    "sense_gun_shot_lifespan": 400,
+                    "sense_gun_shot_silenced_radius": 16.0,
+                    "sense_gun_shot_silenced_lifespan": 100,
+                    "ambient_volume_modify": 0.93,
+                    "step_volume_modify": 0.93,
+                    "equipment_quality_mean_offset": 0.0,
+                    "equipment_probability_factor": 1.3,
+                    "equipment_enchantment_factor": 1.05,
+                    "musket_mod_gun_damage_modify": 0.5,
+                    "block_stab_immune_probability": 0.0,
+                                                            "ladder_climb_probability": 0.3
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 0.5,
+                  "blood_moon_chance": 0.15,
+                  "zombie_count_modify": 1.3,
+                  "holy_cleansing": false
+                },
+                {
+                  "day": 21.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.1,
+                    "movement_speed_modify": 1.04,
+                    "armor": 2.6,
+                    "armor_toughness": 0.4,
+                    "knockback_resistance": 0.1,
+                    "follow_range": 50.0,
+                    "mining_speed_modify": 1.1,
+                    "follow_must_see": true,
+                    "flee_sun": false,
+                    "can_jump_attack": false,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": false,
+                    "enhanced_sense": false,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": false,
+                    "enable_piglin_collision_anger": true,
+                    "piglin_angry_mode": false,
+                    "break_light_sources": false,
+                    "can_swim_probability": 0.24,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 0.02,
+                    "fire_immune_probability": 0.0,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.55,
+                    "sense_bleeding_radius": 64.0,
+                    "sense_bleeding_lifespan": 400,
+                    "sense_block_radius": 16.0,
+                    "sense_block_lifespan": 100,
+                    "sense_gun_shot_radius": 64.0,
+                    "sense_gun_shot_lifespan": 400,
+                    "sense_gun_shot_silenced_radius": 16.0,
+                    "sense_gun_shot_silenced_lifespan": 100,
+                    "ambient_volume_modify": 0.86,
+                    "step_volume_modify": 0.86,
+                    "equipment_quality_mean_offset": 0.0,
+                    "equipment_probability_factor": 1.6,
+                    "equipment_enchantment_factor": 1.1,
+                    "musket_mod_gun_damage_modify": 0.5,
+                    "block_stab_immune_probability": 0.0,
+                                                            "ladder_climb_probability": 0.7
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 0.8,
+                  "blood_moon_chance": 0.15,
+                  "zombie_count_modify": 1.4,
+                  "holy_cleansing": false
+                },
+                {
+                  "day": 31.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.15,
+                    "movement_speed_modify": 1.06,
+                    "armor": 2.9,
+                    "armor_toughness": 0.6,
+                    "knockback_resistance": 0.1,
+                    "follow_range": 55.0,
+                    "mining_speed_modify": 1.15,
+                    "follow_must_see": true,
+                    "flee_sun": false,
+                    "can_jump_attack": true,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": false,
+                    "enhanced_sense": false,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": false,
+                    "enable_piglin_collision_anger": true,
+                    "piglin_angry_mode": false,
+                    "break_light_sources": false,
+                    "can_swim_probability": 0.26,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 0.05,
+                    "fire_immune_probability": 0.0,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.64,
+                    "sense_bleeding_radius": 80.0,
+                    "sense_bleeding_lifespan": 400,
+                    "sense_block_radius": 16.0,
+                    "sense_block_lifespan": 100,
+                    "sense_gun_shot_radius": 80.0,
+                    "sense_gun_shot_lifespan": 400,
+                    "sense_gun_shot_silenced_radius": 16.0,
+                    "sense_gun_shot_silenced_lifespan": 100,
+                    "ambient_volume_modify": 0.79,
+                    "step_volume_modify": 0.79,
+                    "equipment_quality_mean_offset": 0.05,
+                    "equipment_probability_factor": 1.9,
+                    "equipment_enchantment_factor": 1.15,
+                    "musket_mod_gun_damage_modify": 0.5,
+                    "block_stab_immune_probability": 0.0,
+                                                            "ladder_climb_probability": 1.0
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 0.9,
+                  "blood_moon_chance": 0.15,
+                  "zombie_count_modify": 1.5,
+                  "holy_cleansing": false
+                },
+                {
+                  "day": 41.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.2,
+                    "movement_speed_modify": 1.08,
+                    "armor": 3.2,
+                    "armor_toughness": 0.8,
+                    "knockback_resistance": 0.1,
+                    "follow_range": 60.0,
+                    "mining_speed_modify": 1.2,
+                    "follow_must_see": true,
+                    "flee_sun": true,
+                    "can_jump_attack": true,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": false,
+                    "enhanced_sense": true,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": false,
+                    "enable_piglin_collision_anger": true,
+                    "piglin_angry_mode": false,
+                    "break_light_sources": false,
+                    "can_swim_probability": 0.3,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 0.1,
+                    "fire_immune_probability": 0.0,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.55,
+                    "sense_bleeding_radius": 100.0,
+                    "sense_bleeding_lifespan": 480,
+                    "sense_block_radius": 24.0,
+                    "sense_block_lifespan": 160,
+                    "sense_gun_shot_radius": 100.0,
+                    "sense_gun_shot_lifespan": 480,
+                    "sense_gun_shot_silenced_radius": 24.0,
+                    "sense_gun_shot_silenced_lifespan": 160,
+                    "ambient_volume_modify": 0.72,
+                    "step_volume_modify": 0.72,
+                    "equipment_quality_mean_offset": 0.1,
+                    "equipment_probability_factor": 2.2,
+                    "equipment_enchantment_factor": 1.2,
+                    "musket_mod_gun_damage_modify": 0.5,
+                    "block_stab_immune_probability": 0.0,
+                                                            "ladder_climb_probability": 1.0
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 0.9,
+                  "blood_moon_chance": 0.15,
+                  "zombie_count_modify": 1.6,
+                  "holy_cleansing": false
+                },
+                {
+                  "day": 51.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.25,
+                    "movement_speed_modify": 1.1,
+                    "armor": 3.5,
+                    "armor_toughness": 1.0,
+                    "knockback_resistance": 0.1,
+                    "follow_range": 65.0,
+                    "mining_speed_modify": 1.25,
+                    "follow_must_see": true,
+                    "flee_sun": true,
+                    "can_jump_attack": true,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": true,
+                    "enhanced_sense": true,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": false,
+                    "enable_piglin_collision_anger": true,
+                    "piglin_angry_mode": false,
+                    "break_light_sources": true,
+                    "can_swim_probability": 0.35,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 0.2,
+                    "fire_immune_probability": 0.0,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.55,
+                    "sense_bleeding_radius": 110.0,
+                    "sense_bleeding_lifespan": 480,
+                    "sense_block_radius": 24.0,
+                    "sense_block_lifespan": 160,
+                    "sense_gun_shot_radius": 110.0,
+                    "sense_gun_shot_lifespan": 480,
+                    "sense_gun_shot_silenced_radius": 24.0,
+                    "sense_gun_shot_silenced_lifespan": 160,
+                    "ambient_volume_modify": 0.65,
+                    "step_volume_modify": 0.65,
+                    "equipment_quality_mean_offset": 0.15,
+                    "equipment_probability_factor": 2.5,
+                    "equipment_enchantment_factor": 1.25,
+                    "musket_mod_gun_damage_modify": 0.5,
+                    "block_stab_immune_probability": 0.0,
+                                                            "ladder_climb_probability": 1.0
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 5, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 0.95,
+                  "blood_moon_chance": 0.15,
+                  "zombie_count_modify": 1.6,
+                  "holy_cleansing": false
+                },
+                {
+                  "day": 61.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.3,
+                    "movement_speed_modify": 1.12,
+                    "armor": 3.8,
+                    "armor_toughness": 1.2,
+                    "knockback_resistance": 0.1,
+                    "follow_range": 70.0,
+                    "mining_speed_modify": 1.3,
+                    "follow_must_see": false,
+                    "flee_sun": true,
+                    "can_jump_attack": true,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": true,
+                    "enhanced_sense": true,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": false,
+                    "enable_piglin_collision_anger": true,
+                    "piglin_angry_mode": true,
+                    "break_light_sources": true,
+                    "can_swim_probability": 0.4,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 0.3,
+                    "fire_immune_probability": 0.0,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.55,
+                    "sense_bleeding_radius": 130.0,
+                    "sense_bleeding_lifespan": 480,
+                    "sense_block_radius": 24.0,
+                    "sense_block_lifespan": 160,
+                    "sense_gun_shot_radius": 130.0,
+                    "sense_gun_shot_lifespan": 480,
+                    "sense_gun_shot_silenced_radius": 24.0,
+                    "sense_gun_shot_silenced_lifespan": 160,
+                    "ambient_volume_modify": 0.58,
+                    "step_volume_modify": 0.58,
+                    "equipment_quality_mean_offset": 0.2,
+                    "equipment_probability_factor": 2.8,
+                    "equipment_enchantment_factor": 1.3,
+                    "musket_mod_gun_damage_modify": 0.55,
+                    "block_stab_immune_probability": 0.0,
+                                                            "ladder_climb_probability": 1.0
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 5, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 0.98,
+                  "blood_moon_chance": 0.2,
+                  "zombie_count_modify": 1.6,
+                  "holy_cleansing": false
+                },
+                {
+                  "day": 71.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.35,
+                    "movement_speed_modify": 1.14,
+                    "armor": 4.1,
+                    "armor_toughness": 1.4,
+                    "knockback_resistance": 0.1,
+                    "follow_range": 75.0,
+                    "mining_speed_modify": 1.35,
+                    "follow_must_see": false,
+                    "flee_sun": true,
+                    "can_jump_attack": true,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": false,
+                    "enhanced_sense": true,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": true,
+                    "enable_piglin_collision_anger": true,
+                    "piglin_angry_mode": true,
+                    "break_light_sources": true,
+                    "can_swim_probability": 0.45,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 0.4,
+                    "fire_immune_probability": 0.1,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.76,
+                    "sense_bleeding_radius": 140.0,
+                    "sense_bleeding_lifespan": 480,
+                    "sense_block_radius": 24.0,
+                    "sense_block_lifespan": 160,
+                    "sense_gun_shot_radius": 140.0,
+                    "sense_gun_shot_lifespan": 480,
+                    "sense_gun_shot_silenced_radius": 24.0,
+                    "sense_gun_shot_silenced_lifespan": 160,
+                    "ambient_volume_modify": 0.51,
+                    "step_volume_modify": 0.51,
+                    "equipment_quality_mean_offset": 0.25,
+                    "equipment_probability_factor": 3.1,
+                    "equipment_enchantment_factor": 1.35,
+                    "musket_mod_gun_damage_modify": 0.6,
+                    "block_stab_immune_probability": 0.0,
+                    "ladder_climb_probability": 1.0
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 80, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 50, "zombie_type": "zombiegamereborn:miner" },
+                      { "spawn_type": "blood_moon", "chance": 30, "zombie_type": "zombiegamereborn:builder" },
+                      { "spawn_type": "blood_moon", "chance": 3, "zombie_type": "zombiegamereborn:shield_user" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" }
+            
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 1.0,
+                  "blood_moon_chance": 0.25,
+                  "zombie_count_modify": 1.7,
+                  "holy_cleansing": false
+                },
+                {
+                  "day": 81.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.4,
+                    "movement_speed_modify": 1.17,
+                    "armor": 4.4,
+                    "armor_toughness": 1.6,
+                    "knockback_resistance": 0.15,
+                    "follow_range": 80.0,
+                    "mining_speed_modify": 1.4,
+                    "follow_must_see": false,
+                    "flee_sun": true,
+                    "can_jump_attack": true,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": false,
+                    "enhanced_sense": true,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": true,
+                    "enable_piglin_collision_anger": true,
+                    "piglin_angry_mode": true,
+                    "break_light_sources": true,
+                    "can_swim_probability": 0.5,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 0.5,
+                    "fire_immune_probability": 0.5,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.8,
+                    "sense_bleeding_radius": 160.0,
+                    "sense_bleeding_lifespan": 600,
+                    "sense_block_radius": 32.0,
+                    "sense_block_lifespan": 200,
+                    "sense_gun_shot_radius": 160.0,
+                    "sense_gun_shot_lifespan": 600,
+                    "sense_gun_shot_silenced_radius": 32.0,
+                    "sense_gun_shot_silenced_lifespan": 200,
+                    "ambient_volume_modify": 0.44,
+                    "step_volume_modify": 0.44,
+                    "equipment_quality_mean_offset": 0.3,
+                    "equipment_probability_factor": 3.4,
+                    "equipment_enchantment_factor": 1.4,
+                    "musket_mod_gun_damage_modify": 0.65,
+                    "block_stab_immune_probability": 0.1,
+                    "ladder_climb_probability": 1.0
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 80, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "normal", "chance": 5, "zombie_type": "zombiegamereborn:shield_user" },
+                      { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
+                      { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
+                      { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 50, "zombie_type": "zombiegamereborn:miner" },
+                      { "spawn_type": "blood_moon", "chance": 30, "zombie_type": "zombiegamereborn:builder" },
+                      { "spawn_type": "blood_moon", "chance": 3, "zombie_type": "zombiegamereborn:shield_user" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" }
+            
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 1.0,
+                  "blood_moon_chance": 0.25,
+                  "zombie_count_modify": 1.8,
+                  "holy_cleansing": false
+                },
+                {
+                  "day": 91.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.5,
+                    "movement_speed_modify": 1.2,
+                    "armor": 5.0,
+                    "armor_toughness": 2.0,
+                    "knockback_resistance": 0.15,
+                    "follow_range": 80.0,
+                    "mining_speed_modify": 1.5,
+                    "follow_must_see": false,
+                    "flee_sun": true,
+                    "can_jump_attack": true,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": false,
+                    "enhanced_sense": true,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": true,
+                    "enable_piglin_collision_anger": true,
+                    "piglin_angry_mode": true,
+                    "break_light_sources": true,
+                    "can_swim_probability": 0.6,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 1.0,
+                    "fire_immune_probability": 1.0,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.85,
+                    "sense_bleeding_radius": 160.0,
+                    "sense_bleeding_lifespan": 600,
+                    "sense_block_radius": 40.0,
+                    "sense_block_lifespan": 200,
+                    "sense_gun_shot_radius": 160.0,
+                    "sense_gun_shot_lifespan": 600,
+                    "sense_gun_shot_silenced_radius": 32.0,
+                    "sense_gun_shot_silenced_lifespan": 200,
+                    "ambient_volume_modify": 0.3,
+                    "step_volume_modify": 0.3,
+                    "equipment_quality_mean_offset": 0.35,
+                    "equipment_probability_factor": 3.7,
+                    "equipment_enchantment_factor": 1.5,
+                    "musket_mod_gun_damage_modify": 0.7,
+                    "block_stab_immune_probability": 1.0,
+                    "ladder_climb_probability": 1.0
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 80, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "normal", "chance": 6, "zombie_type": "zombiegamereborn:shield_user" },
+                      { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
+                      { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
+                      { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 50, "zombie_type": "zombiegamereborn:miner" },
+                      { "spawn_type": "blood_moon", "chance": 30, "zombie_type": "zombiegamereborn:builder" },
+                      { "spawn_type": "blood_moon", "chance": 3, "zombie_type": "zombiegamereborn:shield_user" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" }
+            
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 1.0,
+                  "blood_moon_chance": 0.5,
+                  "zombie_count_modify": 2,
+                  "holy_cleansing": false
+                },{
+                  "day": 101.0,
+                  "zombie_property": {
+                    "max_health": 20.0,
+                    "attack_damage_modify": 1.5,
+                    "movement_speed_modify": 1.2,
+                    "armor": 5.0,
+                    "armor_toughness": 2.0,
+                    "knockback_resistance": 0.15,
+                    "follow_range": 80.0,
+                    "mining_speed_modify": 1.5,
+                    "follow_must_see": false,
+                    "flee_sun": true,
+                    "can_jump_attack": true,
+                    "can_throw_tnt": true,
+                    "do_swimming_zombie_convert": false,
+                    "enhanced_sense": true,
+                    "boundless_hunting": false,
+                    "blood_moon_boundless_hunting": true,
+                    "can_zombie_guard_continue_use_weapons": true,
+                    "enable_piglin_collision_anger": true,
+                    "piglin_angry_mode": true,
+                    "break_light_sources": true,
+                    "can_swim_probability": 0.6,
+                    "zombie_swim_speed_modify": 1.0,
+                    "drowned_swim_speed_modify": 1.0,
+                    "sun_immunity_probability": 1.0,
+                    "fire_immune_probability": 0.0,
+                    "baby_probability": 0.05,
+                    "can_pick_up_loot_coefficient": 0.55,
+                    "sense_bleeding_radius": 160.0,
+                    "sense_bleeding_lifespan": 600,
+                    "sense_block_radius": 40.0,
+                    "sense_block_lifespan": 200,
+                    "sense_gun_shot_radius": 160.0,
+                    "sense_gun_shot_lifespan": 600,
+                    "sense_gun_shot_silenced_radius": 32.0,
+                    "sense_gun_shot_silenced_lifespan": 200,
+                    "ambient_volume_modify": 0.3,
+                    "step_volume_modify": 0.3,
+                    "equipment_quality_mean_offset": 0.35,
+                    "equipment_probability_factor": 3.7,
+                    "equipment_enchantment_factor": 1.5,
+                    "musket_mod_gun_damage_modify": 0.7,
+                    "block_stab_immune_probability": 1.0,
+                                                            "ladder_climb_probability": 1.0
+                  },
+                  "zombie_spawn_chooser": {
+                    "zombie_types": [
+                      { "spawn_type": "normal", "chance": 80, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "normal", "chance": 6, "zombie_type": "zombiegamereborn:shield_user" },
+                      { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
+                      { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
+                      { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "blood_moon", "chance": 50, "zombie_type": "zombiegamereborn:miner" },
+                      { "spawn_type": "blood_moon", "chance": 30, "zombie_type": "zombiegamereborn:builder" },
+                      { "spawn_type": "blood_moon", "chance": 3, "zombie_type": "zombiegamereborn:shield_user" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
+                                            { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" }
+            
+                    ]
+                  },
+                  "replace_chance": 1.0,
+                  "remove_chance": 1.0,
+                  "blood_moon_chance": 0.1,
+                  "zombie_count_modify": 1.5,
+                  "holy_cleansing": false
+                }
+              ],
+              "can_zombie_break_block": true,
+              "can_zombie_place_block": true,
+              "can_piglin_infection": true,
+              "mob_replacement": {
+                "mobs": []
+              },
+              "keep_mob_loot_table": true,
+              "max_empowered_builder_count": 30,
+              "max_empowered_miner_count": 30,
+              "disable_turtle_egg_seeking": false
+            }
+            """;
+    public static GameProperty initialDefault = null;
+
+    static {
+        try {
+            GameProperty property = GSON.fromJson(INITIAL_DEFAULT_JSON, GameProperty.TYPE);
+            property.mobReplacement = MobReplacement.getDefault();
+            initialDefault = property;
+        } catch (Exception e) {
+            LOGGER.error("解析内联初始默认配置失败", e);
+            initialDefault = disabled();
+        }
+    }
 
     public static GameProperty globalDefault() {
         return GameProperty.getGlobalDefault();
     }
 
     public static GameProperty initialDefault() {
-        try (InputStream is = GamePropertyPresentUtils.class.getResourceAsStream(INITIAL_DEFAULT_PATH)) {
-            if (is == null) {
-                LOGGER.error("无法找到初始默认配置文件: {} (类路径资源不存在)", INITIAL_DEFAULT_PATH);
-                return disabled();
-            }
-            String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            return GSON.fromJson(json, GameProperty.TYPE);
-        } catch (Exception e) {
-            LOGGER.error("加载初始默认配置文件失败: {}", INITIAL_DEFAULT_PATH, e);
-            return disabled();
-        }
+        return initialDefault.copy();
     }
 
     public static GameProperty disabled() {

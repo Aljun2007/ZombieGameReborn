@@ -6,6 +6,7 @@ import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.aljun.zombiegamereborn.utils.RandomUtils;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
+import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.entity.monster.Zombie;
 
 import java.lang.reflect.Type;
@@ -36,6 +37,10 @@ public class ZombieProperty {
     public double miningSpeedModify = 1.0d;
     @SerializedName("can_swim_probability")
     public double canSwimProbability = 0.0d;
+    @SerializedName("zombie_swim_speed_modify")
+    public double zombieSwimSpeedModify = 1.0d;
+    @SerializedName("drowned_swim_speed_modify")
+    public double drownedSwimSpeedModify = 1.0d;
     @SerializedName("sun_immunity_probability")
     public double sunImmunityProbability = 0.0d;
     @SerializedName("fire_immune_probability")
@@ -70,6 +75,10 @@ public class ZombieProperty {
     public int senseGunShotSilencedLifespan = 100;
     @SerializedName("enhanced_sense")
     public boolean enhancedSense = false;
+    @SerializedName("boundless_hunting")
+    public boolean boundlessHunting = false;
+    @SerializedName("blood_moon_boundless_hunting")
+    public boolean bloodMoonBoundlessHunting = false;
     @SerializedName("musket_mod_gun_damage_modify")
     public double musketModGunDamageModify = 0.5d;
     @SerializedName("do_swimming_zombie_convert")
@@ -96,6 +105,14 @@ public class ZombieProperty {
     public double piglinCollisionAngerChance = 0.25d;
     @SerializedName("piglin_angry_mode")
     public boolean piglinAngryMode = false;
+    @SerializedName("break_light_sources")
+    public boolean breakLightSources = false;
+    @SerializedName("can_throw_tnt")
+    public boolean canThrowTNT = false;
+    @SerializedName("block_stab_immune_probability")
+    public double blockStabImmuneProbability = 0.0d;
+    @SerializedName("ladder_climb_probability")
+    public double ladderClimbProbability = 0.0d;
 
     public ZombieProperty() {
     }
@@ -114,6 +131,8 @@ public class ZombieProperty {
         property.armorToughness = getDoubleOrDefault(obj, "armor_toughness", 0.0);
         property.miningSpeedModify = getDoubleOrDefault(obj, "mining_speed_modify", DEFAULT_MINING_SPEED);
         property.canSwimProbability = getDoubleOrDefault(obj, "can_swim_probability", DEFAULT_PROBABILITY);
+        property.zombieSwimSpeedModify = getDoubleOrDefault(obj, "zombie_swim_speed_modify", 1.0d);
+        property.drownedSwimSpeedModify = getDoubleOrDefault(obj, "drowned_swim_speed_modify", 1.0d);
         property.sunImmunityProbability = getDoubleOrDefault(obj, "sun_immunity_probability", DEFAULT_PROBABILITY);
         property.fireImmuneProbability = getDoubleOrDefault(obj, "fire_immune_probability", DEFAULT_PROBABILITY);
         property.babyProbability = getDoubleOrDefault(obj, "baby_probability", 0.05d);
@@ -133,6 +152,8 @@ public class ZombieProperty {
         property.senseGunShotSilencedRadius = getDoubleOrDefault(obj, "sense_gun_shot_silenced_radius", 16.0d);
         property.senseGunShotSilencedLifespan = getIntOrDefault(obj, "sense_gun_shot_silenced_lifespan", 100);
         property.enhancedSense = getBooleanOrDefault(obj, "enhanced_sense", false);
+        property.boundlessHunting = getBooleanOrDefault(obj, "boundless_hunting", false);
+        property.bloodMoonBoundlessHunting = getBooleanOrDefault(obj, "blood_moon_boundless_hunting", false);
         property.musketModGunDamageModify = getDoubleOrDefault(obj, "musket_mod_gun_damage_modify", 0.5d);
         property.canZombieGuardContinueUseWeapons = getBooleanOrDefault(obj, "can_zombie_guard_continue_use_weapons", false);
         property.fleeSun = getBooleanOrDefault(obj, "flee_sun", false);
@@ -144,6 +165,10 @@ public class ZombieProperty {
         property.enablePiglinCollisionAnger = getBooleanOrDefault(obj, "enable_piglin_collision_anger", false);
         property.piglinCollisionAngerChance = getDoubleOrDefault(obj, "piglin_collision_anger_chance", 0.25d);
         property.piglinAngryMode = getBooleanOrDefault(obj, "piglin_angry_mode", false);
+        property.breakLightSources = getBooleanOrDefault(obj, "break_light_sources", false);
+        property.canThrowTNT = getBooleanOrDefault(obj, "can_throw_tnt", false);
+        property.blockStabImmuneProbability = getDoubleOrDefault(obj, "block_stab_immune_probability", 0.0d);
+        property.ladderClimbProbability = getDoubleOrDefault(obj, "ladder_climb_probability", 0.0d);
 
         return property;
 
@@ -162,6 +187,8 @@ public class ZombieProperty {
         obj.addProperty("armor_toughness", armorToughness);
         obj.addProperty("mining_speed_modify", miningSpeedModify);
         obj.addProperty("can_swim_probability", canSwimProbability);
+        obj.addProperty("zombie_swim_speed_modify", zombieSwimSpeedModify);
+        obj.addProperty("drowned_swim_speed_modify", drownedSwimSpeedModify);
         obj.addProperty("sun_immunity_probability", sunImmunityProbability);
         obj.addProperty("fire_immune_probability", fireImmuneProbability);
         obj.addProperty("baby_probability", babyProbability);
@@ -181,6 +208,8 @@ public class ZombieProperty {
         obj.addProperty("sense_gun_shot_silenced_radius", senseGunShotSilencedRadius);
         obj.addProperty("sense_gun_shot_silenced_lifespan", senseGunShotSilencedLifespan);
         obj.addProperty("enhanced_sense", enhancedSense);
+        obj.addProperty("boundless_hunting", boundlessHunting);
+        obj.addProperty("blood_moon_boundless_hunting", bloodMoonBoundlessHunting);
         obj.addProperty("musket_mod_gun_damage_modify", musketModGunDamageModify);
         obj.addProperty("can_zombie_guard_continue_use_weapons", canZombieGuardContinueUseWeapons);
         obj.addProperty("flee_sun", fleeSun);
@@ -192,6 +221,10 @@ public class ZombieProperty {
         obj.addProperty("enable_piglin_collision_anger", enablePiglinCollisionAnger);
         obj.addProperty("piglin_collision_anger_chance", piglinCollisionAngerChance);
         obj.addProperty("piglin_angry_mode", piglinAngryMode);
+        obj.addProperty("break_light_sources", breakLightSources);
+        obj.addProperty("can_throw_tnt", canThrowTNT);
+        obj.addProperty("block_stab_immune_probability", blockStabImmuneProbability);
+        obj.addProperty("ladder_climb_probability", ladderClimbProbability);
 
         return obj;
 
@@ -215,6 +248,8 @@ public class ZombieProperty {
 
         ZGRZombieAttributesAPI.setAmbientVolumeModify(data,this.ambientVolumeModify);
         ZGRZombieAttributesAPI.setStepVolumeModify(data,this.stepVolumeModify);
+        ZGRZombieAttributesAPI.setBlockStabImmune(data, RandomUtils.booleanByChance(this.blockStabImmuneProbability));
+        ZGRZombieAttributesAPI.setLadderClimb(data, RandomUtils.booleanByChance(this.ladderClimbProbability));
 
         if (this.babyProbability > 0.05d) {
             if (!zombie.isBaby()) {
@@ -252,10 +287,18 @@ public class ZombieProperty {
         ZGRZombieAttributesAPI.setMovementSpeed(zombie, this.movementSpeedModify * baseMovementSpeed);
         data.setAttributesMovementSpeedModify(this.movementSpeedModify);
 
+        double baseSwimSpeed = ZGRZombieAttributesAPI.getSwimSpeedOptional(zombie).orElse(1.0);
+        if (zombie instanceof Drowned) {
+            ZGRZombieAttributesAPI.setSwimSpeed(zombie, this.drownedSwimSpeedModify * baseSwimSpeed);
+        } else {
+            ZGRZombieAttributesAPI.setSwimSpeed(zombie, this.zombieSwimSpeedModify * baseSwimSpeed);
+        }
+
         double baseMiningSpeed = ZGRZombieAttributesAPI.getMiningSpeed(data);
         ZGRZombieAttributesAPI.setMiningSpeed(data, this.miningSpeedModify * baseMiningSpeed);
 
         data.enableJumpAttack(this.canJumpAttack);
+        data.enableThrowTNT(this.canThrowTNT);
 
     }
 

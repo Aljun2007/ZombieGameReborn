@@ -21,6 +21,7 @@ public class ZombieData implements IZombieData {
     private boolean isEmpowered = true;
     private double movementSpeedModify = 1.0d;
     private boolean canJumpAttack = false;
+    private boolean canThrowTNT = false;
     private boolean followMustSee = false;
     private @Nullable ZombieSenseTargetGoal zombieSenseTargetGoal = null;
     private @Nullable ZombieBreakBlockGoal zombieBreakBlockGoal = null;
@@ -28,6 +29,8 @@ public class ZombieData implements IZombieData {
     private @Nullable ZombieShieldGoal zombieShieldGoal = null;
     private boolean enhancedSense = false;
     private boolean fleeSun = false;
+    private boolean blockStabImmune = false;
+    private boolean ladderClimb = false;
     private ResourceLocation customLootTable = null;
 
     @Override @Nullable
@@ -199,6 +202,16 @@ public class ZombieData implements IZombieData {
     }
 
     @Override
+    public boolean canThrowTNT() {
+        return this.canThrowTNT;
+    }
+
+    @Override
+    public void enableThrowTNT(boolean value) {
+        this.canThrowTNT = value;
+    }
+
+    @Override
     public boolean followMustSee() {
         return this.followMustSee;
     }
@@ -228,6 +241,26 @@ public class ZombieData implements IZombieData {
     @Override
     public void setFleeSun(boolean value) {
         this.fleeSun = value;
+    }
+
+    @Override
+    public boolean isBlockStabImmune() {
+        return this.blockStabImmune;
+    }
+
+    @Override
+    public void setBlockStabImmune(boolean value) {
+        this.blockStabImmune = value;
+    }
+
+    @Override
+    public boolean canLadderClimb() {
+        return this.ladderClimb;
+    }
+
+    @Override
+    public void setLadderClimb(boolean value) {
+        this.ladderClimb = value;
     }
 
     private double ambientVolumeModify = 1.0d;

@@ -168,10 +168,14 @@ dependencies {
     implementation fg.deobf("blank:guardvillagers:1.6.18")
     implementation fg.deobf("blank:musketmod:1.5.4")
     implementation fg.deobf("blank:spartanshields:3.1.1")
-    implementation fg.deobf("blank:spartanweaponry:3.2.1")
+    compileOnly fg.deobf("blank:spartanweaponry:3.2.1")
     implementation fg.deobf("blank:tacz:1.1.7")
     implementation fg.deobf("blank:geckolib:4.8.4")
-    implementation fg.deobf("blank:pointblank:1.11.1")
+    compileOnly fg.deobf("blank:pointblank:1.11.1")
+    //runtimeOnly fg.deobf("blank:harimt:2.0")
+    implementation fg.deobf("blank:minetraps:2.3.0")
+
+
 //    implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
 //    implementation fg.deobf("curse.maven:ui-lib-933200:5207688")
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings

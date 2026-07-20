@@ -9,13 +9,14 @@ import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.utils.MathUtils;
 import com.aljun.zombiegamereborn.utils.PathConstructor;
 import com.aljun.zombiegamereborn.utils.RandomUtils;
-import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.PowderSnowCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
@@ -39,8 +41,14 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     private static final double TOO_FAR_FROM_BLOCK_SQR = 25.0;
     private static final double TARGET_CLOSE_DIST_SQR = 25.0;
     private static final long GIVE_UP_BUILD_TIME = 200L;
+    private static final long PRE_BUILD_DURATION = 80L;
+    private static final int PRE_BUILD_RANGE = 10;
+    private static final int PRE_BUILD_VERTICAL_RANGE = 7;
+    private static final double PRE_BUILD_REACH_DIST_SQR = 4.0;
     protected final Zombie zombie;
     protected final int attackInterval = 20;
+    private final ServerLevel level;
+    private final boolean giveUpHalfway = RandomUtils.booleanByChance(0.5d);
     public ZombieBreakBlockGoal breakGoal = null;
     public ZombiePlaceBlockGoal placeGoal = null;
     protected double speedModifier = 1;
@@ -63,24 +71,25 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     private long lastGiveUpBuildTime = 0L;
     private boolean isTried = false;
     private long lastHurtAndCanReachPlayerTime = 0L;
+    private Vec3 preBuildTargetPos = null;
+    private long preBuildStartTime = 0L;
     private PathConstructor.Style style = randomStyle();
-
-    private PathConstructor.Style randomStyle() {
-        if (RandomUtils.booleanByChance(0.6)) {
-            return PathConstructor.Style.JUMP_PRIORITIZED;
-        } else return PathConstructor.Style.NORMAL;
-
-    }
-
     private Boolean cachedCanBreak = null;
     private Boolean cachedCanPlace = null;
-    private IZombieData data;
-
-    public ZombieMeleeAndPathBuildGoal(Zombie zombie,IZombieData data) {
+    private final IZombieData data;
+    public ZombieMeleeAndPathBuildGoal(Zombie zombie, IZombieData data) {
         this.zombie = zombie;
+        this.level = (ServerLevel) zombie.level();
         this.pathConstructor = new PathConstructor();
         this.data = data;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+    }
+
+    private PathConstructor.Style randomStyle() {
+        if (RandomUtils.booleanByChance(0.5)) {
+            return PathConstructor.Style.JUMP_PRIORITIZED;
+        } else return PathConstructor.Style.NORMAL;
+
     }
 
     private BlockState getPlaceBlock() {
@@ -100,7 +109,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                         // 判断玩家位置，小于2格
                         if (this.zombie.distanceToSqr(attacker) < 4.0D) {
                             this.setMelee();
-                            this.lastHurtAndCanReachPlayerTime = this.zombie.level().getGameTime();
+                            this.lastHurtAndCanReachPlayerTime = this.level.getGameTime();
                         }
                     }
                 }
@@ -116,17 +125,20 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
         if (this.breakGoal != null) {
             this.breakGoal.stopBreak();
         }
-        this.lastSetMeleeTime = this.zombie.level().getGameTime();
+        this.lastSetMeleeTime = this.level.getGameTime();
+        this.preBuildTargetPos = null;
         this.cachedCanBreak = null;
         this.cachedCanPlace = null;
     }
 
     protected void setBuild(BlockPos target) {
-        long gameTime = this.zombie.level().getGameTime();
+        long gameTime = this.level.getGameTime();
         if (gameTime - this.lastSetMeleeTime >= BUILD_COOLDOWN &&
                 gameTime - this.lastHurtAndCanReachPlayerTime >= HURT_BUILD_COOLDOWN) {
-            this.state = State.BUILD;
+            this.state = State.PRE_BUILD;
             this.buildTargetPos = target;
+            this.preBuildStartTime = gameTime;
+            this.preBuildTargetPos = null;
             this.selfPos = this.zombie.blockPosition();
             this.zombie.getNavigation().stop();
         }
@@ -135,7 +147,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     @Override
     public boolean canUse() {
         this.ensureGoalsInitialized();
-        long currentTime = this.zombie.level().getGameTime();
+        long currentTime = this.level.getGameTime();
         if (currentTime - this.lastCanUseCheck < COOLDOWN_BETWEEN_CAN_USE_CHECKS) {
             return false;
         } else {
@@ -236,6 +248,10 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                 this.tickMeleeState(livingentity, distanceToTarget);
             }
 
+            if (this.state.is(State.PRE_BUILD)) {
+                this.tickPreBuildState(livingentity, distanceToTarget);
+            }
+
             if (this.state.is(State.BUILD)) {
                 this.tickBuildState(livingentity, distanceToTarget);
             }
@@ -244,7 +260,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
     private void tickMeleeState(LivingEntity livingentity, double distanceToTarget) {
         this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
-        if (this.zombie.position().distanceToSqr(livingentity.position()) <= TARGET_CLOSE_DIST_SQR) {
+        if (distanceToTarget <= TARGET_CLOSE_DIST_SQR) {
             this.ticksUntilNextPathRecalculation -= 2;
         }
 
@@ -344,7 +360,50 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
         this.adjustYPos();
 
+        if (this.breakGoal != null && !this.breakGoal.isDone()) {
+            return;
+        }
+
         this.executePathConstruction();
+    }
+
+    private void tickPreBuildState(LivingEntity target, double distanceToTarget) {
+        long elapsed = this.level.getGameTime() - this.preBuildStartTime;
+
+        if (!this.canPathConstruct()) {
+            this.setMelee();
+            return;
+        }
+
+        if (elapsed > PRE_BUILD_DURATION) {
+            this.state = State.BUILD;
+            this.zombie.getNavigation().stop();
+            this.selfPos = this.zombie.blockPosition();
+            return;
+        }
+
+        if (this.preBuildTargetPos == null) {
+            Vec3 randomPos = DefaultRandomPos.getPos(this.zombie, PRE_BUILD_RANGE, PRE_BUILD_VERTICAL_RANGE);
+            if (randomPos != null) {
+                this.preBuildTargetPos = randomPos;
+                this.zombie.getNavigation().moveTo(randomPos.x, randomPos.y, randomPos.z, this.speedModifier);
+            } else {
+                if (elapsed > 10) {
+                    this.state = State.BUILD;
+                    this.zombie.getNavigation().stop();
+                    this.selfPos = this.zombie.blockPosition();
+                }
+            }
+        } else {
+            if (this.zombie.getNavigation().isDone() ||
+                    this.zombie.position().distanceToSqr(this.preBuildTargetPos) < PRE_BUILD_REACH_DIST_SQR) {
+                this.state = State.BUILD;
+                this.zombie.getNavigation().stop();
+                this.selfPos = this.zombie.blockPosition();
+            }
+        }
+
+        this.zombie.getLookControl().setLookAt(target, 30.0F, 30.0F);
     }
 
     private void adjustYPos() {
@@ -372,10 +431,10 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
             this.pathPack = newPathPack;
 
-            if (this.zombie.level().getGameTime() - this.lastGiveUpBuildTime > GIVE_UP_BUILD_TIME) {
+            if (this.level.getGameTime() - this.lastGiveUpBuildTime > GIVE_UP_BUILD_TIME) {
                 Path path = this.zombie.getNavigation().createPath(livingentity, 0);
 
-                if (path != null) {
+                if (path != null && this.giveUpHalfway) {
                     Node finalNode = path.getEndNode();
                     if (finalNode != null) {
                         BlockPos pathEnd = finalNode.asBlockPos();
@@ -384,19 +443,17 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                         if ((Math.sqrt(pathEnd.distSqr(livingentity.blockPosition()) + 10) < Math.sqrt(buildEnd.distSqr(livingentity.blockPosition())))) {
                             this.setMelee();
                             this.zombie.getNavigation().moveTo(path, this.speedModifier / this.data.getTotalMovementSpeedModify());
-                            this.lastGiveUpBuildTime = this.zombie.level().getGameTime();
+                            this.lastGiveUpBuildTime = this.level.getGameTime();
                             return;
                         }
                     }
                 }
             }
 
-            if (this.pathPack != null) {
-                if (this.pathPack.pathStructure().is(PathConstructor.PathStructure.SITU)) {
+            if (this.pathPack.pathStructure().is(PathConstructor.PathStructure.SITU)) {
                     this.setMelee();
                     return;
                 }
-            }
 
             Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
             if (path1 != null) {
@@ -437,7 +494,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                 return;
             }
 
-            BlockState blockState = this.zombie.level().getBlockState(pos);
+            BlockState blockState = this.level.getBlockState(pos);
             PathConstructor.BlockType type = this.pathPack.pathStructure().getType(pathIndex);
 
             if (!this.verify(pos, blockState, type)) {
@@ -480,7 +537,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     }
 
     protected boolean isPosIllegal(BlockPos pos) {
-        return this.zombie.level().isOutsideBuildHeight(pos);
+        return this.level.isOutsideBuildHeight(pos);
     }
 
     protected boolean verify(BlockPos blockPos, BlockState blockState, PathConstructor.@NotNull BlockType type) {
@@ -497,16 +554,18 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                 if (blockState.getBlock() instanceof PowderSnowCauldronBlock) {
                     return this.destroyBlock(blockPos);
                 } else {
-                    if (this.zombie.blockPosition().above().equals(blockPos) || this.zombie.blockPosition().equals(blockPos)) {
+                    BlockPos zombiePos = this.zombie.blockPosition();
+                    if (zombiePos.above().equals(blockPos) || zombiePos.equals(blockPos)) {
                         this.zombie.getJumpControl().jump();
                         return true;
                     }
-                    if (this.zombie.distanceToSqr(MathUtils.blockPosToVec3(blockPos)) <= PLACE_BLOCK_DISTANCE_SQR) {
+                    double distSqr = this.zombie.distanceToSqr(MathUtils.blockPosToVec3(blockPos));
+                    if (distSqr <= PLACE_BLOCK_DISTANCE_SQR) {
                         return this.placeBlock(blockPos);
-                    } else if (this.zombie.distanceToSqr(MathUtils.blockPosToVec3(blockPos)) > TOO_FAR_FROM_BLOCK_SQR) {
+                    } else if (distSqr > TOO_FAR_FROM_BLOCK_SQR) {
                         return false;
                     } else {
-                        if (this.zombie.blockPosition().distSqr(this.selfPos) >= 2) {
+                        if (zombiePos.distSqr(this.selfPos) >= 2) {
                             if (this.zombie.getNavigation().isDone()) {
                                 Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
                                 if (path1 != null) {
@@ -559,7 +618,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     }
 
     protected boolean isSolid(BlockPos blockPos, BlockState blockState) {
-        return Block.isShapeFullBlock(blockState.getCollisionShape(this.zombie.level(), blockPos));
+        return Block.isShapeFullBlock(blockState.getCollisionShape(this.level, blockPos));
     }
 
     protected boolean destroyBlock(BlockPos blockPos) {
@@ -582,7 +641,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     }
 
     protected enum State {
-        MELEE(0), BUILD(1);
+        MELEE(0), BUILD(1), PRE_BUILD(2);
         final int ID;
 
         State(int i) {

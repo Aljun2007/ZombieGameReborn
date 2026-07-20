@@ -48,14 +48,21 @@ public class GamePropertyScreen extends AbstractConfigScreen {
         this.tabs.add(stageTab);
         this.tabs.add(performanceTab);
         this.tabs.add(mobReplaceTab);
+
     }
 
     private void initializePerformanceTab(SimpleSettingsPanel panel) {
         panel.addLabel("gui.zombiegamereborn.zombieproperty.section.performance");
-        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_miner", "max_empowered_miner_count", 100, 0, Integer.MAX_VALUE);
-        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_builder", "max_empowered_builder_count", 100, 0, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_miner", "max_empowered_miner_count", 30, 0, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_builder", "max_empowered_builder_count", 30, 0, Integer.MAX_VALUE);
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.disable_turtle_egg_seeking", "disable_turtle_egg_seeking", false);
-
+        panel.setOnValueChanged((key, value) -> {
+            if (!isInitializing) {
+                localJson.add(key, value);
+                hasUnsavedChanges = true;
+                hasInteracted = true;
+            }
+        });
     }
 
     private void initializeMobReplaceTab(SimpleSettingsPanel panel) {
@@ -85,7 +92,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
     private void initializeRuleTab(SimpleSettingsPanel panel) {
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_break", "can_zombie_break_block", true);
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_place", "can_zombie_place_block", true);
-        panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_piglin_infection", "can_piglin_infection", true);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_piglin_infection", "can_piglin_infection", false);
 
         panel.setOnValueChanged((key, value) -> {
             if (!isInitializing) {
@@ -149,6 +156,13 @@ public class GamePropertyScreen extends AbstractConfigScreen {
                     return screen;
                 }
         );
+        panel.setOnValueChanged((key, value) -> {
+            if (!isInitializing) {
+                localJson.add(key, value);
+                hasUnsavedChanges = true;
+                hasInteracted = true;
+            }
+        });
     }
 
     @Override

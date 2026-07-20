@@ -7,6 +7,7 @@ import com.aljun.zombiegamereborn.common.config.ZombieSpawnChooser;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -64,7 +65,7 @@ public class ZombieSpawnChooserScreen extends AbstractBranchConfigScreen {
                                         "zombie_type." + wrappedType.zombieType.getId().getNamespace() + "." + wrappedType.zombieType.getId().getPath()
                                 ).getString();
                                 return Component.translatable("gui.zombiegamereborn.wrappedzombietype.display_format",
-                                        name, wrappedType.chance,"gui.zombiegamereborn.spawntype." + wrappedType.type.name).getString();
+                                        name, wrappedType.chance, I18n.get("gui.zombiegamereborn.spawntype." + wrappedType.type.name)).getString();
                             },
 
                             (lastScreen1, jsonElement1, itemSaveCallback) -> {

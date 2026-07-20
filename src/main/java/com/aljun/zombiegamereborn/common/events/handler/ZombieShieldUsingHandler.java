@@ -41,7 +41,10 @@ public class ZombieShieldUsingHandler {
 
             // 检查是否刚刚破盾（通过 ShieldGoal 的状态判断）
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-            ZombieShieldGoal shieldGoal = data.getZombieShieldGoal();
+            ZombieShieldGoal shieldGoal = null;
+            if (data != null) {
+                shieldGoal = data.getZombieShieldGoal();
+            }
             if (shieldGoal != null && shieldGoal.wasShieldJustBroken()) {
                 event.setCanceled(true);
             }
@@ -60,7 +63,10 @@ public class ZombieShieldUsingHandler {
             if (!zombie.isUsingItem()) return;
             if (!(zombie.getUseItem().getItem() instanceof ShieldItem)) return;
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-            ZombieShieldGoal shieldGoal = data.getZombieShieldGoal();
+            ZombieShieldGoal shieldGoal = null;
+            if (data != null) {
+                shieldGoal = data.getZombieShieldGoal();
+            }
             if (shieldGoal == null) return;
             Entity attacker = event.getSource().getDirectEntity();
             if (attacker instanceof LivingEntity livingAttacker) {

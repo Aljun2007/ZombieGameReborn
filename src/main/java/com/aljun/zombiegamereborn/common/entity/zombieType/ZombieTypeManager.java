@@ -1,10 +1,12 @@
 package com.aljun.zombiegamereborn.common.entity.zombieType;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
+import com.aljun.zombiegamereborn.common.entity.accessor.INearestAttackableTargetGoalAccessor;
 import com.aljun.zombiegamereborn.common.entity.accessor.ITargetGoalAccessor;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.capability.ZombieDataProvider;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.*;
+import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieNearestAttackableTargetGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.target.ZombiePiglinCollisionTargetGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
@@ -17,17 +19,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-
-import java.util.function.Supplier;
 
 public class ZombieTypeManager {
 
@@ -151,7 +153,9 @@ public class ZombieTypeManager {
             data.setZombieBreakBlockGoal(breakBlockGoal);
             zombie.goalSelector.addGoal(1, breakBlockGoal);
             zombie.goalSelector.addGoal(2, new ClearHeadBlockGoal(zombie, data));
-            zombie.goalSelector.addGoal(3, new ZombieWaterBridgeBuildGoal(zombie, data));
+            {
+                zombie.goalSelector.addGoal(4, new ZombieRemoveLightSourceGoal(zombie, data));
+            }
         }
         if (type.canPlaceBlock()) {
             ZombiePlaceBlockGoal placeBlockGoal = new ZombiePlaceBlockGoal(zombie, data);
@@ -160,6 +164,7 @@ public class ZombieTypeManager {
             }
             data.setZombiePlaceBlockGoal(placeBlockGoal);
             zombie.goalSelector.addGoal(1, placeBlockGoal);
+            zombie.goalSelector.addGoal(3, new ZombieWaterBridgeBuildGoal(zombie, data));
         }
         if (data.canSwim()) {
             if (!(zombie instanceof Drowned)) {
@@ -169,16 +174,13 @@ public class ZombieTypeManager {
         if (data.canJumpAttack()) {
             zombie.goalSelector.addGoal(3, new JumpAttackGoal(zombie));
         }
-        zombie.targetSelector.getRunningGoals().forEach(wrappedGoal -> {
-            if (wrappedGoal.getGoal() instanceof ITargetGoalAccessor targetGoal) {
-                targetGoal.set_mustSee(data.followMustSee() && targetGoal.get_mustSee());
-            }
-        });
+        // 梯子攀爬已通过 WalkNodeEvaluatorMixin 注入 PathFinder 实现，无需独立的 Goal
         if (zombie instanceof ZombifiedPiglin) {
             zombie.targetSelector.addGoal(2, new ZombiePiglinCollisionTargetGoal(zombie));
             if (zombie.getServer() != null && ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieProperty.piglinAngryMode) {
-                zombie.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(zombie, Player.class, true));
+                zombie.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(zombie, Player.class, true));
                 zombie.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(zombie, AbstractPiglin.class, true));
+                zombie.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(zombie, Hoglin.class, true));
             }
         }
         if (data.enhancedSense()) {
@@ -190,6 +192,35 @@ public class ZombieTypeManager {
             zombie.goalSelector.addGoal(2, new ZombieRestrictSunGoal(zombie,data));
             zombie.goalSelector.addGoal(3, new ZombieFleeSunGoal(zombie));
         }
+        // Targeting — 合并所有 NearestAttackableTargetGoal 为统一目标管理
+        // 1. 先收集旧目标及其原始优先度
+        ZombieNearestAttackableTargetGoal newTargetGoal = new ZombieNearestAttackableTargetGoal(zombie, true, false);
+
+        for (WrappedGoal wrapped : zombie.targetSelector.getAvailableGoals()) {
+            Goal goal = wrapped.getGoal();
+            if (goal instanceof INearestAttackableTargetGoalAccessor accessor) {
+                newTargetGoal.addTarget(
+                        wrapped.getPriority(),
+                        accessor.get_targetType(),
+                        accessor.get_targetingConditions()
+                );
+            }
+        }
+
+        // 2. 注册新目标（先注册再加入，确保目标选取不中断）
+        zombie.targetSelector.addGoal(3, newTargetGoal);
+
+        // 3. 移除所有已迁移的旧目标
+        zombie.targetSelector.removeAllGoals(goal ->
+                goal instanceof NearestAttackableTargetGoal<?>
+        );
+
+        // 4. 同步 mustSee
+        zombie.targetSelector.getRunningGoals().forEach(wrappedGoal -> {
+            if (wrappedGoal.getGoal() instanceof ITargetGoalAccessor targetGoal) {
+                targetGoal.set_mustSee(data.followMustSee() && targetGoal.get_mustSee());
+            }
+        });
     }
 }
 

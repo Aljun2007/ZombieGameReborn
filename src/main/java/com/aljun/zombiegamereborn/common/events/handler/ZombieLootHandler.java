@@ -30,7 +30,10 @@ public class ZombieLootHandler {
         int looting = event.getLootingLevel();
 
         // 替换的僵尸 → 使用原生物的 loot table 生成掉落
-        ResourceLocation customLoot = data.getCustomLootTable();
+        ResourceLocation customLoot = null;
+        if (data != null) {
+            customLoot = data.getCustomLootTable();
+        }
         if (customLoot != null) {
 
             var server = zombie.level().getServer();
@@ -69,7 +72,7 @@ public class ZombieLootHandler {
                 }
             }
         }
-        if (data.getType() == ZGRZombieTypes.BOW_ATTACKER || data.getType() == ZGRZombieTypes.CROSSBOW_ATTACKER) {
+        if (data != null && (data.getType() == ZGRZombieTypes.BOW_ATTACKER || data.getType() == ZGRZombieTypes.CROSSBOW_ATTACKER)) {
             int arrowCount = RandomUtils.nextInt(0, 2);
             if (arrowCount > 0) {
                 arrowCount += RandomUtils.nextInt(0, looting + 1);
