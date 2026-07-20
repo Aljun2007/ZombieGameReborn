@@ -3,10 +3,13 @@ package com.aljun.zombiegamereborn.common.entity.sense;
 import java.util.Objects;
 
 public class SenseType {
+
     public static final SenseType BLEEDING = new SenseType(64d, 400) ;
     public static final SenseType BLOCK = new SenseType( 16d, 100);
     public static final SenseType GUN_SHOT = new SenseType( 64d, 400);
     public static final SenseType GUN_SHOT_SILENCED = new SenseType( 16d, 100);
+    public static final SenseType BROADCAST = new SenseType(Double.MAX_VALUE, 400);
+
     private final int id;
     private static int idTotal = 0;
     double radius;

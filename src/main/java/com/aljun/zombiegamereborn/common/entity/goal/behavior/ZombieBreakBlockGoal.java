@@ -39,6 +39,7 @@ public class ZombieBreakBlockGoal extends Goal {
     private BlockState state;
     private ServerLevel level;
     private float miningSpeed = 1.0f;
+    private int cachedEfficiencyLevel = 0;
 
     private long lastFailTime = 0;
 
@@ -57,7 +58,6 @@ public class ZombieBreakBlockGoal extends Goal {
 
     private boolean canContinueBreaking() {
         return positionVerification(this.pos)
-                && this.zombie.isAlive()
                 && blockVerification(this.pos, this.state)
                 && ZGRGame.Rules.canZombieBreakBlock(this.zombie.getServer())
                 && !isCuring(this.zombie);
@@ -86,25 +86,20 @@ public class ZombieBreakBlockGoal extends Goal {
                 this.zombie.getLookControl().setLookAt(MathUtils.blockPosToVec3(this.pos));
             }
 
-            if (zombie.getEyePosition().distanceToSqr(MathUtils.blockPosToVec3(pos)) <= ZGRZombieControlAPI.REACH_DISTANCE_TO_SQR) {
-                this.state = this.level.getBlockState(this.pos);
-                this.breakProgress += this.getBreakProgress(this.state, this.pos,this.zombie.getMainHandItem()) *this.miningSpeed;
-                if (this.breakProgress >= 1f) {
-                    this.succeedBreakBlock(this.level);
-                } else {
-                    this.level.destroyBlockProgress(this.zombie.getId(), this.pos, (int) (breakProgress * 10f) - 1);
-                    if (!this.zombie.swinging) {
-                        this.zombie.swing(InteractionHand.MAIN_HAND);
-                    }
-                    if ((this.level.getGameTime() - this.startTime) % 4L == 0) {
-                        SoundType soundType = this.state.getSoundType();
-                        this.level.playSound(null, this.pos, soundType.getHitSound(), SoundSource.BLOCKS,
-                                (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
-                    }
-                }
+            this.state = this.level.getBlockState(this.pos);
+            this.breakProgress += this.getBreakProgress(this.state, this.pos,this.zombie.getMainHandItem()) *this.miningSpeed;
+            if (this.breakProgress >= 1f) {
+                this.succeedBreakBlock(this.level);
             } else {
-                this.level.destroyBlockProgress(this.zombie.getId(), pos, -1);
-                this.breakProgress = 0f;
+                this.level.destroyBlockProgress(this.zombie.getId(), this.pos, (int) (breakProgress * 10f) - 1);
+                if (!this.zombie.swinging) {
+                    this.zombie.swing(InteractionHand.MAIN_HAND);
+                }
+                if ((this.level.getGameTime() - this.startTime) % 4L == 0) {
+                    SoundType soundType = this.state.getSoundType();
+                    this.level.playSound(null, this.pos, soundType.getHitSound(), SoundSource.BLOCKS,
+                            (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
+                }
             }
         } else {
             this.failBreak();
@@ -137,7 +132,7 @@ public class ZombieBreakBlockGoal extends Goal {
         }
 
         // 检查 Forge 的方块破坏权限
-        return ForgeHooks.canEntityDestroy(zombie.level(), pos, zombie);
+        return ForgeHooks.canEntityDestroy(this.level, pos, this.zombie);
     }
 
     /**
@@ -161,9 +156,8 @@ public class ZombieBreakBlockGoal extends Goal {
     private float getDigSpeed(ItemStack stack,BlockState state) {
         float f = stack.getDestroySpeed(state);
         if (f > 1.0F) {
-            int i = EnchantmentHelper.getBlockEfficiency(this.zombie);
-            if (i > 0 && !stack.isEmpty()) {
-                f += (float)(i * i + 1);
+            if (this.cachedEfficiencyLevel > 0 && !stack.isEmpty()) {
+                f += (float)(this.cachedEfficiencyLevel * this.cachedEfficiencyLevel + 1);
             }
         }
 
@@ -229,13 +223,18 @@ public class ZombieBreakBlockGoal extends Goal {
 
 
     public boolean tryToBreak(BlockPos pos) {
-        if (!canBreakBlockFromGameRules() && ForgeHooks.canEntityDestroy(this.zombie.level(), pos, this.zombie)) {
+        if (pos.equals(this.pos) && !this.isDone) {
             return false;
         }
-        if (pos.equals(this.pos) &&  !this.isDone) {
-            return false;
-        }
-        if (positionVerification(pos) && blockVerification(pos, this.zombie.level().getBlockState(pos))) {
+
+        BlockState state = this.level.getBlockState(pos);
+
+        // 硬度 = 0 的方块（火把等）直接破坏，无需挖掘进度
+        if (positionVerification(pos) && blockVerification(pos, state)) {
+            if (state.getDestroySpeed(this.level, pos) == 0) {
+                this.instantBreak(pos, state);
+                return true;
+            }
             this.startBreak(pos);
             return true;
         }
@@ -247,7 +246,8 @@ public class ZombieBreakBlockGoal extends Goal {
         this.isDone = false;
         this.level = (ServerLevel) this.zombie.level();
         this.startTime = this.level.getGameTime();
-        this.state = this.zombie.level().getBlockState(pos);
+        this.state = this.level.getBlockState(pos);
+        this.cachedEfficiencyLevel = EnchantmentHelper.getBlockEfficiency(this.zombie);
         if (!this.zombie.swinging) {
             this.zombie.swing(InteractionHand.MAIN_HAND);
         }
@@ -259,6 +259,19 @@ public class ZombieBreakBlockGoal extends Goal {
     private boolean blockVerification(BlockPos pos, BlockState state) {
         return this.zombie.isAlive()
                 && canBreakBlock(state,pos);
+    }
+
+    /**
+     * 直接破坏瞬间破坏方块（硬度 = 0，如火把），不经过挖掘进度系统
+     */
+    private void instantBreak(BlockPos pos, BlockState state) {
+        Block.dropResources(state, this.level, pos, null, this.zombie, this.zombie.getMainHandItem());
+        this.level.destroyBlock(pos, false, this.zombie);
+        if (!this.zombie.swinging) {
+            this.zombie.swing(InteractionHand.MAIN_HAND);
+        }
+        this.isDone = true;
+        this.pos = pos;
     }
 
     private boolean isDone = true;
@@ -282,13 +295,8 @@ public class ZombieBreakBlockGoal extends Goal {
     }
 
     private boolean positionVerification(BlockPos pos) {
-        return !this.zombie.level().isOutsideBuildHeight(pos)
+        return !this.level.isOutsideBuildHeight(pos)
                 && this.zombie.getEyePosition().distanceToSqr(MathUtils.blockPosToVec3(pos)) <= ZGRZombieControlAPI.REACH_DISTANCE_TO_SQR;
-    }
-
-    //以后要新建游戏规则
-    private static boolean canBreakBlockFromGameRules() {
-        return true;
     }
 
     public boolean isDone() {

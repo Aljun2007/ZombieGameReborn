@@ -154,6 +154,7 @@ public class MobReplacement {
         replacement.add(ResourceLocation.parse("minecraft:enderman"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:witch"), ReplaceableType.REPLACE);
         replacement.add(ResourceLocation.parse("minecraft:magma_cube"), ReplaceableType.REPLACE);
+        replacement.add(ResourceLocation.parse( "minecraft:piglin_brute"), ReplaceableType.REPLACE);
 
         // ===== 其他模组生物替换 =====
         replacement.add(ResourceLocation.parse("mekanismadditions:baby_skeleton"), ReplaceableType.REPLACE);

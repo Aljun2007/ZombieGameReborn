@@ -10,11 +10,13 @@
     "minecraft.entity.MobMixin",
     "minecraft.entity.ZombieMixin",
     "minecraft.entity.goal.TargetGoalMixin",
+    "minecraft.entity.goal.NearestAttackableTargetGoalMixin",
     "minecraft.entity.goal.ZombieAttackTurtleEggGoalMixin",
     "minecraft.item.ItemMixin",
     "musketmod.BulletEntityMixin",
     "musketmod.GunItemFireMixin",
-    "pointblank.MainHeldSimplifiedStateSyncRequestMixin"
+    "pointblank.MainHeldSimplifiedStateSyncRequestMixin",
+    "minecraft.pathfinding.WalkNodeEvaluatorMixin"
   ],
   "client": [
     "client.AbstractZombieModelMixin",

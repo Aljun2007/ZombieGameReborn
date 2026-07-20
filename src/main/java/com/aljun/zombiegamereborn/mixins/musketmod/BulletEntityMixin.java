@@ -26,7 +26,10 @@ public abstract class BulletEntityMixin {
         if (isUsingShield) {
             ci.cancel();
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-            ZombieShieldGoal shieldGoal = data.getZombieShieldGoal();
+            ZombieShieldGoal shieldGoal = null;
+            if (data != null) {
+                shieldGoal = data.getZombieShieldGoal();
+            }
             if (shieldGoal == null) return;
             ItemStack weapon = zombie.getMainHandItem();
             shieldGoal.onShieldBlock(weapon, zombie);

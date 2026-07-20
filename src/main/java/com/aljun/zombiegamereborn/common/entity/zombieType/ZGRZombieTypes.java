@@ -25,6 +25,7 @@ public class ZGRZombieTypes {
         public static final ResourceLocation CROSSBOW_ATTACKER_ID = id("crossbow_attacker");
         public static final ResourceLocation BOW_ATTACKER_ID = id("bow_attacker");
         public static final ResourceLocation SHIELD_USER_ID = id("shield_user");
+        public static final ResourceLocation TNT_ATTACKER_ID = id("tnt_attacker");
 
         public static final ResourceLocation ZOMBIE_GUARD_VILLAGER = id("zombie_guard_villager");
 
@@ -44,6 +45,7 @@ public class ZGRZombieTypes {
     public static ZombieType CROSSBOW_ATTACKER = new CrossbowAttackerType();
     public static ZombieType BOW_ATTACKER = new BowAttackerType();
     public static ZombieType SHIELD_USER = new ShieldUserType();
+    public static ZombieType TNT_ATTACKER = new TNTAttackType();
 
     public static ZombieType ZOMBIE_GUARD_VILLAGER = new ZombieGuardVillagerType();
 
@@ -59,6 +61,7 @@ public class ZGRZombieTypes {
         helper.register(IDs.CROSSBOW_ATTACKER_ID,CROSSBOW_ATTACKER);
         helper.register(IDs.BOW_ATTACKER_ID,BOW_ATTACKER);
         helper.register(IDs.SHIELD_USER_ID,SHIELD_USER);
+        helper.register(IDs.TNT_ATTACKER_ID,TNT_ATTACKER);
 
         helper.register(IDs.ZOMBIE_GUARD_VILLAGER,ZOMBIE_GUARD_VILLAGER);
     }

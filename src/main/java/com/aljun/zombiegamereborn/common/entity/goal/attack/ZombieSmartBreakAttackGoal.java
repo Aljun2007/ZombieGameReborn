@@ -7,6 +7,7 @@ import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntitySelector;
@@ -50,9 +51,11 @@ public class ZombieSmartBreakAttackGoal extends Goal {
     private final IZombieData data;
     private int breakIndex = 0;
     private long lastHurtAndCanReachPlayerTime = 0L;
+    private final ServerLevel level;
 
     public ZombieSmartBreakAttackGoal(Zombie zombie,IZombieData data) {
         this.zombie = zombie;
+        this.level = (ServerLevel) zombie.level();
         this.data = data;
         this.speedModifier = 1.0d;
         this.followingTargetEvenIfNotSeen = true;
@@ -62,7 +65,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
     @Override
     public boolean canUse() {
         this.tryGetBreakGoal();
-        long gameTime = this.zombie.level().getGameTime();
+        long gameTime = this.level.getGameTime();
         if (gameTime - this.lastCanUseCheck < COOLDOWN_BETWEEN_CAN_USE_CHECKS) {
             return false;
         }
@@ -186,7 +189,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
 
         this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
 
-        if (this.zombie.position().distanceToSqr(target.position()) <= 25.0D) {
+        if (distanceSqr <= 25.0D) {
             this.ticksUntilNextPathRecalculation -= 2;
         }
 
@@ -270,7 +273,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
     }
 
     private void setBreakMode(BlockPos targetPos) {
-        if (this.zombie.level().getGameTime() - this.lastSetMeleeTime >= BREAK_COOLDOWN && this.zombie.level().getGameTime() - this.lastHurtAndCanReachPlayerTime >= HURT_BUILD_COOLDOWN) {
+        if (this.level.getGameTime() - this.lastSetMeleeTime >= BREAK_COOLDOWN && this.level.getGameTime() - this.lastHurtAndCanReachPlayerTime >= HURT_BUILD_COOLDOWN) {
             this.state = State.BREAK;
             this.breakIndex = 0;
             this.breakQueue.addAll(this.findBlockingBlocks(this.zombie.blockPosition(), targetPos));
@@ -279,146 +282,160 @@ public class ZombieSmartBreakAttackGoal extends Goal {
 
     /**
      * 查找从from到to路径上需要破坏的方块
-     * 核心原则：
-     * 1. 只破坏3格内的方块
-     * 2. 只破坏硬度 > 0 的方块
-     * 3. 不挖脚下方块（除非向下走时前方脚底被阻挡）
+     * 根据目标相对角度分为5种策略：
+     * 1. 斜上 >45°：陡峭向上，清空垂直通道
+     * 2. 斜上 <45°：浅向上，先清头顶再向前上
+     * 3. =0°：水平移动，检查前方身体/头顶/两侧
+     * 4. 斜下 <45°：浅向下，检查前方下落路径
+     * 5. 斜下 >45°：陡峭向下，挖掘下方通道
      */
     private List<BlockPos> findBlockingBlocks(BlockPos from, BlockPos to) {
         List<BlockPos> blockingBlocks = new ArrayList<>();
-
-        // 最大挖掘距离3格
         final int MAX_REACH = 3;
-        final double MAX_REACH_SQR = MAX_REACH * MAX_REACH;
 
-        // 计算方向向量
-        int dx = Integer.signum(to.getX() - from.getX());
-        int dy = Integer.signum(to.getY() - from.getY());
-        int dz = Integer.signum(to.getZ() - from.getZ());
+        int hDist = Math.max(Math.abs(to.getX() - from.getX()), Math.abs(to.getZ() - from.getZ()));
+        int vDist = Math.abs(to.getY() - from.getY());
+        Direction direction = this.getFacingDirection(from, to);
 
-        // 计算最大步数
-        int maxSteps = Math.max(Math.abs(to.getX() - from.getX()),
-                Math.max(Math.abs(to.getY() - from.getY()),
-                        Math.abs(to.getZ() - from.getZ()))) + 1;
-
-        // 限制步数，避免超出3格范围
-        maxSteps = Math.min(maxSteps, MAX_REACH * 2 + 1);
-
-        for (int i = 0; i < maxSteps; i++) {
-            BlockPos current = new BlockPos(
-                    from.getX() + dx * i,
-                    from.getY() + dy * i,
-                    from.getZ() + dz * i
-            );
-
-            // 检查距离
-            if (current.distSqr(from) > MAX_REACH_SQR) {
-                break;
-            }
-
-            // 根据高度差选择检查策略
-            int heightDiff = to.getY() - current.getY();
-
-            if (heightDiff > 0) {
-                // 目标在上方（向上走）
-                this.checkBlocksForGoingUp(current, to, blockingBlocks);
-            } else if (heightDiff < 0) {
-                // 目标在下方（向下走）
-                this.checkBlocksForGoingDown(current, to, blockingBlocks);
+        if (vDist == 0) {
+            // Case 3: =0° 水平
+            this.scanLevel(from, direction, MAX_REACH, blockingBlocks);
+        } else if (to.getY() > from.getY()) {
+            if (vDist >= hDist) {
+                // Case 1: 斜上 >45°
+                this.scanSteepUp(from, direction, MAX_REACH, blockingBlocks);
             } else {
-                // 水平移动
-                this.checkBlocksForHorizontal(current, to, blockingBlocks);
+                // Case 2: 斜上 <45°
+                this.scanShallowUp(from, direction, MAX_REACH, blockingBlocks);
             }
-
-            if (current.equals(to)) {
-                break;
+        } else {
+            if (vDist >= hDist) {
+                // Case 5: 斜下 >45°
+                this.scanSteepDown(from, direction, MAX_REACH, blockingBlocks);
+            } else {
+                // Case 4: 斜下 <45°
+                this.scanShallowDown(from, direction, MAX_REACH, blockingBlocks);
             }
         }
 
-        // 过滤、去重、排序
         return this.filterAndSortBlocks(blockingBlocks, from);
     }
 
     /**
-     * 检查向上走时需要破坏的方块
+     * Case 3: 水平移动 (=0°) — 检查前方3格的身体、头顶和两侧
      */
-    private void checkBlocksForGoingUp(BlockPos current, BlockPos to, List<BlockPos> blockingBlocks) {
-        Direction direction = this.getFacingDirection(current, to);
-        BlockPos front = current.relative(direction);
+    private void scanLevel(BlockPos from, Direction direction, int maxReach, List<BlockPos> result) {
+        for (int i = 1; i <= maxReach; i++) {
+            BlockPos front = from.relative(direction, i);
 
-        // 1. 检查前方身体位置 (y+1) - 最重要，防止撞头
-        BlockPos frontBody = front.above();
-        this.addIfBlocking(frontBody, blockingBlocks);
+            // 前方身体 (y+1) 和头顶 (y+2)
+            this.addIfBlocking(front.above(), result);
+            this.addIfBlocking(front.above(2), result);
 
-        // 2. 检查前方头顶位置 (y+2)
-        BlockPos frontHead = front.above(2);
-        this.addIfBlocking(frontHead, blockingBlocks);
+            // 两侧身体和头顶
+            for (Direction side : new Direction[]{direction.getClockWise(), direction.getCounterClockWise()}) {
+                BlockPos sidePos = front.relative(side);
+                this.addIfBlocking(sidePos.above(), result);
+                this.addIfBlocking(sidePos.above(2), result);
+            }
 
-        // 3. 检查前方脚底位置 (y) - 如果是完整方块且阻挡前进
-        if (this.isBlockingBlock(front) && this.isFullBlock(front)) {
-            blockingBlocks.add(front);
-        }
-    }
-
-    /**
-     * 检查向下走时需要破坏的方块
-     */
-    private void checkBlocksForGoingDown(BlockPos current, BlockPos to, List<BlockPos> blockingBlocks) {
-        Direction direction = this.getFacingDirection(current, to);
-        BlockPos front = current.relative(direction);
-
-        // 1. 检查前方身体位置 (y+1) - 防止撞头
-        BlockPos frontBody = front.above();
-        this.addIfBlocking(frontBody, blockingBlocks);
-
-        // 2. 检查前方脚底位置 (y) - 如果阻挡下坡
-        // 注意：这里只检查前方脚底，不检查当前脚底
-        if (this.isBlockingBlock(front)) {
-            // 检查下方是否有落脚点
-            BlockPos belowFront = front.below();
-            if (!this.isBlockingBlock(belowFront)) {
-                // 如果前方下面是空的，可能需要挖掉前方脚底的方块
-                blockingBlocks.add(front);
+            // 前方脚底 — 完整方块且下方有支撑则视为障碍
+            if (this.isBlockingBlock(front) && this.isFullBlock(front)) {
+                BlockPos below = front.below();
+                if (this.isBlockingBlock(below)) {
+                    result.add(front);
+                }
             }
         }
-
-        // 3. 检查前方头顶位置 (y+2) - 防止头顶撞到
-        BlockPos frontHead = front.above(2);
-        this.addIfBlocking(frontHead, blockingBlocks);
     }
 
     /**
-     * 检查水平移动时需要破坏的方块
+     * Case 2: 斜上 <45° — 目标略高，先清头顶空间，再向前向上
      */
-    private void checkBlocksForHorizontal(BlockPos current, BlockPos to, List<BlockPos> blockingBlocks) {
-        Direction direction = this.getFacingDirection(current, to);
-        BlockPos front = current.relative(direction);
+    private void scanShallowUp(BlockPos from, Direction direction, int maxReach, List<BlockPos> result) {
+        // 先清空当前头顶空间，为向上走做准备
+        this.addIfBlocking(from.above(), result);
+        this.addIfBlocking(from.above(2), result);
 
-        // 1. 检查前方身体位置 (y+1) - 最重要
-        BlockPos frontBody = front.above();
-        this.addIfBlocking(frontBody, blockingBlocks);
+        for (int i = 1; i <= maxReach; i++) {
+            BlockPos front = from.relative(direction, i);
 
-        // 2. 检查前方头顶位置 (y+2)
-        BlockPos frontHead = front.above(2);
-        this.addIfBlocking(frontHead, blockingBlocks);
+            // 前方身体和头顶
+            this.addIfBlocking(front.above(), result);
+            this.addIfBlocking(front.above(2), result);
 
-        // 3. 检查两侧身体位置 - 防止卡在狭窄通道
-        for (Direction sideDir : new Direction[]{direction.getClockWise(), direction.getCounterClockWise()}) {
-            BlockPos side = current.relative(sideDir);
-            BlockPos sideBody = side.above();
-            this.addIfBlocking(sideBody, blockingBlocks);
+            // 抬高一层的前方空间（向上阶梯）
+            BlockPos elevated = front.above();
+            this.addIfBlocking(elevated.above(), result);
+            this.addIfBlocking(elevated.above(2), result);
 
-            BlockPos sideHead = side.above(2);
-            this.addIfBlocking(sideHead, blockingBlocks);
+            // 前方脚底障碍
+            if (this.isBlockingBlock(front) && this.isFullBlock(front)) {
+                result.add(front);
+            }
+        }
+    }
+
+    /**
+     * Case 1: 斜上 >45° — 目标远高于僵尸，需要挖掘垂直通道
+     */
+    private void scanSteepUp(BlockPos from, Direction direction, int maxReach, List<BlockPos> result) {
+        // 清空头顶所有可达层的方块
+        for (int y = 1; y <= maxReach; y++) {
+            this.addIfBlocking(from.above(y), result);
         }
 
-        // 4. 检查前方脚底 - 如果有方块阻挡且是完整方块
-        if (this.isBlockingBlock(front) && this.isFullBlock(front)) {
-            // 检查这个方块是否高于地面（比如多出来的半砖）
-            BlockPos belowFront = front.below();
-            if (this.isBlockingBlock(belowFront)) {
-                // 如果下面有方块支撑，说明这是个台阶或障碍物
-                blockingBlocks.add(front);
+        for (int i = 1; i <= maxReach; i++) {
+            BlockPos front = from.relative(direction, i);
+
+            // 前方各高度的垂直空间
+            for (int y = 1; y <= maxReach; y++) {
+                this.addIfBlocking(front.above(y), result);
+            }
+        }
+    }
+
+    /**
+     * Case 4: 斜下 <45° — 目标略低，检查前方下落路径
+     */
+    private void scanShallowDown(BlockPos from, Direction direction, int maxReach, List<BlockPos> result) {
+        for (int i = 1; i <= maxReach; i++) {
+            BlockPos front = from.relative(direction, i);
+
+            // 前方身体和头顶
+            this.addIfBlocking(front.above(), result);
+            this.addIfBlocking(front.above(2), result);
+
+            // 前方地面 — 下方为空时需要挖掉来下坡
+            if (this.isBlockingBlock(front)) {
+                BlockPos belowFront = front.below();
+                if (!this.isBlockingBlock(belowFront)) {
+                    result.add(front);
+                }
+            }
+        }
+    }
+
+    /**
+     * Case 5: 斜下 >45° — 目标远低于僵尸，需要挖掘下方通道
+     */
+    private void scanSteepDown(BlockPos from, Direction direction, int maxReach, List<BlockPos> result) {
+        // 检查脚下方块 — 向下挖掘需要清除脚下
+        for (int y = 0; y <= maxReach; y++) {
+            BlockPos below = from.below(y);
+            this.addIfBlocking(below, result);
+        }
+
+        for (int i = 1; i <= maxReach; i++) {
+            BlockPos front = from.relative(direction, i);
+
+            // 前方身体和头顶
+            this.addIfBlocking(front.above(), result);
+            this.addIfBlocking(front.above(2), result);
+
+            // 前方各高度向下的通道
+            for (int y = 0; y <= maxReach; y++) {
+                this.addIfBlocking(front.below(y), result);
             }
         }
     }
@@ -444,11 +461,11 @@ public class ZombieSmartBreakAttackGoal extends Goal {
         }
 
         // 2. 检查世界高度
-        if (this.zombie.level().isOutsideBuildHeight(pos)) {
+        if (this.level.isOutsideBuildHeight(pos)) {
             return false;
         }
 
-        BlockState state = this.zombie.level().getBlockState(pos);
+        BlockState state = this.level.getBlockState(pos);
 
         // 3. 空气不挖
         if (state.isAir()) {
@@ -461,7 +478,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
         }
 
         // 5. 检查硬度（唯一核心规则）
-        float hardness = state.getDestroySpeed(this.zombie.level(), pos);
+        float hardness = state.getDestroySpeed(this.level, pos);
 
         // 硬度 < 0：不可破坏（基岩等），不挖
         if (hardness < 0) {
@@ -479,8 +496,8 @@ public class ZombieSmartBreakAttackGoal extends Goal {
      * 检查是否是完全方块（有完整碰撞箱）
      */
     private boolean isFullBlock(BlockPos pos) {
-        BlockState state = this.zombie.level().getBlockState(pos);
-        return state.isCollisionShapeFullBlock(this.zombie.level(), pos);
+        BlockState state = this.level.getBlockState(pos);
+        return state.isCollisionShapeFullBlock(this.level, pos);
     }
 
     /**
@@ -505,18 +522,16 @@ public class ZombieSmartBreakAttackGoal extends Goal {
         Set<BlockPos> uniqueSet = new LinkedHashSet<>(blocks);
 
         // 转为列表并再次确认
-        List<BlockPos> result = new ArrayList<>();
-        for (BlockPos pos : uniqueSet) {
-            if (this.isBlockingBlock(pos)) {
-                result.add(pos);
-            }
-        }
+        List<BlockPos> result = new ArrayList<>(uniqueSet);
 
-        // 按距离排序（近的优先）
+        // 按距离排序（近的优先），相同水平位置由下到上
         result.sort((pos1, pos2) -> {
-            double dist1 = pos1.distSqr(from);
-            double dist2 = pos2.distSqr(from);
-            return Double.compare(dist1, dist2);
+            double hDist1 = Math.sqrt(Math.pow(pos1.getX() - from.getX(), 2) + Math.pow(pos1.getZ() - from.getZ(), 2));
+            double hDist2 = Math.sqrt(Math.pow(pos2.getX() - from.getX(), 2) + Math.pow(pos2.getZ() - from.getZ(), 2));
+            int hCompare = Double.compare(hDist1, hDist2);
+            if (hCompare != 0) return hCompare;
+            // 相同水平距离时，由下到上（Y小的优先）
+            return Integer.compare(pos1.getY(), pos2.getY());
         });
 
         // 限制最大数量，避免性能问题
@@ -538,7 +553,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
             return;
         }
 
-        if (this.zombie.level().getGameTime() - this.lastGiveUpBreakTime > 100) {
+        if (this.level.getGameTime() - this.lastGiveUpBreakTime > 100) {
             Path path = this.zombie.getNavigation().createPath(target, 0);
             if (path != null) {
                 Node finalNode = path.getEndNode();
@@ -548,7 +563,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
                     if ((Math.sqrt(pathEnd.distSqr(target.blockPosition()) + 10) < Math.sqrt(breakEnd.distSqr(target.blockPosition())))) {
                         this.setMelee();
                         this.zombie.getNavigation().moveTo(path, this.speedModifier);
-                        this.lastGiveUpBreakTime = this.zombie.level().getGameTime();
+                        this.lastGiveUpBreakTime = this.level.getGameTime();
                         return;
                     }
                 }
@@ -568,6 +583,11 @@ public class ZombieSmartBreakAttackGoal extends Goal {
                 break;
             }
 
+            // If breakGoal is actively breaking, skip block state check
+            if (this.breakGoal != null && !this.breakGoal.isDone()) {
+                break;
+            }
+
             if (!this.isBlockingBlock(pos)) {
                 this.breakIndex++;
                 continue;
@@ -577,7 +597,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
                 if (this.breakGoal.isDone()) {
                     if (this.breakGoal.tryToBreak(pos)) {
                         this.currentBreakTarget = pos;
-                        this.lastBreakTime = this.zombie.level().getGameTime();
+                        this.lastBreakTime = this.level.getGameTime();
 
                         Path path = this.zombie.getNavigation().createPath(pos, 0);
                         if (path != null) {
@@ -595,7 +615,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
     }
 
     private boolean isPosIllegal(BlockPos pos) {
-        return this.zombie.level().isOutsideBuildHeight(pos);
+        return this.level.isOutsideBuildHeight(pos);
     }
 
     private boolean canBreakBlocks() {
@@ -628,7 +648,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
                         // 判断玩家位置，小于2格
                         if (this.zombie.distanceToSqr(attacker) < 4.0D) {
                             this.setMelee();
-                            this.lastHurtAndCanReachPlayerTime = this.zombie.level().getGameTime();
+                            this.lastHurtAndCanReachPlayerTime = this.level.getGameTime();
                         }
                     }
                 }
@@ -644,7 +664,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
         if (this.breakGoal != null && !this.breakGoal.isDone()) {
             this.breakGoal.stopBreak();
         }
-        this.lastSetMeleeTime = this.zombie.level().getGameTime();
+        this.lastSetMeleeTime = this.level.getGameTime();
     }
 
     protected enum State {

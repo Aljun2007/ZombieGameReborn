@@ -1,5 +1,7 @@
 package com.aljun.zombiegamereborn.common.entity.goal.attack;
 
+import com.aljun.zombiegamereborn.common.game.ZGRGame;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
@@ -47,15 +49,15 @@ public class EnhancedZombieAttackGoal extends Goal {
      * @param speedModifier 移动速度倍数
      * @param followingTargetEvenIfNotSeen 是否在看不见目标时也跟随
      */
-    public EnhancedZombieAttackGoal(Mob zombie, double speedModifier, boolean followingTargetEvenIfNotSeen) {
+    private EnhancedZombieAttackGoal(Mob zombie, double speedModifier, boolean followingTargetEvenIfNotSeen) {
         this.zombie = zombie;
         this.speedModifier = speedModifier;
         this.followingTargetEvenIfNotSeen = followingTargetEvenIfNotSeen;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
 
-    public EnhancedZombieAttackGoal(Mob zombie ) {
-        this(zombie, 1.0D, false);
+    public EnhancedZombieAttackGoal(Mob zombie) {
+        this(zombie, 1.0D, !ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieProperty.followMustSee);
     }
 
     @Override

@@ -62,13 +62,19 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
     private void initAbilityTab(SimpleSettingsPanel panel) {
         panel.addLabel("gui.zombiegamereborn.zombieproperty.section.abilities");
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.can_swim_probability", "can_swim_probability", 0.0, 0.0, 1.0);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.zombie_swim_speed_modify", "zombie_swim_speed_modify", 1.0, 0.0, Double.MAX_VALUE);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.drowned_swim_speed_modify", "drowned_swim_speed_modify", 1.0, 0.0, Double.MAX_VALUE);
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.do_swimming_zombie_convert", "do_swimming_zombie_convert", false);
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.can_jump_attack", "can_jump_attack", false);
+        panel.addCheckBox("gui.zombiegamereborn.zombieproperty.can_throw_tnt", "can_throw_tnt", false);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.sun_immunity_probability", "sun_immunity_probability", 0.0d, 0.0, 1.0);
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.flee_sun", "flee_sun", false);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.block_stab_immune_probability", "block_stab_immune_probability", 0.0d, 0.0, 1.0);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.ladder_climb_probability", "ladder_climb_probability", 0.0d, 0.0, 1.0);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.fire_immunity_probability", "fire_immunity_probability", 0.0d, 0.0, 1.0);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.baby_probability", "baby_probability", 0.05d, 0.0d, 1.0);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.can_pick_up_loot_coefficient", "can_pick_up_loot_coefficient", 0.55d, 0.0, Double.MAX_VALUE);
+        panel.addCheckBox("gui.zombiegamereborn.zombieproperty.break_light_sources", "break_light_sources", false);
     }
 
     private void initVolumeTab(SimpleSettingsPanel panel) {
@@ -89,6 +95,8 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.piglin_angry_mode", "piglin_angry_mode", false);
         panel.addLabel("gui.zombiegamereborn.zombieproperty.section.enhanced_sense");
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.enhanced_sense_enabled", "enhanced_sense", false);
+        panel.addCheckBox("gui.zombiegamereborn.zombieproperty.blood_moon_boundless_hunting", "blood_moon_boundless_hunting", false);
+        panel.addCheckBox("gui.zombiegamereborn.zombieproperty.boundless_hunting", "boundless_hunting", false);
 
         panel.addLabel("gui.zombiegamereborn.zombieproperty.section.bleeding_sense");
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.sense_radius", "sense_bleeding_radius", 64.0, 0.0, Double.MAX_VALUE);

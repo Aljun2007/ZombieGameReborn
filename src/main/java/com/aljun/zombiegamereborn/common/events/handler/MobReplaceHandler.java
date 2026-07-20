@@ -85,7 +85,9 @@ public class MobReplaceHandler {
             if (entity instanceof Zombie zombie) {
                 if (ZGRGame.getGameProperty().keepMobLootTable) {
                     IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-                    data.setCustomLootTable(lootTable);
+                    if (data != null) {
+                        data.setCustomLootTable(lootTable);
+                    }
                 }
             }
             if (original.level() instanceof ServerLevel serverLevel) {

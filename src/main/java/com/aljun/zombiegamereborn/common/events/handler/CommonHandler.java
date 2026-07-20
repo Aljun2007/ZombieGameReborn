@@ -31,7 +31,10 @@ public class CommonHandler {
         }
         if (event.getEntity() instanceof ServerPlayer player && event.getSource().getEntity() instanceof Zombie zombie) {
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-            ResourceLocation typeId = data.getTypeID();
+            ResourceLocation typeId = null;
+            if (data != null) {
+                typeId = data.getTypeID();
+            }
             if (typeId != null && typeId.equals(ZGRZombieTypes.IDs.ZOMBIE_GUARD_VILLAGER)) {
                 AdvancementHandler.grantGuardBetrayal(player);
             }

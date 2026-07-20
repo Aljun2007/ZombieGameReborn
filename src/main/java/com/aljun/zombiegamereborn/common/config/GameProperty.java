@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 public class GameProperty {
 
@@ -32,15 +33,15 @@ public class GameProperty {
     @SerializedName("can_zombie_place_block")
     public boolean canZombiePlaceBlock = true;
     @SerializedName("can_piglin_infection")
-    public boolean canPiglinInfection = true;
+    public boolean canPiglinInfection = false;
     @SerializedName("mob_replacement")
     public MobReplacement mobReplacement = MobReplacement.getDefault();
     @SerializedName("keep_mob_loot_table")
     public boolean keepMobLootTable = true;
     @SerializedName("max_empowered_builder_count")
-    public int maxEmpoweredBuilderCount = 100;
+    public int maxEmpoweredBuilderCount = 30;
     @SerializedName("max_empowered_miner_count")
-    public int maxEmpoweredMinerCount = 100;
+    public int maxEmpoweredMinerCount = 30;
     @SerializedName("disable_turtle_egg_seeking")
     public boolean disableTurtleEggSeeking = false;
 
@@ -222,6 +223,10 @@ public class GameProperty {
         return obj;
     }
 
+    public GameProperty copy() {
+        return GameProperty.fromJsonObject(this.toJsonObject());
+    }
+
     public static class GamePropertyAdapter implements JsonSerializer<GameProperty>, JsonDeserializer<GameProperty> {
 
         @Override
@@ -244,5 +249,21 @@ public class GameProperty {
 
             return new GameProperty();
         }
+    }
+
+    public void addStageProperty(StageProperty property) {
+        this.stageProperties.add(property);
+        // 清除缓存以强制重新排序和哈希检查
+        this.sortedCache = null;
+        this.configHash = 0;
+        this.dayCache.clear();
+    }
+
+    public void removeAllStageProperty(Predicate<StageProperty> stagePropertyPredicate) {
+        this.stageProperties.removeIf(stagePropertyPredicate);
+        // 清除缓存以强制重新排序和哈希检查
+        this.sortedCache = null;
+        this.configHash = 0;
+        this.dayCache.clear();
     }
 }

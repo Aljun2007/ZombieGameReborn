@@ -69,6 +69,9 @@ public interface IZombieData {
     boolean canJumpAttack();
     void enableJumpAttack(boolean value);
 
+    boolean canThrowTNT();
+    void enableThrowTNT(boolean value);
+
     boolean followMustSee();
     void setFollowMustSee(boolean value);
 
@@ -83,5 +86,11 @@ public interface IZombieData {
 
     double getStepVolumeModify();
     void setStepVolumeModify(double modify);
+
+    boolean isBlockStabImmune();
+    void setBlockStabImmune(boolean value);
+
+    boolean canLadderClimb();
+    void setLadderClimb(boolean value);
 
 }
