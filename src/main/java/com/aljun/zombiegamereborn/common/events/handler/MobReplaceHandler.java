@@ -23,12 +23,16 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import static net.minecraft.world.level.Level.END;
+import static net.minecraft.world.level.Level.NETHER;
+
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class MobReplaceHandler {
 
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getEntity().level().isClientSide) return;
+        if (event.getLevel().dimension().equals(END)) return;
         if (!(event.getEntity() instanceof Mob mob)) return;
         if (event.getEntity() instanceof Zombie ) return;
         if (event.getEntity() instanceof Zoglin) return;

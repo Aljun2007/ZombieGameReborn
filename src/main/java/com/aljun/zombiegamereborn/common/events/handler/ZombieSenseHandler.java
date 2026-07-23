@@ -40,7 +40,7 @@ public class ZombieSenseHandler {
         if (event.getEntity().level().isClientSide) return;
         Level level = event.getEntity().level();
         LivingEntity victim = event.getEntity();
-        if (ZombieUtils.zombieAttackableEntity(victim)) {
+        if (ZombieUtils.attackableEntity(victim)) {
             ZombieSenseManager.broadcastSense(event.getEntity(), level, SenseType.BLEEDING);
         }
     }

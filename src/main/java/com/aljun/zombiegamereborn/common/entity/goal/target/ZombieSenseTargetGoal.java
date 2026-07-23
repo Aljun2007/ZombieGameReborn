@@ -1,22 +1,29 @@
 package com.aljun.zombiegamereborn.common.entity.goal.target;
 
+import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
+import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.sense.SenseType;
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
 
 import javax.annotation.Nullable;
 
 public class ZombieSenseTargetGoal extends TargetGoal {
 
     private static final int LEAVE_RADIUS_DECAY_MULTIPLIER = 3;
+    private final IZombieData data;
 
     @Nullable
     private InterestPoint activePoint;
+    private boolean piglinAngryMode = false;
 
-    public ZombieSenseTargetGoal(Mob mob) {
+    public ZombieSenseTargetGoal(Zombie mob) {
         super(mob, false);
+        this.data = ZGRZombieAttributesAPI.getZombieData(mob);
     }
 
     @Override
@@ -105,9 +112,17 @@ public class ZombieSenseTargetGoal extends TargetGoal {
     }
 
     public void sense(LivingEntity entity, SenseType senseType) {
-        if (!ZombieUtils.zombieAttackableEntity(entity)) {
+        if (this.mob instanceof ZombifiedPiglin) {
+            if (this.piglinAngryMode) {
+                if (!ZombieUtils.zombifiedPiglinAttackableEntity(entity)) {
+                    return;
+                }
+            }
+        } else if (!ZombieUtils.zombieAttackableEntity(entity)) {
             return;
         }
+
+
 
         double radius = senseType.radius();
         if (radius < Double.MAX_VALUE && this.mob.distanceToSqr(entity) > radius * radius) {
@@ -127,6 +142,10 @@ public class ZombieSenseTargetGoal extends TargetGoal {
         }
 
         this.activePoint = new InterestPoint(entity, senseType);
+    }
+
+    public void setPiglinAngryMode() {
+        this.piglinAngryMode = true;
     }
 
     private static class InterestPoint {

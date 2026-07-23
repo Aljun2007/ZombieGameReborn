@@ -98,12 +98,14 @@ public class TimeBroadcastHandler {
 
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
-        if (!event.isWasDeath()) return;
-
+        // 注意：同时处理死亡（isWasDeath=true）和通关末地后重生（isWasDeath=false）两种场景
+        // 后者发生时，客户端看完 Credits 后发送 PERFORM_RESPAWN，服务端创建新玩家实体。
+        // 如果不在此处复制 Capability 数据，新实体的生存天数会重置为默认值 1。
         if (event.getOriginal() instanceof ServerPlayer oldPlayer
                 && event.getEntity() instanceof ServerPlayer newPlayer) {
-            // 关键修复：玩家死亡后 Forge 会 invalidateCaps() 禁用旧实体的所有 Capability，
+            // 死亡后 Forge 会 invalidateCaps() 禁用旧实体的所有 Capability，
             // 导致 getCapability() 返回空。必须先 reviveCaps() 才能读取数据。
+            // 对于非死亡场景，reviveCaps() 是安全的空操作。
             oldPlayer.reviveCaps();
             try {
                 ZGRPlayerAPI.saveToPersistentData(oldPlayer);
