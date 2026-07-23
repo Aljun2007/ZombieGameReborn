@@ -24,6 +24,7 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
@@ -65,12 +66,14 @@ public class ZombieTypeManager {
 
     public static void syncToClient(Zombie zombie) {
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        if (data ==null) return;
         CompoundTag tag = ZombieDataProvider.serializeNBT(data);
         ZGRNetwork.sendToTrackingEntity(new ZombieCapacitySyncPacket(zombie.getId(), tag), zombie);
     }
 
     public static void initializeZombieWithNoWeaponAndArmor(Zombie zombie, ResourceLocation typeID) {
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        if (data ==null) return;
         if (data.isTypeInitialized()) {
             return;
         }
@@ -93,6 +96,7 @@ public class ZombieTypeManager {
         }
 
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+        if (data ==null) return;
         if (!data.isTypeInitialized()) {
             return;
         }
@@ -167,7 +171,7 @@ public class ZombieTypeManager {
             zombie.goalSelector.addGoal(3, new ZombieWaterBridgeBuildGoal(zombie, data));
         }
         if (data.canSwim()) {
-            if (!(zombie instanceof Drowned)) {
+            if (!(zombie instanceof Drowned || zombie instanceof ZombieVillager)) {
                 zombie.goalSelector.addGoal(1, new ZombieFloatGoal(zombie));
             }
         }
@@ -175,17 +179,22 @@ public class ZombieTypeManager {
             zombie.goalSelector.addGoal(3, new JumpAttackGoal(zombie));
         }
         // 梯子攀爬已通过 WalkNodeEvaluatorMixin 注入 PathFinder 实现，无需独立的 Goal
+        boolean piglinAngry = false;
         if (zombie instanceof ZombifiedPiglin) {
             zombie.targetSelector.addGoal(2, new ZombiePiglinCollisionTargetGoal(zombie));
             if (zombie.getServer() != null && ZGRGame.getGameProperty().getStageProperty((ServerLevel) zombie.level(),zombie.blockPosition()).zombieProperty.piglinAngryMode) {
                 zombie.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(zombie, Player.class, true));
                 zombie.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(zombie, AbstractPiglin.class, true));
                 zombie.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(zombie, Hoglin.class, true));
+                piglinAngry = true;
             }
         }
         if (data.enhancedSense()) {
             ZombieSenseTargetGoal senseGoal = new ZombieSenseTargetGoal(zombie);
             data.setZombieSenseTargetGoalGoal(senseGoal);
+            if (zombie instanceof ZombifiedPiglin && piglinAngry) {
+                senseGoal.setPiglinAngryMode();
+            }
             zombie.targetSelector.addGoal(4, senseGoal);
         }
         if (data.fleeSun()) {

@@ -116,7 +116,7 @@
   "gui.zombiegamereborn.login_welcome.client_hover": "点击打开客户端配置",
   "gui.zombiegamereborn.login_welcome.line1": "§e[ZombieGame:Reborn]\n§f感谢对模组的支持！%s§f打开模组客户端配置可关闭该聊天框提示",
   "gui.zombiegamereborn.login_welcome.line2": "§e[ZombieGame:Reborn]\n§f模组默认开启，默认配置与启示录整合包惊变一百天的一致",
-  "gui.zombiegamereborn.login_welcome.line4": "§e[ZombieGame:Reborn]\n§f提示：制作一个§b钟§f并放在背包中以获得精确报时",
+  "gui.zombiegamereborn.login_welcome.line4": "§e[ZombieGame:Reborn]\n§f提示：制作一个§b时钟§f并放在背包中以获得精确报时",
   "gui.zombiegamereborn.login_welcome.line3": "§e[ZombieGame:Reborn]\n§f检测到您为管理员，%s§f来修改游戏配置文件，具体请访问Github的文档\n如果您更新过模组，请删除config文件夹中的zombiegamereborn内文件并在原有世界中载入初始默认值以获得最新游戏配置",
   "gui.zombiegamereborn.login_welcome.link": "[点这里]",
   "gui.zombiegamereborn.mobreplacement.action": "操作",

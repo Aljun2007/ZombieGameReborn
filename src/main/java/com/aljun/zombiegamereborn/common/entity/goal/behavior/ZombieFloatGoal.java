@@ -14,7 +14,7 @@ public class ZombieFloatGoal extends FloatGoal {
     @Override
     public boolean canUse() {
         if (this.mob.getTarget()!=null) {
-            if (this.mob.getTarget().getEyeY()>=this.mob.getEyeY()) {
+            if (this.mob.getTarget().getEyeY()<=this.mob.getEyeY()) {
                 return false;
             }
         }
