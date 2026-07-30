@@ -39,7 +39,8 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     private static final double RETURN_TO_SELF_MAX_DIST_SQR = 8.0;
     private static final double PLACE_BLOCK_DISTANCE_SQR = 9.0;
     private static final double TOO_FAR_FROM_BLOCK_SQR = 25.0;
-    private static final double TARGET_CLOSE_DIST_SQR = 25.0;
+    private static final double POST_JUMP_MIN_DIST_SQR = 1.0;
+    private static final double TARGET_CLOSE_DIST_SQR = 9.0;
     private static final long GIVE_UP_BUILD_TIME = 200L;
     private static final long PRE_BUILD_DURATION = 80L;
     private static final int PRE_BUILD_RANGE = 10;
@@ -49,6 +50,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     protected final int attackInterval = 20;
     private final ServerLevel level;
     private final boolean giveUpHalfway = RandomUtils.booleanByChance(0.5d);
+    private final IZombieData data;
     public ZombieBreakBlockGoal breakGoal = null;
     public ZombiePlaceBlockGoal placeGoal = null;
     protected double speedModifier = 1;
@@ -58,6 +60,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     protected double pathedTargetZ;
     protected int ticksUntilNextPathRecalculation;
     protected int ticksUntilNextAttack;
+    protected int ticksUntilNextPathFallbackCheck = 0;
     protected long lastCanUseCheck;
     protected int failedPathFindingPenalty = 0;
     protected boolean canPenalize = false;
@@ -76,13 +79,40 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     private PathConstructor.Style style = randomStyle();
     private Boolean cachedCanBreak = null;
     private Boolean cachedCanPlace = null;
-    private final IZombieData data;
+
+    // 简化建造模式下结构间冷却（tick-- 倒计时）
+    private int ticksUntilNextStructureBuild = 0;
+
+    // 连续未修改任何方块的 path pack 计数，超过 6 次则放弃搭路
+    private int consecutiveEmptyPacks = 0;
+
+    // 跳跃后需要位移多少格才能放方块（防止原地跳放）
+
     public ZombieMeleeAndPathBuildGoal(Zombie zombie, IZombieData data) {
         this.zombie = zombie;
         this.level = (ServerLevel) zombie.level();
         this.pathConstructor = new PathConstructor();
         this.data = data;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+    }
+
+    private boolean simplifiedBuilderMovement() {
+        LivingEntity target = this.zombie.getTarget();
+        if (target == null) {
+            return false;
+        }
+        double distanceToTarget = this.zombie.distanceToSqr(target);
+        int roughThreshold = getRoughPathfindingThreshold();
+        // 只有在距离大于粗略寻路阈值的平方时，才启用简化建造移动
+        return distanceToTarget > (double) (roughThreshold * roughThreshold) && ZGRGame.getGameProperty().simplifiedBuilderMovenment;
+    }
+
+    private int getRoughPathfindingThreshold() {
+        return ZGRGame.getGameProperty().roughPathfindingThreshold;
+    }
+
+    private int getRoughPathfindingInterval() {
+        return ZGRGame.getGameProperty().roughPathfindingInterval;
     }
 
     private PathConstructor.Style randomStyle() {
@@ -146,35 +176,20 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
     @Override
     public boolean canUse() {
+        if (!this.data.isEmpowered()) return false;
         this.ensureGoalsInitialized();
         long currentTime = this.level.getGameTime();
         if (currentTime - this.lastCanUseCheck < COOLDOWN_BETWEEN_CAN_USE_CHECKS) {
             return false;
-        } else {
-            this.lastCanUseCheck = currentTime;
-            LivingEntity livingentity = this.zombie.getTarget();
-            if (livingentity == null) {
-                return false;
-            } else if (!livingentity.isAlive()) {
-                return false;
-            } else {
-                if (canPenalize) {
-                    if (--this.ticksUntilNextPathRecalculation <= 0) {
-                        this.path = this.zombie.getNavigation().createPath(livingentity, 0);
-                        this.ticksUntilNextPathRecalculation = 4 + this.zombie.getRandom().nextInt(7);
-                        return this.path != null;
-                    } else {
-                        return true;
-                    }
-                }
-                this.path = this.zombie.getNavigation().createPath(livingentity, 0);
-                if (this.path != null) {
-                    return true;
-                } else {
-                    return this.getAttackReachSqr(livingentity) >= this.zombie.distanceToSqr(livingentity.getX(), livingentity.getY(), livingentity.getZ());
-                }
-            }
         }
+
+        this.lastCanUseCheck = currentTime;
+        LivingEntity livingentity = this.zombie.getTarget();
+        if (livingentity == null) {
+            return false;
+        }
+
+        return livingentity.isAlive();
     }
 
     private void ensureGoalsInitialized() {
@@ -187,18 +202,23 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
         }
     }
 
-    protected double getAttackReachSqr(LivingEntity p_25556_) {
-        return this.zombie.getBbWidth() * 2.0F * this.zombie.getBbWidth() * 2.0F + p_25556_.getBbWidth();
-    }
-
     @Override
     public boolean canContinueToUse() {
+        // 当 giveUpHalfway 为 false 且在 BUILD 状态有搭路目标时，即使目标实体消失也坚持搭路
+        if (!this.giveUpHalfway && this.buildTargetPos != null && this.state.is(State.BUILD)) {
+            return true;
+        }
+
         LivingEntity target = this.zombie.getTarget();
         if (target == null) {
             return false;
         } else if (!target.isAlive()) {
             return false;
         } else if (!this.followingTargetEvenIfNotSeen()) {
+            // 目标在攻击范围内时保持运行，让 tick() 执行攻击
+            if (this.zombie.distanceToSqr(target) <= this.getAttackReachSqr(target)) {
+                return true;
+            }
             return !this.zombie.getNavigation().isDone();
         } else if (!this.zombie.isWithinRestriction(target.blockPosition())) {
             return false;
@@ -213,18 +233,29 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
         return true;
     }
 
+    protected double getAttackReachSqr(LivingEntity p_25556_) {
+        return this.zombie.getBbWidth() * 2.0F * this.zombie.getBbWidth() * 2.0F + p_25556_.getBbWidth();
+    }
+
     @Override
     public void start() {
-        this.zombie.getNavigation().moveTo(this.path, this.speedModifier);
+        LivingEntity target = this.zombie.getTarget();
+        if (target != null) {
+            this.path = this.zombie.getNavigation().createPath(target, 0);
+            if (this.path != null) {
+                this.zombie.getNavigation().moveTo(this.path, this.speedModifier);
+            }
+        }
         this.zombie.setAggressive(true);
         this.ticksUntilNextPathRecalculation = 0;
         this.ticksUntilNextAttack = 0;
+        this.ticksUntilNextPathFallbackCheck = 0;
     }
 
     @Override
     public void stop() {
         LivingEntity livingentity = this.zombie.getTarget();
-        if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingentity)) {
+        if (livingentity != null && !EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingentity)) {
             this.zombie.setTarget(null);
         }
 
@@ -255,13 +286,32 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
             if (this.state.is(State.BUILD)) {
                 this.tickBuildState(livingentity, distanceToTarget);
             }
+        } else if (!this.giveUpHalfway && this.buildTargetPos != null && this.state.is(State.BUILD)) {
+            // giveUpHalfway=false 且无目标实体时，继续坚持搭路到目标位置
+            this.tickBuildState(null, 0);
+        } else {
+            this.stop();
         }
     }
 
     private void tickMeleeState(LivingEntity livingentity, double distanceToTarget) {
         this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
-        if (distanceToTarget <= TARGET_CLOSE_DIST_SQR) {
-            this.ticksUntilNextPathRecalculation -= 2;
+
+        // 当僵尸进入更近的距离范围时，若剩余延迟超过阈值则直接归零，立即重算路径
+        if (distanceToTarget <= 16.0D) {
+            if (this.ticksUntilNextPathRecalculation > 10) this.ticksUntilNextPathRecalculation = 0;
+        } else if (distanceToTarget <= (double) (getRoughPathfindingThreshold() * getRoughPathfindingThreshold())) {
+            if (this.ticksUntilNextPathRecalculation > 60) this.ticksUntilNextPathRecalculation = 0;
+        }
+
+        // 路径兜底：每10tick检查导航是否完成，大幅度缩短僵尸原地发呆时间
+        // 当导航完成时直接强制moveTo，不依赖主寻路块（绕过 hasLineOfSight 限制）
+        if (--this.ticksUntilNextPathFallbackCheck <= 0) {
+            this.ticksUntilNextPathFallbackCheck = 25;
+            if (this.zombie.getNavigation().isDone() && distanceToTarget > this.getAttackReachSqr(livingentity)) {
+                this.ticksUntilNextPathRecalculation = 0;
+                this.zombie.getNavigation().moveTo(livingentity, this.speedModifier);
+            }
         }
 
         if ((this.followingTargetEvenIfNotSeen() || this.zombie.getSensing().hasLineOfSight(livingentity))
@@ -272,7 +322,15 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
             this.pathedTargetX = livingentity.getX();
             this.pathedTargetY = livingentity.getY();
             this.pathedTargetZ = livingentity.getZ();
-            this.ticksUntilNextPathRecalculation = 4 + this.zombie.getRandom().nextInt(7);
+
+            // 梯度寻路频率：4格内高频(10tick)、粗略范围内中频(60tick)、超粗略范围低频(配置值)
+            if (distanceToTarget <= 16.0D) {
+                this.ticksUntilNextPathRecalculation = 10;
+            } else if (distanceToTarget <= (double) (getRoughPathfindingThreshold() * getRoughPathfindingThreshold())) {
+                this.ticksUntilNextPathRecalculation = 60;
+            } else {
+                this.ticksUntilNextPathRecalculation = getRoughPathfindingInterval();
+            }
 
             if (this.canPenalize) {
                 this.ticksUntilNextPathRecalculation += failedPathFindingPenalty;
@@ -285,12 +343,6 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                 } else {
                     failedPathFindingPenalty += 10;
                 }
-            }
-
-            if (distanceToTarget > 1024.0D) {
-                this.ticksUntilNextPathRecalculation += 10;
-            } else if (distanceToTarget > 256.0D) {
-                this.ticksUntilNextPathRecalculation += 5;
             }
 
             if (this.breakGoal != null && this.breakGoal.isDone()) {
@@ -319,11 +371,8 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                         moved = this.zombie.getNavigation().moveTo(path, this.speedModifier);
                     }
 
-
                 } else {
-                    if (this.canPathConstruct() && (this.bridgeGoal == null || !this.bridgeGoal.isPathBuildCooldown())) {
-                        this.setBuild(livingentity.blockPosition());
-                    }
+                    this.setBuild(livingentity.blockPosition());
                 }
                 if (!moved) {
                     this.ticksUntilNextPathRecalculation += 15;
@@ -338,7 +387,12 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
     }
 
     private void tickBuildState(LivingEntity livingentity, double distanceToTarget) {
-        if (this.checkAndPerformAttack(livingentity, distanceToTarget)) {
+        // 简化建造模式下结构间冷却计数
+        if (this.ticksUntilNextStructureBuild > 0) {
+            this.ticksUntilNextStructureBuild--;
+        }
+
+        if (livingentity != null && this.checkAndPerformAttack(livingentity, distanceToTarget)) {
             this.setMelee();
             return;
         }
@@ -354,6 +408,10 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
         }
 
         if (this.pathPack == null) {
+            // 简化建造模式下，结构间冷却15 tick（倒计时方式）
+            if (simplifiedBuilderMovement() && this.ticksUntilNextStructureBuild > 0) {
+                return;
+            }
             this.handlePathPackInitialization(livingentity);
             return;
         }
@@ -431,10 +489,10 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
             this.pathPack = newPathPack;
 
-            if (this.level.getGameTime() - this.lastGiveUpBuildTime > GIVE_UP_BUILD_TIME) {
+            if (this.giveUpHalfway && livingentity != null && this.level.getGameTime() - this.lastGiveUpBuildTime > GIVE_UP_BUILD_TIME) {
                 Path path = this.zombie.getNavigation().createPath(livingentity, 0);
 
-                if (path != null && this.giveUpHalfway) {
+                if (path != null) {
                     Node finalNode = path.getEndNode();
                     if (finalNode != null) {
                         BlockPos pathEnd = finalNode.asBlockPos();
@@ -451,11 +509,11 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
             }
 
             if (this.pathPack.pathStructure().is(PathConstructor.PathStructure.SITU)) {
-                    this.setMelee();
-                    return;
-                }
+                this.setMelee();
+                return;
+            }
 
-            Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
+            Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 1);
             if (path1 != null) {
                 this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getTotalMovementSpeedModify());
             }
@@ -463,7 +521,7 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
             this.setMelee();
         } else {
             if (this.zombie.getNavigation().isDone()) {
-                Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
+                Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 1);
                 if (path1 != null) {
                     this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getTotalMovementSpeedModify());
                 } else {
@@ -479,9 +537,12 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
 
         if (distToSelf >= 1.0) {
             if (this.zombie.getNavigation().isDone()) {
-                Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
+                Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 1);
                 if (path1 != null) {
                     this.zombie.getNavigation().moveTo(path1, this.speedModifier);
+                } else if (distToSelf >= RETURN_TO_SELF_MAX_DIST_SQR) {
+                    this.setMelee();
+                    return;
                 }
             }
         }
@@ -502,14 +563,36 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                     this.setMelee();
                     return;
                 }
+                this.consecutiveEmptyPacks = 0;
                 break;
             }
             pathIndex++;
         }
 
         if (pathIndex > this.pathPack.pathStructure().maxIndex()) {
+            this.consecutiveEmptyPacks++;
+            if (this.consecutiveEmptyPacks >= 6) {
+                this.setMelee();
+                return;
+            }
             this.selfPos = this.pathPack.pathStructure().getEndPos(pathPack.horizontalDirection(), this.selfPos);
+            if (simplifiedBuilderMovement() && !(this.pathPack.pathStructure() == PathConstructor.PathStructure.UP || this.pathPack.pathStructure() == PathConstructor.PathStructure.DOWN)) {
+                Vec3 newPos = Vec3.atBottomCenterOf(this.selfPos);
+                LivingEntity target = this.zombie.getTarget();
+                float yRot = this.zombie.getYRot();
+                this.zombie.moveTo(newPos.x, newPos.y, newPos.z, yRot, this.zombie.getXRot());
+                this.zombie.yBodyRot = yRot;
+                this.zombie.yBodyRotO = yRot;
+                this.zombie.yHeadRot = yRot;
+                this.zombie.yHeadRotO = yRot;
+                if (!this.zombie.getNavigation().isDone()) {
+                    this.zombie.getNavigation().stop();
+                }
+            }
             this.pathPack = null;
+            if (simplifiedBuilderMovement()) {
+                this.ticksUntilNextStructureBuild = 15;
+            }
         }
     }
 
@@ -559,15 +642,19 @@ public class ZombieMeleeAndPathBuildGoal extends Goal {
                         this.zombie.getJumpControl().jump();
                         return true;
                     }
+
                     double distSqr = this.zombie.distanceToSqr(MathUtils.blockPosToVec3(blockPos));
                     if (distSqr <= PLACE_BLOCK_DISTANCE_SQR) {
                         return this.placeBlock(blockPos);
                     } else if (distSqr > TOO_FAR_FROM_BLOCK_SQR) {
                         return false;
                     } else {
-                        if (zombiePos.distSqr(this.selfPos) >= 2) {
+                        if (this.simplifiedBuilderMovement()) {
+                            return false;
+                        }
+                        if (zombiePos.distSqr(this.selfPos) >= 4) {
                             if (this.zombie.getNavigation().isDone()) {
-                                Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 0);
+                                Path path1 = this.zombie.getNavigation().createPath(this.selfPos, 1);
                                 if (path1 != null) {
                                     this.zombie.getNavigation().moveTo(path1, this.speedModifier / this.data.getTotalMovementSpeedModify());
                                 } else {

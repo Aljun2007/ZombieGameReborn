@@ -6,8 +6,6 @@ import com.aljun.zombiegamereborn.common.client.gui.config.core.SimpleSettingsPa
 import com.aljun.zombiegamereborn.common.config.GameProperty;
 import com.aljun.zombiegamereborn.common.config.MobReplacement;
 import com.aljun.zombiegamereborn.common.config.StageProperty;
-import com.aljun.zombiegamereborn.network.ZGRNetwork;
-import com.aljun.zombiegamereborn.network.packet.GamePropertyUploadPacket;
 import com.aljun.zombiegamereborn.utils.GamePropertyPresentUtils;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
@@ -20,16 +18,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
-public class GamePropertyScreen extends AbstractConfigScreen {
+public abstract class AbstractGamePropertyScreen extends AbstractConfigScreen {
 
-    private static final Gson GSON = new GsonBuilder()
+    protected static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .disableHtmlEscaping()
             .registerTypeAdapter(GameProperty.class, new GameProperty.GamePropertyAdapter())
             .registerTypeAdapter(StageProperty.class, new StageProperty.StagePropertyAdapter())
             .create();
-    
-    public GamePropertyScreen(String title, JsonObject initSettings) {
+
+    public AbstractGamePropertyScreen(String title, JsonObject initSettings) {
         super(title, initSettings);
     }
 
@@ -48,14 +46,17 @@ public class GamePropertyScreen extends AbstractConfigScreen {
         this.tabs.add(stageTab);
         this.tabs.add(performanceTab);
         this.tabs.add(mobReplaceTab);
-
     }
 
     private void initializePerformanceTab(SimpleSettingsPanel panel) {
         panel.addLabel("gui.zombiegamereborn.zombieproperty.section.performance");
-        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_miner", "max_empowered_miner_count", 30, 0, Integer.MAX_VALUE);
-        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_builder", "max_empowered_builder_count", 30, 0, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_zombie_count", "max_zombie_count", 200, 0, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_miner_count", "max_empowered_miner_count", 30, 0, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_builder_count", "max_empowered_builder_count", 30, 0, Integer.MAX_VALUE);
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.disable_turtle_egg_seeking", "disable_turtle_egg_seeking", false);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.simplified_builder_movement", "simplified_builder_movement", true);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.rough_pathfinding_threshold", "rough_pathfinding_threshold", 10, 1, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.rough_pathfinding_interval", "rough_pathfinding_interval", 400, 1, Integer.MAX_VALUE);
         panel.setOnValueChanged((key, value) -> {
             if (!isInitializing) {
                 localJson.add(key, value);
@@ -93,6 +94,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_break", "can_zombie_break_block", true);
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_place", "can_zombie_place_block", true);
         panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_piglin_infection", "can_piglin_infection", false);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.infected_villager_can_break_blocks", "infected_villager_can_break_blocks", false);
 
         panel.setOnValueChanged((key, value) -> {
             if (!isInitializing) {
@@ -110,7 +112,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
         hasInteracted = true;
     }
 
-    private void initializeStageTab(SimpleSettingsPanel panel) {
+    protected void initializeStageTab(SimpleSettingsPanel panel) {
         panel.addCallbackabeScreen(
                 "gui.zombiegamereborn.gameproperty.stage_list",
                 this,
@@ -119,7 +121,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
                     ListEditScreen<JsonElement> screen = new ListEditScreen<JsonElement>(
                             "gui.zombiegamereborn.gameproperty.stage_list_edit_title",
                             parentScreen,
-                            this.localJson.has("stage_properties") && this.localJson.get("stage_properties").isJsonArray() 
+                            this.localJson.has("stage_properties") && this.localJson.get("stage_properties").isJsonArray()
                                 ? this.localJson.getAsJsonArray("stage_properties").asList()
                                 : java.util.Collections.emptyList(),
 
@@ -133,7 +135,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
                             (lastScreen1, jsonElement1, itemSaveCallback) -> {
                                 StageProperty stageProperty =
                                         GSON.fromJson(jsonElement1, StageProperty.class);
-                                
+
                                 JsonObject initialData = GSON.toJsonTree(stageProperty).getAsJsonObject();
 
                                 Minecraft.getInstance().setScreen(new StagePropertyScreen(
@@ -147,7 +149,7 @@ public class GamePropertyScreen extends AbstractConfigScreen {
                                         lastScreen1
                                 ));
                             },
-                            
+
                             () -> GSON.toJsonTree(new StageProperty())
                     );
                     screen.setComparator((o1, o2) -> {
@@ -169,12 +171,10 @@ public class GamePropertyScreen extends AbstractConfigScreen {
     protected List<ButtonInfo> getCustomButtons() {
         List<ButtonInfo> buttons = new ArrayList<>();
         buttons.add(new ButtonInfo("gui.zombiegamereborn.gameproperty.import_export", this::importScreen));
-        buttons.add(new ButtonInfo("gui.zombiegamereborn.gameproperty.save_sync", this::syncToServer, () -> hasUnsavedChanges));
         return buttons;
     }
 
-
-    private void importScreen() {
+    protected void importScreen() {
         JsonObject configCopy = this.localJson.deepCopy();
         Minecraft.getInstance().setScreen(new GamePropertyImportExportScreen(
                 configCopy,
@@ -190,57 +190,5 @@ public class GamePropertyScreen extends AbstractConfigScreen {
                 },
                 this
         ));
-    }
-
-    private void syncToServer() {
-        checkSyncToServer();
-    }
-
-    private void checkSyncToServer() {
-        if (hasUnsavedChanges) {
-            sendConfigToServer(localJson);
-            hasUnsavedChanges = false;
-            
-            if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.displayClientMessage(
-                    Component.translatable("gui.zombiegamereborn.gameproperty.sync_success"), false
-                );
-            }
-        }
-    }
-
-    private void sendConfigToServer(JsonObject config) {
-        ZGRNetwork.sendToServer(new GamePropertyUploadPacket(config));
-    }
-
-    @Override
-    protected void handleSaveAndClose() {
-        checkSyncToServer();
-    }
-
-    @Override
-    protected void handleOnClose() {
-        if (!hasInteracted) {
-            if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.displayClientMessage(
-                        Component.translatable("gui.zombiegamereborn.core.no_changes"), false
-                );
-            }
-        } else if (hasUnsavedChanges) {
-            if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.displayClientMessage(
-                        Component.translatable("gui.zombiegamereborn.gameproperty.unsaved_warning"), false
-                );
-                Minecraft.getInstance().player.displayClientMessage(
-                        Component.translatable("gui.zombiegamereborn.gameproperty.sync_hint"), false
-                );
-            }
-        } else {
-            if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.displayClientMessage(
-                        Component.translatable("gui.zombiegamereborn.gameproperty.safe_exit"), false
-                );
-            }
-        }
     }
 }

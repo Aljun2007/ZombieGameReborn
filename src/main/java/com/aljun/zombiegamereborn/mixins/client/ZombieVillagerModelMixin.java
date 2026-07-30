@@ -43,22 +43,25 @@ public abstract class ZombieVillagerModelMixin {
             float headPitch
     ) {
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-        ZombieType type = ZGRZombieAttributesAPI.getType(data);
-        if (type != null) {
-            if ((type == ZGRZombieTypes.MUSKET_MOD_GUNNER || (data.canZombieContinueUseWeaponsInHand())) && ZGRDiplomacyCenter.MUSKETMOD_DIPLOMAT.isHoldingGun(zombie) && zombie.isAggressive()) {
-                ZombieVillagerModel<?> model = (ZombieVillagerModel<?>) (Object) this;
-                model.head.yRot = netHeadYaw * ((float) Math.PI / 180F);
-                model.head.xRot = headPitch * ((float) Math.PI / 180F);
-                if (zombie.isUsingItem()) {
-                    AnimationUtils.animateCrossbowCharge(model.rightArm, model.leftArm, zombie, true);
+
+        if (data != null) {
+            ZombieType type = ZGRZombieAttributesAPI.getType(data);
+            if (type != null) {
+                if ((type == ZGRZombieTypes.MUSKET_MOD_GUNNER || (data.canZombieContinueUseWeaponsInHand())) && ZGRDiplomacyCenter.MUSKETMOD_DIPLOMAT.isHoldingGun(zombie) && zombie.isAggressive()) {
+                    ZombieVillagerModel<?> model = (ZombieVillagerModel<?>) (Object) this;
+                    model.head.yRot = netHeadYaw * ((float) Math.PI / 180F);
+                    model.head.xRot = headPitch * ((float) Math.PI / 180F);
+                    if (zombie.isUsingItem()) {
+                        AnimationUtils.animateCrossbowCharge(model.rightArm, model.leftArm, zombie, true);
+                    }
+                    return;
+                } else if ((type == ZGRZombieTypes.BOW_ATTACKER || (data.canZombieContinueUseWeaponsInHand())) && zombie.getMainHandItem().getItem() instanceof BowItem && zombie.isAggressive()) {
+                    return;
+                } else if ((type == ZGRZombieTypes.CROSSBOW_ATTACKER || (data.canZombieContinueUseWeaponsInHand())) && zombie.getMainHandItem().getItem() instanceof CrossbowItem && zombie.isAggressive()) {
+                    return;
+                } else if ((type == ZGRZombieTypes.SHIELD_USER || (data.canZombieContinueUseWeaponsInHand())) && zombie.isUsingItem() && zombie.getUseItem().getItem() instanceof ShieldItem) {
+                    return;
                 }
-                return;
-            } else if ((type == ZGRZombieTypes.BOW_ATTACKER || (data.canZombieContinueUseWeaponsInHand())) && zombie.getMainHandItem().getItem() instanceof BowItem && zombie.isAggressive()) {
-                return;
-            } else if ((type == ZGRZombieTypes.CROSSBOW_ATTACKER || (data.canZombieContinueUseWeaponsInHand())) && zombie.getMainHandItem().getItem() instanceof CrossbowItem && zombie.isAggressive()) {
-                return;
-            } else if ((type == ZGRZombieTypes.SHIELD_USER || (data.canZombieContinueUseWeaponsInHand())) && zombie.isUsingItem() && zombie.getUseItem().getItem() instanceof ShieldItem) {
-                return;
             }
         }
 

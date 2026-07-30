@@ -70,7 +70,7 @@ public class ZGRConfigFileManager {
         return server.getWorldPath(LevelResource.ROOT).resolve("serverconfig").resolve(CONFIG_FILE_NAME);
     }
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     private static final LevelResource CONFIG_PATH = new LevelResource(ZombieGameReborn.MOD_ID);
 
@@ -104,7 +104,7 @@ public class ZGRConfigFileManager {
         }
     }
 
-    private static Path getClientConfigDirectory() {
+    public static Path getClientConfigDirectory() {
         return Path.of("config/"+ ZombieGameReborn.MOD_ID);
     }
 

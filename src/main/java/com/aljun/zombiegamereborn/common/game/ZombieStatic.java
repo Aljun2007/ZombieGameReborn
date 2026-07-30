@@ -47,10 +47,6 @@ public class ZombieStatic {
         return lastTickEmpoweredMinerCount;
     }
 
-    public static int getGlobalTotalZombieCount() {
-        return TOTAL_ZOMBIE_COUNT.values().stream().mapToInt(AtomicInteger::get).sum();
-    }
-
     public static int getGlobalLastTickZombieCount() {
         return LAST_TICK_ZOMBIE_COUNT.values().stream().mapToInt(Integer::intValue).sum();
     }
@@ -58,7 +54,14 @@ public class ZombieStatic {
     public static void incrementZombieCount(Zombie zombie, IZombieData data) {
         ResourceLocation dim = zombie.level().dimension().location();
         getOrCreate(TOTAL_ZOMBIE_COUNT, dim).incrementAndGet();
+    }
 
+    /* ========== Empower 死亡释放（死亡时减少计数，作为 tick 内兜底） ========== */
+
+    /**
+     * 每 tick 计数 Empower 僵尸（onTick 后调用，getAndSet(0) 会在下一 tick START 清零）
+     */
+    public static void countEmpoweredIfApplicable(IZombieData data) {
         if (data.isEmpowered()) {
             if (data.getType() == ZGRZombieTypes.BUILDER) {
                 EMPOWERED_BUILDER_COUNT.incrementAndGet();
@@ -66,6 +69,16 @@ public class ZombieStatic {
                 EMPOWERED_MINER_COUNT.incrementAndGet();
             }
         }
+    }
+
+    public static void decrementEmpoweredBuilderCount() {
+        int val = EMPOWERED_BUILDER_COUNT.decrementAndGet();
+        if (val < 0) EMPOWERED_BUILDER_COUNT.set(0);
+    }
+
+    public static void decrementEmpoweredMinerCount() {
+        int val = EMPOWERED_MINER_COUNT.decrementAndGet();
+        if (val < 0) EMPOWERED_MINER_COUNT.set(0);
     }
 
     public static void resetZombieCount() {

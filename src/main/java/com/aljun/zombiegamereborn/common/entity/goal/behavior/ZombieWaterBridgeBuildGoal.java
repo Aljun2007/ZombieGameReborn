@@ -23,8 +23,8 @@ public class ZombieWaterBridgeBuildGoal extends Goal {
     private static final int BRIDGE_BUILD_COOLDOWN = 40;
     private static final int FAIL_COOLDOWN = 80;
 
-    private final Zombie zombie;
-    private final IZombieData data;
+    protected final Zombie zombie;
+    protected final IZombieData data;
     private long lastPlaceTime = 0;
     private long lastFailTime = 0;
     private Boolean pathBuildGoalChecked = false;

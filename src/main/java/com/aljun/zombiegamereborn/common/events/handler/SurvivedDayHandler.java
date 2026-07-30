@@ -27,7 +27,7 @@ public class SurvivedDayHandler {
         long currentGameTime = overworld.getGameTime();
         boolean hasPlayersOnline = !overworld.getServer().getPlayerList().getPlayers().isEmpty();
         long currentTimeOfDay = Math.floorMod(overworld.getDayTime(), 24000L);
-        boolean isNight = currentTimeOfDay >= 13000;
+        boolean isNight = currentTimeOfDay >= 12000; // 12000=SUNSET，玩家即可睡觉
 
         // 首次运行或玩家从离线变在线时，重置基准时间
         if (lastGameTime == -1 || (!wasAnyPlayerOnline && hasPlayersOnline)) {
@@ -41,16 +41,13 @@ public class SurvivedDayHandler {
             return;
         }
 
-        // 有玩家在线，检测昼夜交替（仅自然流逝）
-        long delta = currentGameTime - lastGameTime;
-        if (delta == 1) {
-            if (wasNight && !isNight) {
-                // 分别增加每个在线玩家的个人生存天数
-                for (ServerPlayer player : overworld.getServer().getPlayerList().getPlayers()) {
-                    IPlayerData playerData = ZGRPlayerAPI.getPlayerData(player);
-                    if (playerData != null) {
-                        playerData.setSurvivedDay(playerData.getSurvivedDay() + 1);
-                    }
+        // 检测昼夜交替（覆盖睡觉造成的时间跳跃）
+        if (wasNight && !isNight) {
+            // 分别增加每个在线玩家的个人生存天数
+            for (ServerPlayer player : overworld.getServer().getPlayerList().getPlayers()) {
+                IPlayerData playerData = ZGRPlayerAPI.getPlayerData(player);
+                if (playerData != null) {
+                    playerData.setSurvivedDay(playerData.getSurvivedDay() + 1);
                 }
             }
         }

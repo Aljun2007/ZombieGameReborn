@@ -1,5 +1,6 @@
 package com.aljun.zombiegamereborn.common.entity.goal.target;
 
+import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -26,23 +27,28 @@ import java.util.List;
 public class ZombieNearestAttackableTargetGoal extends TargetGoal {
 
     private static final int DEFAULT_RANDOM_INTERVAL = 10;
-    /** 运行时高优先度目标重检间隔（tick） */
+    /**
+     * 运行时高优先度目标重检间隔（tick）
+     */
     private static final int RECHECK_INTERVAL = 10;
 
     private final int randomInterval;
     private final List<TargetEntry> targetEntries = new ArrayList<>();
-
-    /** 自动递增优先度计数器，越晚添加优先度越低 */
-    private int nextPriority = 0;
-    /** entries 是否已排序，添加新条目后置 false */
-    private boolean sorted = true;
-
     @Nullable
     protected LivingEntity target;
     @Nullable
     protected TargetEntry matchedEntry;
-
-    /** 运行时重检冷却 */
+    /**
+     * 自动递增优先度计数器，越晚添加优先度越低
+     */
+    private int nextPriority = 0;
+    /**
+     * entries 是否已排序，添加新条目后置 false
+     */
+    private boolean sorted = true;
+    /**
+     * 运行时重检冷却
+     */
     private int recheckCooldown = 0;
 
     public ZombieNearestAttackableTargetGoal(Mob mob, boolean mustSee, boolean mustReach) {
@@ -58,15 +64,10 @@ public class ZombieNearestAttackableTargetGoal extends TargetGoal {
     // ==================== 目标条目管理 ====================
 
     /**
-     * 添加目标条目，指定优先度（数值越小越优先）。
-     *
-     * @param priority    优先度，越小越优先
-     * @param targetClass 目标实体 Class
-     * @param condition   TargetingConditions，可为 null
+     * 添加目标条目，无额外过滤条件。
      */
-    public void addTarget(int priority, Class<? extends LivingEntity> targetClass, @Nullable TargetingConditions condition) {
-        this.targetEntries.add(new TargetEntry(priority, targetClass, condition));
-        this.sorted = false;
+    public void addTarget(Class<? extends LivingEntity> targetClass) {
+        this.addTarget(targetClass, null);
     }
 
     /**
@@ -77,10 +78,15 @@ public class ZombieNearestAttackableTargetGoal extends TargetGoal {
     }
 
     /**
-     * 添加目标条目，无额外过滤条件。
+     * 添加目标条目，指定优先度（数值越小越优先）。
+     *
+     * @param priority    优先度，越小越优先
+     * @param targetClass 目标实体 Class
+     * @param condition   TargetingConditions，可为 null
      */
-    public void addTarget(Class<? extends LivingEntity> targetClass) {
-        this.addTarget(targetClass, null);
+    public void addTarget(int priority, Class<? extends LivingEntity> targetClass, @Nullable TargetingConditions condition) {
+        this.targetEntries.add(new TargetEntry(priority, targetClass, condition));
+        this.sorted = false;
     }
 
     // ==================== Goal 生命周期 ====================
@@ -99,28 +105,6 @@ public class ZombieNearestAttackableTargetGoal extends TargetGoal {
 
         this.findTarget();
         return this.target != null;
-    }
-
-    @Override
-    public boolean canContinueToUse() {
-        LivingEntity livingentity = this.mob.getTarget();
-        if (livingentity == null) return false;
-        if (!livingentity.isAlive()) return false;
-        return super.canContinueToUse();
-    }
-
-    @Override
-    public void start() {
-        this.mob.setTarget(this.target);
-        super.start();
-        this.recheckCooldown = RECHECK_INTERVAL;
-    }
-
-    @Override
-    public void stop() {
-        this.target = null;
-        this.matchedEntry = null;
-        super.stop();
     }
 
     /**
@@ -191,8 +175,15 @@ public class ZombieNearestAttackableTargetGoal extends TargetGoal {
                 conditions = TargetingConditions.forCombat().range(followDist);
             }
 
+            if (!this.mustSee) {
+                conditions.ignoreLineOfSight();
+            }
+
             LivingEntity found = this.scanEntry(entry, conditions, followDist);
             if (found != null) {
+                if (!ZombieUtils.isTargetLegal(found)) {
+                    continue;
+                }
                 this.target = found;
                 this.matchedEntry = entry;
                 return;
@@ -223,6 +214,28 @@ public class ZombieNearestAttackableTargetGoal extends TargetGoal {
         return this.mob.getBoundingBox().inflate(distance, 4.0D, distance);
     }
 
+    @Override
+    public boolean canContinueToUse() {
+        LivingEntity livingentity = this.mob.getTarget();
+        if (livingentity == null) return false;
+        if (!livingentity.isAlive()) return false;
+        return super.canContinueToUse();
+    }
+
+    @Override
+    public void start() {
+        this.mob.setTarget(this.target);
+        super.start();
+        this.recheckCooldown = RECHECK_INTERVAL;
+    }
+
+    @Override
+    public void stop() {
+        this.target = null;
+        this.matchedEntry = null;
+        super.stop();
+    }
+
     /**
      * 获取目标类型（匹配到的条目类型）
      */
@@ -234,7 +247,7 @@ public class ZombieNearestAttackableTargetGoal extends TargetGoal {
     // ==================== 内部数据结构 ====================
 
     protected record TargetEntry(int priority,
-                                                       Class<? extends LivingEntity> targetClass,
-                                                       @Nullable TargetingConditions condition) {
+                                 Class<? extends LivingEntity> targetClass,
+                                 @Nullable TargetingConditions condition) {
     }
 }

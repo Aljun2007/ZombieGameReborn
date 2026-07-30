@@ -3,7 +3,7 @@ package com.aljun.zombiegamereborn.common.client.handler;
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.common.client.config.ClientConfigManager;
 import com.aljun.zombiegamereborn.common.client.gui.config.client.ClientConfigScreen;
-import com.aljun.zombiegamereborn.common.client.gui.config.stage.GamePropertyScreen;
+import com.aljun.zombiegamereborn.common.client.gui.config.stage.ServerGamePropertyScreen;
 import com.aljun.zombiegamereborn.common.config.GameProperty;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.capability.ZombieDataProvider;
@@ -39,7 +39,7 @@ public class ClientPacketHandlers {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> {
             if (context.getDirection().equals(NetworkDirection.PLAY_TO_CLIENT)) {
-                Minecraft.getInstance().setScreen(new GamePropertyScreen("游戏配置", packet.getSettings()));
+                Minecraft.getInstance().setScreen(new ServerGamePropertyScreen("游戏配置", packet.getSettings()));
             }
         });
         context.setPacketHandled(true);

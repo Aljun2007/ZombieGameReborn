@@ -27,6 +27,7 @@ public class ZombieSpawnChooser {
         allKeys.add(SpawnType.NORMAL);
         allKeys.add(SpawnType.DROWNED);
         allKeys.add(SpawnType.BLOOD_MOON);
+        allKeys.add(SpawnType.BLOOD_MOON_DROWNED);
    }
 
     public static ZombieSpawnChooser getDefault() {
@@ -34,6 +35,7 @@ public class ZombieSpawnChooser {
         chooser.zombieTypes.add(new WrappedZombieType(SpawnType.NORMAL,1.0,ZGRZombieTypes.VANILLA));
         chooser.zombieTypes.add(new WrappedZombieType(SpawnType.DROWNED,1.0,ZGRZombieTypes.VANILLA));
         chooser.zombieTypes.add(new WrappedZombieType(SpawnType.BLOOD_MOON,1.0,ZGRZombieTypes.VANILLA));
+        chooser.zombieTypes.add(new WrappedZombieType(SpawnType.BLOOD_MOON_DROWNED,1.0,ZGRZombieTypes.VANILLA));
         return chooser;
     }
 
@@ -42,6 +44,7 @@ public class ZombieSpawnChooser {
         public static final SpawnType NORMAL = new SpawnType("normal");
         public static final SpawnType DROWNED = new SpawnType("drowned");
         public static final SpawnType BLOOD_MOON = new SpawnType("blood_moon");
+        public static final SpawnType BLOOD_MOON_DROWNED = new SpawnType("blood_moon_drowned");
 
         public final String name;
 

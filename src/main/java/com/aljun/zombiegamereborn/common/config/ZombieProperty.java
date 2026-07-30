@@ -102,7 +102,7 @@ public class ZombieProperty {
     @SerializedName("enable_piglin_collision_anger")
     public boolean enablePiglinCollisionAnger = false;
     @SerializedName("piglin_collision_anger_chance")
-    public double piglinCollisionAngerChance = 0.25d;
+    public double piglinCollisionAngerChance = 1.0d;
     @SerializedName("piglin_angry_mode")
     public boolean piglinAngryMode = false;
     @SerializedName("break_light_sources")
@@ -272,8 +272,9 @@ public class ZombieProperty {
         ZGRZombieAttributesAPI.setKnockbackResistance(zombie, this.knockbackResistance);
         ZGRZombieAttributesAPI.setMaxHealth(zombie, this.maxHealth);
 
-        if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(zombie.level().getServer())) {
-            ZGRZombieAttributesAPI.setFollowRange(zombie, this.followRange * 2);
+        if (this.boundlessHunting || (this.bloodMoonBoundlessHunting
+                && ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(zombie.level().getServer()))) {
+            ZGRZombieAttributesAPI.setFollowRange(zombie, 512.0);
             data.setFollowMustSee(true);
         } else {
             ZGRZombieAttributesAPI.setFollowRange(zombie, this.followRange);

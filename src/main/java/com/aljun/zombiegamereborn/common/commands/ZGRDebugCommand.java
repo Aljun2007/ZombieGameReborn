@@ -1,15 +1,17 @@
-package com.aljun.zombiegamereborn.common.commands.debug;
+package com.aljun.zombiegamereborn.common.commands;
 
 import com.aljun.zombiegamereborn.ZombieGameReborn;
+import com.aljun.zombiegamereborn.common.events.handler.GamePropertyRefresher;
 import com.aljun.zombiegamereborn.debug.ZGRDebug;
+import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -55,6 +57,33 @@ public class ZGRDebugCommand implements Command<CommandSourceStack> {
             zombies.forEach(z -> z.remove(Entity.RemovalReason.DISCARDED));
             context.getSource().sendSuccess(() -> Component.translatable("command.zombiegamereborn.debug.clean_all_zombies", zombies.size()), true);
             return zombies.size();
+        })));
+        command.then(Commands.literal("setBloodMoon").executes((context -> {
+            MinecraftServer server = context.getSource().getServer();
+            ServerLevel overworld = server.overworld();
+            long currentDay = overworld.getDayTime() / 24000;
+
+            if (!ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isLoaded()) {
+                context.getSource().sendFailure(Component.translatable("command.zombiegamereborn.debug.setbloodmoon.not_installed"));
+                return 0;
+            }
+
+            if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(server)) {
+                context.getSource().sendFailure(Component.translatable("command.zombiegamereborn.debug.setbloodmoon.already_blood_moon", currentDay));
+                return 0;
+            }
+
+            ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.setBloodMoon(server);
+
+            if (ZGRDiplomacyCenter.ENHANCED_CELERESTIALS_DIPLOMAT.isBloodMoon(server)) {
+                GamePropertyRefresher.bloodMoonActive = true;
+                GamePropertyRefresher.bloodMoonTriggeredThisDay = true;
+                context.getSource().sendSuccess(() -> Component.translatable("command.zombiegamereborn.debug.setbloodmoon.success", currentDay), true);
+                return 1;
+            } else {
+                context.getSource().sendFailure(Component.translatable("command.zombiegamereborn.debug.setbloodmoon.failed", currentDay));
+                return 0;
+            }
         })));
     }
 

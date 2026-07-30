@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.mixins.minecraft.entity;
 
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
+import com.aljun.zombiegamereborn.common.game.ZombieStatic;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -20,6 +21,12 @@ public class MobCategoryMixin {
             cir.setReturnValue(0);
             return;
         }
+
+        if (ZGRGame.getGameProperty().maxZombieCount <= ZombieStatic.getGlobalLastTickZombieCount()) {
+            cir.setReturnValue(0);
+            return;
+        }
+
         double modifier = ZGRGame.getGameProperty().getGlobalStage(server).zombieCountModify;
         if (modifier >= 0d && modifier != 1d) {
             if ((Object) this == MobCategory.MONSTER) {

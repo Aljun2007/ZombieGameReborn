@@ -10,6 +10,7 @@ import com.aljun.zombiegamereborn.network.packet.AdvancementHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +19,21 @@ import static com.aljun.zombiegamereborn.network.packet.AdvancementHandler.HORDE
 
 @Mod.EventBusSubscriber
 public class CommonHandler {
+
+    @SubscribeEvent
+    public static void onLivingDeath(LivingDeathEvent event) {
+        if (event.getEntity().level().isClientSide) return;
+        if (event.getEntity() instanceof Zombie zombie) {
+            IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+            if (data != null && data.isEmpowered()) {
+                if (data.getType() == ZGRZombieTypes.BUILDER) {
+                    ZombieStatic.decrementEmpoweredBuilderCount();
+                } else if (data.getType() == ZGRZombieTypes.MINER) {
+                    ZombieStatic.decrementEmpoweredMinerCount();
+                }
+            }
+        }
+    }
 
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {

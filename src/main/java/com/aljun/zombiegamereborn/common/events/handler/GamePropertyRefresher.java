@@ -18,8 +18,8 @@ import org.slf4j.Logger;
 public class GamePropertyRefresher {
 
     private static long lastDayChecked = -1;
-    private static boolean bloodMoonTriggeredThisDay = false;
-    private static boolean bloodMoonActive = false;
+    public static boolean bloodMoonTriggeredThisDay = false;
+    public static boolean bloodMoonActive = false;
 
     private static Logger LOGGER = LogUtils.getLogger();
 

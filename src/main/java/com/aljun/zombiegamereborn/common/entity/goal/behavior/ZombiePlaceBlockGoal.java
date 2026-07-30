@@ -3,13 +3,13 @@ package com.aljun.zombiegamereborn.common.entity.goal.behavior;
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
+import com.aljun.zombiegamereborn.common.optimizer.ZombieBlockOperationQueue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -64,7 +64,7 @@ public class ZombiePlaceBlockGoal extends Goal {
 
     private void succeedPlace(BlockPos blockPos, BlockState blockState) {
         ServerLevel level = (ServerLevel) this.zombie.level();
-        level.setBlock(blockPos, blockState, 3);
+        ZombieBlockOperationQueue.enqueuePlace(level, blockPos, blockState);
         SoundType soundType = blockState.getSoundType();
         this.zombie.level().playSound(null, blockPos, soundType.getBreakSound(), SoundSource.BLOCKS,
                 (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);

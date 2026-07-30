@@ -6,6 +6,7 @@ import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
@@ -17,8 +18,11 @@ public class ZombieSenseManager {
         SenseType.GUN_SHOT.refresh(zombieProperty.senseGunShotRadius, zombieProperty.senseGunShotLifespan);
         SenseType.GUN_SHOT_SILENCED.refresh(zombieProperty.senseGunShotSilencedRadius, zombieProperty.senseGunShotSilencedLifespan);
     }
-    private static final double MAX_SENSE_RADIUS = 256.0;
+    private static final double MAX_SENSE_RADIUS = 512.0;
     public static void broadcastSense(LivingEntity entity, Level level, SenseType senseType) {
+
+        if (!(entity instanceof Player)) return;
+
         AABB area = entity.getBoundingBox().inflate(MAX_SENSE_RADIUS);
         for (Zombie zombie : level.getEntitiesOfClass(Zombie.class, area)) {
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);

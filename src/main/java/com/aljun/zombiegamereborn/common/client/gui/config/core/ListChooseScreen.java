@@ -4,12 +4,14 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -21,6 +23,7 @@ import java.util.function.Consumer;
  * 2. 点击选中并高亮
  * 3. 确认选择后通过 Callback 返回
  * 4. 双击直接选中确认
+ * 5. 搜索框过滤列表项
  */
 @OnlyIn(Dist.CLIENT)
 public class ListChooseScreen<T> extends Screen {
@@ -29,7 +32,8 @@ public class ListChooseScreen<T> extends Screen {
     private static final int SCROLLBAR_WIDTH = 12;
     private static final int MIN_SCROLLBAR_HEIGHT = 20;
     private static final int BOTTOM_BAR_HEIGHT = 40;
-    private static final int LIST_START_Y = 35;
+    private static final int SEARCH_BOX_Y = 32;
+    private static final int LIST_START_Y = 55;
 
     private final List<T> items;
     private final ItemRenderer<T> itemRenderer;
@@ -44,6 +48,8 @@ public class ListChooseScreen<T> extends Screen {
     private int dragStartScrollOffset = 0;
     private int currentMouseY = 0;
 
+    private EditBox searchBox;
+    private List<T> filteredItems;
     private Button confirmButton;
     private Button cancelButton;
 
@@ -83,8 +89,8 @@ public class ListChooseScreen<T> extends Screen {
         renderListArea(guiGraphics, mouseX, mouseY, partialTick);
         renderScrollbar(guiGraphics, mouseX, mouseY, partialTick);
 
-        if (selectedIndex >= 0 && selectedIndex < items.size()) {
-            String selectedText = I18n.get("gui.zombiegamereborn.core.selected_prefix") + itemRenderer.render(items.get(selectedIndex));
+        if (selectedIndex >= 0 && selectedIndex < filteredItems.size()) {
+            String selectedText = I18n.get("gui.zombiegamereborn.core.selected_prefix") + itemRenderer.render(filteredItems.get(selectedIndex));
             guiGraphics.drawString(this.font, selectedText, 10, this.height - BOTTOM_BAR_HEIGHT - 15, 0xAAAAAA);
         }
     }
@@ -96,6 +102,17 @@ public class ListChooseScreen<T> extends Screen {
         if (this.minecraft != null) {
             this.width = this.minecraft.getWindow().getGuiScaledWidth();
             this.height = this.minecraft.getWindow().getGuiScaledHeight();
+        }
+
+        // 搜索框
+        this.searchBox = new EditBox(this.font, 15, SEARCH_BOX_Y, this.width - 30, 18,
+                Component.translatable("gui.zombiegamereborn.core.search"));
+        this.searchBox.setMaxLength(100);
+        this.searchBox.setResponder(this::onSearchTextChanged);
+        this.addRenderableWidget(this.searchBox);
+
+        if (this.filteredItems == null) {
+            this.filteredItems = new ArrayList<>(this.items);
         }
 
         int buttonY = this.height - BOTTOM_BAR_HEIGHT + 10;
@@ -126,6 +143,9 @@ public class ListChooseScreen<T> extends Screen {
     @Override
     public void tick() {
         super.tick();
+        if (this.searchBox != null) {
+            this.searchBox.tick();
+        }
     }
 
     @Override
@@ -140,7 +160,7 @@ public class ListChooseScreen<T> extends Screen {
 
     private void updateMaxScrollOffset() {
         int listHeight = this.height - LIST_START_Y - BOTTOM_BAR_HEIGHT - 20;
-        int contentHeight = items.size() * ITEM_HEIGHT;
+        int contentHeight = filteredItems.size() * ITEM_HEIGHT;
         maxScrollOffset = Math.max(0, contentHeight - listHeight);
     }
 
@@ -149,10 +169,24 @@ public class ListChooseScreen<T> extends Screen {
     }
 
     private void onConfirm() {
-        if (selectedIndex >= 0 && selectedIndex < items.size()) {
-            onSelectCallback.accept(items.get(selectedIndex));
+        if (selectedIndex >= 0 && selectedIndex < filteredItems.size()) {
+            onSelectCallback.accept(filteredItems.get(selectedIndex));
             Minecraft.getInstance().setScreen(lastScreen);
         }
+    }
+
+    private void onSearchTextChanged(String text) {
+        if (text.isEmpty()) {
+            this.filteredItems = new ArrayList<>(this.items);
+        } else {
+            String lowerText = text.toLowerCase();
+            this.filteredItems = this.items.stream()
+                    .filter(item -> itemRenderer.render(item).toLowerCase().contains(lowerText))
+                    .toList();
+        }
+        this.selectedIndex = -1;
+        this.scrollOffset = 0;
+        this.updateMaxScrollOffset();
     }
 
     private void renderListArea(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -163,7 +197,7 @@ public class ListChooseScreen<T> extends Screen {
         guiGraphics.fill(15, LIST_START_Y, this.width - 15, LIST_START_Y + 1, 0xFF666666);
         guiGraphics.fill(15, LIST_START_Y + listHeight - 1, this.width - 15, LIST_START_Y + listHeight, 0xFF666666);
 
-        for (int i = 0; i < items.size(); i++) {
+        for (int i = 0; i < filteredItems.size(); i++) {
             int itemY = LIST_START_Y + (i * ITEM_HEIGHT) - scrollOffset;
 
             if (itemY >= LIST_START_Y && itemY + ITEM_HEIGHT <= LIST_START_Y + listHeight) {
@@ -175,13 +209,13 @@ public class ListChooseScreen<T> extends Screen {
                     guiGraphics.fill(16, itemY + ITEM_HEIGHT - 1, this.width - 16, itemY + ITEM_HEIGHT, 0xFF4444FF);
                 }
 
-                String itemText = itemRenderer.render(items.get(i));
+                String itemText = itemRenderer.render(filteredItems.get(i));
                 guiGraphics.drawString(this.font, itemText, 25, itemY + 7,
                         isSelected ? 0xFFFFAA : 0xDDDDDD);
             }
         }
 
-        if (items.isEmpty()) {
+        if (filteredItems.isEmpty()) {
             guiGraphics.drawCenteredString(this.font, I18n.get("gui.zombiegamereborn.core.list_empty"),
                     this.width / 2, LIST_START_Y + 50, 0x888888);
         }
@@ -195,7 +229,7 @@ public class ListChooseScreen<T> extends Screen {
 
         float scrollRatio = (float) scrollOffset / maxScrollOffset;
         int scrollbarThumbHeight = Math.max(MIN_SCROLLBAR_HEIGHT,
-                (int) (listHeight * listHeight / (float) (items.size() * ITEM_HEIGHT)));
+                (int) (listHeight * listHeight / (float) (filteredItems.size() * ITEM_HEIGHT)));
         int availableTrackHeight = listHeight - scrollbarThumbHeight;
         int scrollbarThumbY = LIST_START_Y + (int) (availableTrackHeight * scrollRatio);
 
@@ -221,7 +255,7 @@ public class ListChooseScreen<T> extends Screen {
             int listHeight = this.height - LIST_START_Y - BOTTOM_BAR_HEIGHT - 20;
             int scrollbarX = this.width - SCROLLBAR_WIDTH - 20;
             int scrollbarThumbHeight = Math.max(MIN_SCROLLBAR_HEIGHT,
-                    (int) (listHeight * listHeight / (float) (items.size() * ITEM_HEIGHT)));
+                    (int) (listHeight * listHeight / (float) (filteredItems.size() * ITEM_HEIGHT)));
             float trackAvailableHeight = listHeight - scrollbarThumbHeight;
             int thumbY = LIST_START_Y + (int) ((scrollOffset / (float) maxScrollOffset) * trackAvailableHeight);
 
@@ -237,7 +271,7 @@ public class ListChooseScreen<T> extends Screen {
         if (mouseY >= LIST_START_Y && mouseY < this.height - BOTTOM_BAR_HEIGHT - 10) {
             int clickedIndex = (int) ((mouseY - LIST_START_Y + scrollOffset) / ITEM_HEIGHT);
 
-            if (clickedIndex >= 0 && clickedIndex < items.size()) {
+            if (clickedIndex >= 0 && clickedIndex < filteredItems.size()) {
                 selectedIndex = clickedIndex;
                 return true;
             }
@@ -257,7 +291,7 @@ public class ListChooseScreen<T> extends Screen {
         if (isDraggingScrollbar && maxScrollOffset > 0) {
             int listHeight = this.height - LIST_START_Y - BOTTOM_BAR_HEIGHT - 20;
             int scrollbarThumbHeight = Math.max(MIN_SCROLLBAR_HEIGHT,
-                    (int) (listHeight * listHeight / (float) (items.size() * ITEM_HEIGHT)));
+                    (int) (listHeight * listHeight / (float) (filteredItems.size() * ITEM_HEIGHT)));
             float trackAvailableHeight = listHeight - scrollbarThumbHeight;
 
             if (trackAvailableHeight > 0) {
@@ -292,7 +326,7 @@ public class ListChooseScreen<T> extends Screen {
 
     @Override
     public boolean isPauseScreen() {
-        return true;
+        return super.isPauseScreen();
     }
 
     /**

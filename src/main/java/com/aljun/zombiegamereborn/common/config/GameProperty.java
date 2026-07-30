@@ -44,6 +44,18 @@ public class GameProperty {
     public int maxEmpoweredMinerCount = 30;
     @SerializedName("disable_turtle_egg_seeking")
     public boolean disableTurtleEggSeeking = false;
+    @SerializedName("max_zombie_count")
+    public int maxZombieCount = 200;
+    @SerializedName("infected_villager_can_break_blocks")
+    public boolean infectedVillagerCanBreakBlocks = false;
+    @SerializedName("simplified_builder_movement")
+    public boolean simplifiedBuilderMovenment = true;
+
+    @SerializedName("rough_pathfinding_threshold")
+    public int roughPathfindingThreshold = 10;
+
+    @SerializedName("rough_pathfinding_interval")
+    public int roughPathfindingInterval = 400;
 
     private volatile ArrayList<StageProperty> sortedCache = null;
     private volatile int configHash = 0;
@@ -120,6 +132,28 @@ public class GameProperty {
         // 解析 disable_turtle_egg_seeking
         if (obj.has("disable_turtle_egg_seeking")) {
             property.disableTurtleEggSeeking = obj.get("disable_turtle_egg_seeking").getAsBoolean();
+        }
+
+        // 解析 max_zombie_count
+        if (obj.has("max_zombie_count")) {
+            property.maxZombieCount = obj.get("max_zombie_count").getAsInt();
+        }
+
+        // 解析 infected_villager_can_break_blocks
+        if (obj.has("infected_villager_can_break_blocks")) {
+            property.infectedVillagerCanBreakBlocks = obj.get("infected_villager_can_break_blocks").getAsBoolean();
+        }
+
+        // 解析 simplified_builder_movement
+        if (obj.has("simplified_builder_movement")) {
+            property.simplifiedBuilderMovenment = obj.get("simplified_builder_movement").getAsBoolean();
+        }
+
+        if (obj.has("rough_pathfinding_threshold")) {
+            property.roughPathfindingThreshold = obj.get("rough_pathfinding_threshold").getAsInt();
+        }
+        if (obj.has("rough_pathfinding_interval")) {
+            property.roughPathfindingInterval = obj.get("rough_pathfinding_interval").getAsInt();
         }
 
         return property;
@@ -219,6 +253,11 @@ public class GameProperty {
         obj.addProperty("max_empowered_builder_count", maxEmpoweredBuilderCount);
         obj.addProperty("max_empowered_miner_count", maxEmpoweredMinerCount);
         obj.addProperty("disable_turtle_egg_seeking", disableTurtleEggSeeking);
+        obj.addProperty("max_zombie_count", maxZombieCount);
+        obj.addProperty("infected_villager_can_break_blocks", infectedVillagerCanBreakBlocks);
+        obj.addProperty("simplified_builder_movement", simplifiedBuilderMovenment);
+        obj.addProperty("rough_pathfinding_threshold", roughPathfindingThreshold);
+        obj.addProperty("rough_pathfinding_interval", roughPathfindingInterval);
 
         return obj;
     }

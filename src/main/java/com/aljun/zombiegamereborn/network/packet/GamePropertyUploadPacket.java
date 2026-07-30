@@ -51,6 +51,14 @@ public class GamePropertyUploadPacket {
             ServerPlayer player = context.getSender();
             
             if (player != null && player.getServer() != null) {
+                // 检查权限：需要4级管理员（服务器操作员）
+                if (!player.hasPermissions(2)) {
+                    player.displayClientMessage(
+                            Component.translatable("message.zombiegamereborn.gameproperty.no_permission"), false
+                    );
+                    return;
+                }
+
                 MinecraftServer server = player.getServer();
                 GameProperty gameProperty = GameProperty.fromJsonObject(settings);
                 ZGRConfigFileManager.saveConfig(server, gameProperty);

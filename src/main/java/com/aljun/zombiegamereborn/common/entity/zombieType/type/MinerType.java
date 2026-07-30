@@ -3,27 +3,23 @@ package com.aljun.zombiegamereborn.common.entity.zombieType.type;
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.equipement.ZombieEquipmentHelper;
-import com.aljun.zombiegamereborn.common.entity.goal.attack.ZombieMeleeAndPathBuildGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.attack.EnhancedZombieAttackGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.attack.ZombieSmartBreakAttackGoal;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.common.optimizer.ZombieGoalOptimizer;
 import com.aljun.zombiegamereborn.utils.RandomUtils;
-import com.aljun.zombiegamereborn.utils.ZombieUtils;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
-public class BuilderZombieType extends ZombieType {
+public class MinerType extends ZombieType {
 
 
-    public BuilderZombieType() {
-        super(ZGRZombieTypes.IDs.BUILDER_ID);
+    public MinerType() {
+        super(ZGRZombieTypes.IDs.MINER_ID);
     }
 
     @Override
@@ -33,7 +29,6 @@ public class BuilderZombieType extends ZombieType {
         } else {
             ZombieEquipmentHelper.applyFullEquipment(zombie);
         }
-        zombie.setItemSlot(EquipmentSlot.OFFHAND, ZombieUtils.randomPathBlock((ServerLevel) zombie.level(), zombie.blockPosition()));
     }
 
     @Override
@@ -43,7 +38,8 @@ public class BuilderZombieType extends ZombieType {
 
     @Override
     public void onInitializeZombieGoals(Zombie zombie,IZombieData data) {
-        ZombieType.replaceGoal(zombie.goalSelector,goal-> goal instanceof ZombieAttackGoal, ()->new ZombieMeleeAndPathBuildGoal(zombie,data),2);
+        ZombieType.replaceGoal(zombie.goalSelector,goal-> goal instanceof ZombieAttackGoal, ()->new ZombieSmartBreakAttackGoal(zombie,data),2);
+        zombie.goalSelector.addGoal(3,new EnhancedZombieAttackGoal(zombie));
     }
 
     @Override
@@ -59,17 +55,12 @@ public class BuilderZombieType extends ZombieType {
         return true;
     }
 
-    @Override
-    public boolean canPlaceBlock() {
-        return true;
-    }
-
     @SuppressWarnings("all")
     @Override
     public void onZombieHurt(LivingHurtEvent event, Zombie zombie, IZombieData data) {
         Entity entity = event.getSource().getEntity();
         if (entity instanceof Player player) {
-            ZombieMeleeAndPathBuildGoal goal = (ZombieMeleeAndPathBuildGoal) ZGRZombieControlAPI.getGoal(zombie, (goa1l) -> goa1l instanceof ZombieMeleeAndPathBuildGoal);
+            ZombieSmartBreakAttackGoal goal = (ZombieSmartBreakAttackGoal) ZGRZombieControlAPI.getGoal(zombie, (goa1l) -> goa1l instanceof ZombieSmartBreakAttackGoal);
             if (goal != null) {
                 goal.onZombieHurt();
             }

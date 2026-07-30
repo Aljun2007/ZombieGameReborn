@@ -3,6 +3,7 @@ package com.aljun.zombiegamereborn.common.entity.goal.behavior;
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
+import com.aljun.zombiegamereborn.common.optimizer.ZombieGoalOptimizer;
 import com.aljun.zombiegamereborn.utils.MathUtils;
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import net.minecraft.core.BlockPos;
@@ -48,7 +49,7 @@ public class ZombieRemoveLightSourceGoal extends Goal {
     public ZombieRemoveLightSourceGoal(Zombie zombie, IZombieData data) {
         this.zombie = zombie;
         this.data = data;
-        this.setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
+        //this.setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
     }
 
     // ==================== canUse / canContinueToUse ====================
@@ -116,7 +117,18 @@ public class ZombieRemoveLightSourceGoal extends Goal {
 
     @Override
     public void tick() {
-        if (this.targetPos == null) return;
+        if (this.targetPos == null) {
+            if (this.zombie.getTarget() != null) {
+                ZombieBreakBlockGoal breakGoal = this.data.getZombieBreakBlockGoal();
+                if (breakGoal != null && breakGoal.isDone()) {
+                    BlockPos found = this.findTargetBlock(3);
+                    if (found != null) {
+                        breakGoal.tryToBreak(found);
+                    }
+                }
+            }
+            return;
+        }
 
         ZombieBreakBlockGoal breakGoal = this.data.getZombieBreakBlockGoal();
         if (breakGoal == null) {
@@ -153,18 +165,28 @@ public class ZombieRemoveLightSourceGoal extends Goal {
     // ==================== 方块查找 ====================
 
     /**
-     * 全量扫描周围 3 格内所有方块，返回第一个符合条件的光源方块
+     * 全量扫描周围 5 格内所有方块，返回第一个符合条件的光源方块
      */
     private BlockPos findTargetBlock() {
+        return findTargetBlock(SCAN_RADIUS);
+    }
+
+    /**
+     * 全量扫描周围指定半径内所有方块，返回第一个符合条件的光源方块
+     */
+    private BlockPos findTargetBlock(int radius) {
+        int size = radius * 2 + 1;
+        int total = size * size * SCAN_Y_RANGE;
+
         BlockPos feetPos = this.zombie.blockPosition();
-        int startOffset = this.zombie.getRandom().nextInt(SCAN_TOTAL);
+        int startOffset = this.zombie.getRandom().nextInt(total);
 
-        for (int j = 0; j < SCAN_TOTAL; j++) {
-            int index = (startOffset + j) % SCAN_TOTAL;
+        for (int j = 0; j < total; j++) {
+            int index = (startOffset + j) % total;
 
-            int dx = (index % SCAN_SIZE) - SCAN_RADIUS;
-            int dz = ((index / SCAN_SIZE) % SCAN_SIZE) - SCAN_RADIUS;
-            int dy = (index / (SCAN_SIZE * SCAN_SIZE)) + SCAN_Y_START;
+            int dx = (index % size) - radius;
+            int dz = ((index / size) % size) - radius;
+            int dy = (index / (size * size)) + SCAN_Y_START;
 
             BlockPos checkPos = feetPos.offset(dx, dy, dz);
 

@@ -3,6 +3,7 @@ package com.aljun.zombiegamereborn.common.client.gui.config.stage;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.AbstractBranchConfigScreen;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.SimpleSettingsPanel;
 import com.aljun.zombiegamereborn.common.config.ZombieSpawnChooser;
+import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import com.aljun.zombiegamereborn.register.ZGRRegistries;
 import com.google.gson.*;
 import net.minecraft.client.gui.screens.Screen;
@@ -43,20 +44,20 @@ public class WrappedZombieTypeScreen extends AbstractBranchConfigScreen {
 
         List<ResourceLocation> types = ZGRRegistries.ZOMBIE_TYPE.get().getKeys().stream().toList();
 
-        panel.addListChooseScreen("gui.zombiegamereborn.wrappedzombietype.zombie_type", "zombie_type", this, types, id -> I18n.get("zombie_type." + id.getNamespace() + "." + id.getPath()), () -> this.localJson.has("zombie_type") ? this.localJson.get("zombie_type").getAsString() : "");
+        panel.addListChooseScreen("gui.zombiegamereborn.wrappedzombietype.zombie_type", "zombie_type", this, types, id -> {
+            if (id != null) {
+                String key = "zombie_type." + ((ResourceLocation) id).getNamespace() + "." + id.getPath();
+                String translated = I18n.get(key);
+                return translated.equals(key) ? id.toString() : translated;
+            }
+            return "";
+        }, () -> {
+            String raw = this.localJson.has("zombie_type") ? this.localJson.get("zombie_type").getAsString() : "";
+            return raw.isEmpty() ? null : ResourceLocation.parse(raw);
+        });
 
         panel.addLabel("");
 
-        panel.setEditBoxSuggestionProvider("zombie_type", input -> {
-            if (ZGRRegistries.ZOMBIE_TYPE == null || ZGRRegistries.ZOMBIE_TYPE.get() == null) {
-                return List.of();
-            }
-            return ZGRRegistries.ZOMBIE_TYPE.get().getKeys().stream()
-                    .map(ResourceLocation::toString)
-                    .filter(id -> id.contains(input))
-                    .sorted()
-                    .toList();
-        });
         panel.addDoubleEditBox("gui.zombiegamereborn.wrappedzombietype.weight", "chance", 1.0, 0.0, Double.MAX_VALUE);
         panel.addFakeEnumCycleButton(
                 "gui.zombiegamereborn.wrappedzombietype.spawn_type",

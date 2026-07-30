@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn;
 
 import com.aljun.zombiegamereborn.common.client.config.ClientConfigManager;
+import com.aljun.zombiegamereborn.common.client.gui.config.client.ClientConfigScreen;
 import com.aljun.zombiegamereborn.common.config.ZGRConfigFileManager;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.aljun.zombiegamereborn.network.ZGRNetwork;
@@ -13,6 +14,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.fml.ModLoadingContext;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -33,6 +37,21 @@ public class ZombieGameReborn {
 
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
+
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            registerClientConfigScreen();
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("removal")
+    private void registerClientConfigScreen() {
+        ModLoadingContext.get().registerExtensionPoint(
+                ConfigScreenHandler.ConfigScreenFactory.class,
+                () -> new ConfigScreenHandler.ConfigScreenFactory(
+                        (mc, screen) -> new ClientConfigScreen("客户端配置", null)
+                )
+        );
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

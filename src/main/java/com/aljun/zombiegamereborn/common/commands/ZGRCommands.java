@@ -1,7 +1,6 @@
 package com.aljun.zombiegamereborn.common.commands;
 
 import com.aljun.zombiegamereborn.ZombieGameReborn;
-import com.aljun.zombiegamereborn.common.commands.debug.ZGRDebugCommand;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;

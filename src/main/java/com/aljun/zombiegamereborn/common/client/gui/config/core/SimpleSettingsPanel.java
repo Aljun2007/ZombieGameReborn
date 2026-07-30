@@ -182,8 +182,8 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
         nextY += rowHeight;
     }
 
-    public <T> void addListChooseScreen(String labelText, String key, AbstractConfigScreen lastScreen, List<T> allValues, ListChooseScreen.ItemRenderer<T> display,Supplier<String> getCurrentValue) {
-        this.addTextMonitor(labelText, getCurrentValue);
+    public <T> void addListChooseScreen(String labelText, String key, AbstractConfigScreen lastScreen, List<T> allValues, ListChooseScreen.ItemRenderer<T> display,Supplier<T> getCurrentValue) {
+        this.addTextMonitor(labelText,()->display.render(getCurrentValue.get()) );
         this.addCallbackabeScreen("", lastScreen, key,
                 (parent, saveCallback) -> new ListChooseScreen<>(
                         labelText,
@@ -276,8 +276,13 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
         );
 
         editBox.setResponder((newValue) -> {
-            if (onValueChanged != null && editBox.hasValidInput()) {
-                onValueChanged.accept(key, new JsonPrimitive(editBox.getLastValidIntValue()));
+            if (onValueChanged != null) {
+                try {
+                    int parsed = Integer.parseInt(newValue.trim());
+                    if (parsed >= minValue && parsed <= maxValue) {
+                        onValueChanged.accept(key, new JsonPrimitive(parsed));
+                    }
+                } catch (NumberFormatException ignored) {}
             }
         });
 
@@ -381,8 +386,13 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
         );
 
         editBox.setResponder((newValue) -> {
-            if (onValueChanged != null && editBox.hasValidInput()) {
-                onValueChanged.accept(key, new JsonPrimitive(editBox.getLastValidDoubleValue()));
+            if (onValueChanged != null) {
+                try {
+                    double parsed = Double.parseDouble(newValue.trim());
+                    if (parsed >= minValue && parsed <= maxValue) {
+                        onValueChanged.accept(key, new JsonPrimitive(parsed));
+                    }
+                } catch (NumberFormatException ignored) {}
             }
         });
 
@@ -634,18 +644,6 @@ public class SimpleSettingsPanel extends AbstractContainerEventHandler implement
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    // ==================== 工具方法 ====================
-
-    /**
-     * 为指定 key 的 EditBox 设置下拉补全提供者
-     */
-    public void setEditBoxSuggestionProvider(String key, ValidatedEditBox.SuggestionProvider provider) {
-        ValidatedEditBox editBox = editBoxes.get(key);
-        if (editBox != null) {
-            editBox.setSuggestionProvider(provider);
-        }
     }
 
     // ==================== 内部类 ====================

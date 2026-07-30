@@ -27,42 +27,44 @@ public abstract class HumanoidModelMixin<T extends LivingEntity> {
         if (entity instanceof Zombie zombie) {
 
             IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-            ZombieType type = ZGRZombieAttributesAPI.getType(data);
+            if(data != null) {
+                ZombieType type = ZGRZombieAttributesAPI.getType(data);
 
-            if (type != null) {
+                if (type != null) {
 
-                HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
-                ItemStack mainHand = zombie.getItemInHand(InteractionHand.MAIN_HAND);
+                    HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
+                    ItemStack mainHand = zombie.getItemInHand(InteractionHand.MAIN_HAND);
 
-                if ((type == ZGRZombieTypes.SHIELD_USER || data.canZombieContinueUseWeaponsInHand()) && zombie.isUsingItem() && zombie.getUseItem().getItem() instanceof ShieldItem) {
+                    if ((type == ZGRZombieTypes.SHIELD_USER || data.canZombieContinueUseWeaponsInHand()) && zombie.isUsingItem() && zombie.getUseItem().getItem() instanceof ShieldItem) {
 
-                    if (zombie.getUsedItemHand() == InteractionHand.OFF_HAND) {
-                        model.leftArmPose = HumanoidModel.ArmPose.BLOCK;
-                    } else {
-                        model.rightArmPose = HumanoidModel.ArmPose.BLOCK;
+                        if (zombie.getUsedItemHand() == InteractionHand.OFF_HAND) {
+                            model.leftArmPose = HumanoidModel.ArmPose.BLOCK;
+                        } else {
+                            model.rightArmPose = HumanoidModel.ArmPose.BLOCK;
+                        }
+
+                    } else if ((type == ZGRZombieTypes.BOW_ATTACKER || data.canZombieContinueUseWeaponsInHand()) && mainHand.is(Items.BOW) && zombie.isAggressive()) {
+
+                        model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
+                        model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
+
+                        if (zombie.getMainArm() == HumanoidArm.RIGHT) {
+                            model.rightArmPose = HumanoidModel.ArmPose.BOW_AND_ARROW;
+                        } else {
+                            model.leftArmPose = HumanoidModel.ArmPose.BOW_AND_ARROW;
+                        }
+
+                    } else if ((type == ZGRZombieTypes.CROSSBOW_ATTACKER || data.canZombieContinueUseWeaponsInHand()) && mainHand.is(Items.CROSSBOW) && zombie.isAggressive()) {
+
+                        model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
+                        model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
+
+                        HumanoidModel.ArmPose armPose = zombie.isUsingItem() ?
+                                HumanoidModel.ArmPose.CROSSBOW_CHARGE : HumanoidModel.ArmPose.CROSSBOW_HOLD;
+
+                        model.rightArmPose = armPose;
+                        model.leftArmPose = armPose;
                     }
-
-                } else if ((type == ZGRZombieTypes.BOW_ATTACKER || data.canZombieContinueUseWeaponsInHand()) && mainHand.is(Items.BOW) && zombie.isAggressive()) {
-
-                    model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
-                    model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
-
-                    if (zombie.getMainArm() == HumanoidArm.RIGHT) {
-                        model.rightArmPose = HumanoidModel.ArmPose.BOW_AND_ARROW;
-                    } else {
-                        model.leftArmPose = HumanoidModel.ArmPose.BOW_AND_ARROW;
-                    }
-
-                } else if ((type == ZGRZombieTypes.CROSSBOW_ATTACKER || data.canZombieContinueUseWeaponsInHand()) && mainHand.is(Items.CROSSBOW) && zombie.isAggressive()) {
-
-                    model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
-                    model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
-
-                    HumanoidModel.ArmPose armPose = zombie.isUsingItem() ?
-                            HumanoidModel.ArmPose.CROSSBOW_CHARGE : HumanoidModel.ArmPose.CROSSBOW_HOLD;
-
-                    model.rightArmPose = armPose;
-                    model.leftArmPose = armPose;
                 }
             }
 

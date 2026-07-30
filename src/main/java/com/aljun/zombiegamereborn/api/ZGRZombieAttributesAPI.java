@@ -357,7 +357,7 @@ public class ZGRZombieAttributesAPI {
     }
 
     public static boolean isSunSensitive(Zombie zombie) {
-        return ((IZombieAccessor) zombie).zgr_invokeIsSunSensitive();
+        return ((IZombieAccessor) zombie).get_isSunSensitive();
     }
 
 

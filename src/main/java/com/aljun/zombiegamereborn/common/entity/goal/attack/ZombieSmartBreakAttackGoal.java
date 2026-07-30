@@ -3,10 +3,10 @@ package com.aljun.zombiegamereborn.common.entity.goal.attack;
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
-import com.aljun.zombiegamereborn.utils.ZombieUtils;
+import com.aljun.zombiegamereborn.common.game.ZGRGame;
+import com.aljun.zombiegamereborn.common.optimizer.ZombieGoalOptimizer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -18,7 +18,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
-import net.minecraftforge.common.Tags;
 
 import java.util.*;
 
@@ -31,12 +30,15 @@ public class ZombieSmartBreakAttackGoal extends Goal {
     protected final double speedModifier;
     protected final boolean followingTargetEvenIfNotSeen;
     protected final int attackInterval = 20;
+    private final IZombieData data;
+    private final ServerLevel level;
     protected Path path;
     protected double pathedTargetX;
     protected double pathedTargetY;
     protected double pathedTargetZ;
     protected int ticksUntilNextPathRecalculation;
     protected int ticksUntilNextAttack;
+    protected int ticksUntilNextPathFallbackCheck = 0;
     protected long lastCanUseCheck;
     protected int failedPathFindingPenalty = 0;
     protected boolean canPenalize = false;
@@ -48,12 +50,10 @@ public class ZombieSmartBreakAttackGoal extends Goal {
     protected boolean isTried = false;
     protected State state = State.MELEE;
     private long lastGiveUpBreakTime = 0L;
-    private final IZombieData data;
     private int breakIndex = 0;
     private long lastHurtAndCanReachPlayerTime = 0L;
-    private final ServerLevel level;
 
-    public ZombieSmartBreakAttackGoal(Zombie zombie,IZombieData data) {
+    public ZombieSmartBreakAttackGoal(Zombie zombie, IZombieData data) {
         this.zombie = zombie;
         this.level = (ServerLevel) zombie.level();
         this.data = data;
@@ -62,9 +62,18 @@ public class ZombieSmartBreakAttackGoal extends Goal {
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
 
+    private int getRoughPathfindingThreshold() {
+        return ZGRGame.getGameProperty().roughPathfindingThreshold;
+    }
+
+    private int getRoughPathfindingInterval() {
+        return ZGRGame.getGameProperty().roughPathfindingInterval;
+    }
+
     @Override
     public boolean canUse() {
         this.tryGetBreakGoal();
+        if (!this.data.isEmpowered()) return false;
         long gameTime = this.level.getGameTime();
         if (gameTime - this.lastCanUseCheck < COOLDOWN_BETWEEN_CAN_USE_CHECKS) {
             return false;
@@ -77,28 +86,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
             return false;
         }
 
-        if (!target.isAlive()) {
-            return false;
-        }
-
-        if (canPenalize) {
-            if (--this.ticksUntilNextPathRecalculation <= 0) {
-                this.path = this.zombie.getNavigation().createPath(target, 0);
-                this.ticksUntilNextPathRecalculation = 4 + this.zombie.getRandom().nextInt(7);
-                return this.path != null;
-            } else {
-                return true;
-            }
-        }
-
-        this.path = this.zombie.getNavigation().createPath(target, 0);
-        if (this.path != null) {
-            return true;
-        }
-
-        return this.getAttackReachSqr(target) >= this.zombie.distanceToSqr(
-                target.getX(), target.getY(), target.getZ()
-        );
+        return target.isAlive();
     }
 
     private void tryGetBreakGoal() {
@@ -127,6 +115,10 @@ public class ZombieSmartBreakAttackGoal extends Goal {
         }
 
         if (!this.followingTargetEvenIfNotSeen) {
+            // 目标在攻击范围内时保持运行，让 tick() 执行攻击
+            if (this.zombie.distanceToSqr(target) <= this.getAttackReachSqr(target)) {
+                return true;
+            }
             return !this.zombie.getNavigation().isDone();
         }
 
@@ -143,16 +135,23 @@ public class ZombieSmartBreakAttackGoal extends Goal {
 
     @Override
     public void start() {
-        this.zombie.getNavigation().moveTo(this.path, this.speedModifier);
+        LivingEntity target = this.zombie.getTarget();
+        if (target != null) {
+            this.path = this.zombie.getNavigation().createPath(target, 0);
+            if (this.path != null) {
+                this.zombie.getNavigation().moveTo(this.path, this.speedModifier);
+            }
+        }
         this.zombie.setAggressive(true);
         this.ticksUntilNextPathRecalculation = 0;
         this.ticksUntilNextAttack = 0;
+        this.ticksUntilNextPathFallbackCheck = 0;
     }
 
     @Override
     public void stop() {
         LivingEntity target = this.zombie.getTarget();
-        if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
+        if (target != null && !EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
             this.zombie.setTarget(null);
         }
 
@@ -189,8 +188,21 @@ public class ZombieSmartBreakAttackGoal extends Goal {
 
         this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
 
-        if (distanceSqr <= 25.0D) {
-            this.ticksUntilNextPathRecalculation -= 2;
+        // 当僵尸进入更近的距离范围时，缩短剩余延迟，消除远距离低频寻路的滞后效应
+        if (distanceSqr <= 16.0D) {
+            if (this.ticksUntilNextPathRecalculation > 10) this.ticksUntilNextPathRecalculation = 0;
+        } else if (distanceSqr <= (double)(getRoughPathfindingThreshold() * getRoughPathfindingThreshold())) {
+            if (this.ticksUntilNextPathRecalculation > 60) this.ticksUntilNextPathRecalculation = 0;
+        }
+
+        // 路径兜底：每10tick检查导航是否完成，大幅度缩短僵尸原地发呆时间
+        // 当导航完成时直接强制moveTo，不依赖主寻路块（绕过 hasLineOfSight 限制）
+        if (--this.ticksUntilNextPathFallbackCheck <= 0) {
+            this.ticksUntilNextPathFallbackCheck = 25;
+            if (this.zombie.getNavigation().isDone() && distanceSqr > this.getAttackReachSqr(target)) {
+                this.ticksUntilNextPathRecalculation = 0;
+                this.zombie.getNavigation().moveTo(target, this.speedModifier);
+            }
         }
 
         if (this.state == State.MELEE) {
@@ -210,7 +222,14 @@ public class ZombieSmartBreakAttackGoal extends Goal {
             this.pathedTargetX = target.getX();
             this.pathedTargetY = target.getY();
             this.pathedTargetZ = target.getZ();
-            this.ticksUntilNextPathRecalculation = 4 + this.zombie.getRandom().nextInt(7);
+            // 梯度寻路频率：4格内高频(10tick)、粗略范围内中频(60tick)、超粗略范围低频(配置值)
+            if (distanceSqr <= 16.0D) {
+                this.ticksUntilNextPathRecalculation = 10;
+            } else if (distanceSqr <= (double)(getRoughPathfindingThreshold() * getRoughPathfindingThreshold())) {
+                this.ticksUntilNextPathRecalculation = 60;
+            } else {
+                this.ticksUntilNextPathRecalculation = getRoughPathfindingInterval();
+            }
 
             if (this.canPenalize) {
                 this.ticksUntilNextPathRecalculation += failedPathFindingPenalty;
@@ -228,11 +247,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
                 }
             }
 
-            if (distanceSqr > 1024.0D) {
-                this.ticksUntilNextPathRecalculation += 10;
-            } else if (distanceSqr > 256.0D) {
-                this.ticksUntilNextPathRecalculation += 5;
-            }
+
 
             if (this.breakGoal != null && this.breakGoal.isDone()) {
                 Path path = this.zombie.getNavigation().createPath(target, 0);
@@ -555,6 +570,7 @@ public class ZombieSmartBreakAttackGoal extends Goal {
 
         if (this.level.getGameTime() - this.lastGiveUpBreakTime > 100) {
             Path path = this.zombie.getNavigation().createPath(target, 0);
+
             if (path != null) {
                 Node finalNode = path.getEndNode();
                 if (finalNode != null) {
@@ -570,47 +586,55 @@ public class ZombieSmartBreakAttackGoal extends Goal {
             }
         }
 
-        while (true) {
+        // 单步检查：每tick最多处理当前索引的一个方块，
+        // 避免 while(true) 在已破坏方块上循环扫表造成大量 getBlockState 调用
+        singleStepBreakCheck: while (true) {
             if (this.breakIndex >= this.breakQueue.size()) {
                 this.setMelee();
-                break;
+                return;
             }
 
             BlockPos pos = this.breakQueue.get(this.breakIndex);
 
             if (this.isPosIllegal(pos)) {
                 this.setMelee();
-                break;
+                return;
             }
 
-            // If breakGoal is actively breaking, skip block state check
+            // breakGoal 正在破坏中，跳过方块检查
             if (this.breakGoal != null && !this.breakGoal.isDone()) {
-                break;
+                return;
             }
 
             if (!this.isBlockingBlock(pos)) {
                 this.breakIndex++;
-                continue;
+                // 返回，等下一 tick 再检查下一个方块，避免批量扫表
+                return;
             }
 
             if (this.breakGoal != null) {
                 if (this.breakGoal.isDone()) {
-                    if (this.breakGoal.tryToBreak(pos)) {
-                        this.currentBreakTarget = pos;
-                        this.lastBreakTime = this.level.getGameTime();
-
+                    // 破坏方块前如果太远（3格以上）且 Navigation isDone，触发新寻路
+                    if (this.zombie.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > 9.0D
+                            && this.zombie.getNavigation().isDone()) {
                         Path path = this.zombie.getNavigation().createPath(pos, 0);
                         if (path != null) {
                             this.zombie.getNavigation().moveTo(path, this.speedModifier);
                         }
-                        break;
+                        return;
+                    }
+
+                    if (this.breakGoal.tryToBreak(pos)) {
+                        this.currentBreakTarget = pos;
+                        this.lastBreakTime = this.level.getGameTime();
+                        return;
                     } else {
                         this.setMelee();
                     }
                 }
             }
 
-            break;
+            return;
         }
     }
 
@@ -671,4 +695,6 @@ public class ZombieSmartBreakAttackGoal extends Goal {
         MELEE,
         BREAK
     }
+
+
 }

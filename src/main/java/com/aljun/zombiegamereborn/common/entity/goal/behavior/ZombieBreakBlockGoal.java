@@ -4,6 +4,7 @@ import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
+import com.aljun.zombiegamereborn.common.optimizer.ZombieBlockOperationQueue;
 import com.aljun.zombiegamereborn.utils.MathUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -16,14 +17,12 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeMod;
 
-import java.util.EnumSet;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -87,7 +86,7 @@ public class ZombieBreakBlockGoal extends Goal {
             }
 
             this.state = this.level.getBlockState(this.pos);
-            this.breakProgress += this.getBreakProgress(this.state, this.pos,this.zombie.getMainHandItem()) *this.miningSpeed;
+            this.breakProgress += this.getBreakProgress(this.state, this.pos,this.zombie.getMainHandItem()) *this.miningSpeed*2;
             if (this.breakProgress >= 1f) {
                 this.succeedBreakBlock(this.level);
             } else {
@@ -202,12 +201,8 @@ public class ZombieBreakBlockGoal extends Goal {
 
         ItemStack stack = zombie.getItemBySlot(EquipmentSlot.MAINHAND);
 
-        // 只有工具正确时才掉落资源
-        if (!state.requiresCorrectToolForDrops() || stack.isCorrectToolForDrops(state)) {
-            Block.dropResources(state, level, pos, level.getBlockEntity(pos), zombie, stack);
-        }
-
-        level.destroyBlock(pos, false, zombie);
+        ZombieBlockOperationQueue.enqueueBreak(level, pos, state, zombie, stack);
+        this.isDone = true;
         this.stop();
     }
 
@@ -224,6 +219,11 @@ public class ZombieBreakBlockGoal extends Goal {
 
     public boolean tryToBreak(BlockPos pos) {
         if (pos.equals(this.pos) && !this.isDone) {
+            return false;
+        }
+
+        // 检查该位置是否已有延迟操作待处理，防止重复入队
+        if (ZombieBlockOperationQueue.isPositionPending(this.level, pos)) {
             return false;
         }
 
@@ -265,8 +265,7 @@ public class ZombieBreakBlockGoal extends Goal {
      * 直接破坏瞬间破坏方块（硬度 = 0，如火把），不经过挖掘进度系统
      */
     private void instantBreak(BlockPos pos, BlockState state) {
-        Block.dropResources(state, this.level, pos, null, this.zombie, this.zombie.getMainHandItem());
-        this.level.destroyBlock(pos, false, this.zombie);
+        ZombieBlockOperationQueue.enqueueInstantBreak(this.level, pos, state, this.zombie, this.zombie.getMainHandItem());
         if (!this.zombie.swinging) {
             this.zombie.swing(InteractionHand.MAIN_HAND);
         }

@@ -172,9 +172,11 @@ dependencies {
     implementation fg.deobf("blank:tacz:1.1.7")
     implementation fg.deobf("blank:geckolib:4.8.4")
     compileOnly fg.deobf("blank:pointblank:1.11.1")
-    //runtimeOnly fg.deobf("blank:harimt:2.0")
+    runtimeOnly fg.deobf("blank:spark:1.10.53")
+    runtimeOnly fg.deobf("blank:acceleratedrecoiling:20.1.12")
     implementation fg.deobf("blank:minetraps:2.3.0")
 
+    //runtimeOnly fg.deobf("blank:harimt:2.0")
 
 //    implementation fg.deobf("curse.maven:architectury-api-419699:5137938")
 //    implementation fg.deobf("curse.maven:ui-lib-933200:5207688")

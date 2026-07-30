@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ZombieMixin implements IZombieAccessor {
 
     @Override
-    public boolean zgr_invokeIsSunSensitive() {
+    public boolean get_isSunSensitive() {
         return isSunSensitive();
     }
 

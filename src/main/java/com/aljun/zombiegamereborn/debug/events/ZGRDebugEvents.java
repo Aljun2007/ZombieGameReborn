@@ -3,6 +3,7 @@ package com.aljun.zombiegamereborn.debug.events;
 import com.aljun.zombiegamereborn.ZombieGameReborn;
 import com.aljun.zombiegamereborn.debug.ZGRDebug;
 import com.mojang.logging.LogUtils;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -28,18 +29,21 @@ public class ZGRDebugEvents {
         if (!event.getEntity().level().isClientSide()) {
             ServerPlayer player = (ServerPlayer) event.getEntity();
             ItemStack stack = player.getMainHandItem();
-            if (stack.getOrCreateTag().getString(ZombieGameReborn.MOD_ID+".debug.itemtype").equals("snatcher")) {
-                if (event.getTarget() instanceof LivingEntity livingEntity) {
-                    player.addItem(livingEntity.getItemBySlot(EquipmentSlot.MAINHAND).copy());
-                    player.addItem(livingEntity.getItemBySlot(EquipmentSlot.OFFHAND).copy());
-                    player.addItem(livingEntity.getItemBySlot(EquipmentSlot.HEAD).copy());
-                    player.addItem(livingEntity.getItemBySlot(EquipmentSlot.CHEST).copy());
-                    player.addItem(livingEntity.getItemBySlot(EquipmentSlot.LEGS).copy());
-                    player.addItem(livingEntity.getItemBySlot(EquipmentSlot.FEET).copy());
+            CompoundTag tag = stack.getTag();
+            if (tag != null) {
+                String debugType = tag.getString(ZombieGameReborn.MOD_ID + ".debug.itemtype");
+                if ("snatcher".equals(debugType)) {
+                    if (event.getTarget() instanceof LivingEntity livingEntity) {
+                        player.addItem(livingEntity.getItemBySlot(EquipmentSlot.MAINHAND).copy());
+                        player.addItem(livingEntity.getItemBySlot(EquipmentSlot.OFFHAND).copy());
+                        player.addItem(livingEntity.getItemBySlot(EquipmentSlot.HEAD).copy());
+                        player.addItem(livingEntity.getItemBySlot(EquipmentSlot.CHEST).copy());
+                        player.addItem(livingEntity.getItemBySlot(EquipmentSlot.LEGS).copy());
+                        player.addItem(livingEntity.getItemBySlot(EquipmentSlot.FEET).copy());
+                    }
+                } else if ("killer".equals(debugType)) {
+                    event.getTarget().kill();
                 }
-            }
-            if (stack.getOrCreateTag().getString(ZombieGameReborn.MOD_ID+".debug.itemtype").equals("killer")) {
-                event.getTarget().kill();
             }
         }
     }
@@ -50,30 +54,33 @@ public class ZGRDebugEvents {
         if (!event.getEntity().level().isClientSide()) {
             if (event.getEntity() instanceof ServerPlayer player) {
                 ItemStack stack = event.getItem().getItem();
-                if (stack.getOrCreateTag().getString(ZombieGameReborn.MOD_ID+".debug.itemtype").equals("heal")) {
-                    player.removeAllEffects();
-                    player.clearFire();
-                    player.addEffect(new MobEffectInstance(MobEffects.SATURATION, 10, 8));
-                    player.addEffect(new MobEffectInstance(MobEffects.HEAL, 10, 8));
-                }
-                if (stack.getOrCreateTag().getString(ZombieGameReborn.MOD_ID+".debug.itemtype").equals("day")) {
-                    try {
-                        for (ServerLevel serverlevel : Objects.requireNonNull(event.getEntity().getServer()).getAllLevels()) {
-                            serverlevel.setDayTime(1000L);
-                        }
-                    } catch (NullPointerException ignore) {
+                CompoundTag tag = stack.getTag();
+                if (tag == null) return;
+                String debugType = tag.getString(ZombieGameReborn.MOD_ID + ".debug.itemtype");
+                switch (debugType) {
+                    case "heal" -> {
+                        player.removeAllEffects();
+                        player.clearFire();
+                        player.addEffect(new MobEffectInstance(MobEffects.SATURATION, 10, 8));
+                        player.addEffect(new MobEffectInstance(MobEffects.HEAL, 10, 8));
                     }
-                }
-                if (stack.getOrCreateTag().getString(ZombieGameReborn.MOD_ID+".debug.itemtype").equals("night")) {
-                    try {
-                        for (ServerLevel serverlevel : Objects.requireNonNull(event.getEntity().getServer()).getAllLevels()) {
-                            serverlevel.setDayTime(13000L);
+                    case "day" -> {
+                        try {
+                            for (ServerLevel serverlevel : Objects.requireNonNull(event.getEntity().getServer()).getAllLevels()) {
+                                serverlevel.setDayTime(1000L);
+                            }
+                        } catch (NullPointerException ignore) {
                         }
-                    } catch (NullPointerException ignore) {
                     }
-                }
-                if (stack.getOrCreateTag().getString(ZombieGameReborn.MOD_ID+".debug.itemtype").equals("test")) {
-                    ZGRDebug.testItem();
+                    case "night" -> {
+                        try {
+                            for (ServerLevel serverlevel : Objects.requireNonNull(event.getEntity().getServer()).getAllLevels()) {
+                                serverlevel.setDayTime(13000L);
+                            }
+                        } catch (NullPointerException ignore) {
+                        }
+                    }
+                    case "test" -> ZGRDebug.testItem();
                 }
             }
         }

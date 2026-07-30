@@ -4,6 +4,8 @@ import com.aljun.zombiegamereborn.common.client.config.ClientConfig;
 import com.aljun.zombiegamereborn.common.client.config.ClientConfigManager;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.AbstractConfigScreen;
 import com.aljun.zombiegamereborn.common.client.gui.config.core.SimpleSettingsPanel;
+import com.aljun.zombiegamereborn.common.client.gui.config.stage.LocalDefaultGamePropertyScreen;
+import com.aljun.zombiegamereborn.common.config.GameProperty;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -41,6 +43,16 @@ public class ClientConfigScreen extends AbstractConfigScreen {
         panel.addCheckBox("gui.zombiegamereborn.clientconfig.time_broadcast", "time_broadcast_enabled", true);
         panel.addCheckBox("gui.zombiegamereborn.clientconfig.time_alarm", "time_alarm_enabled", true);
         panel.addCheckBox("gui.zombiegamereborn.clientconfig.login_message", "login_message_enabled", true);
+        panel.addSimpleButton(
+                "gui.zombiegamereborn.clientconfig.edit_local_default",
+                () -> {
+                    GameProperty defaultProp = GameProperty.getGlobalDefault();
+                    JsonObject initData = defaultProp.toJsonObject();
+                    Minecraft.getInstance().setScreen(new LocalDefaultGamePropertyScreen(
+                            "编辑本地默认配置", initData));
+                },
+                () -> "§e✎ 编辑"
+        );
 
         panel.setOnValueChanged((key, value) -> {
             if (!isInitializing) {

@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 
@@ -117,6 +118,8 @@ public class ZombieSenseTargetGoal extends TargetGoal {
                 if (!ZombieUtils.zombifiedPiglinAttackableEntity(entity)) {
                     return;
                 }
+            } else {
+                return;
             }
         } else if (!ZombieUtils.zombieAttackableEntity(entity)) {
             return;
@@ -131,7 +134,18 @@ public class ZombieSenseTargetGoal extends TargetGoal {
 
         LivingEntity current = this.activePoint != null ? this.activePoint.creator : null;
 
+        // 玩家择优选择：当前目标 A 为玩家，感知识别到玩家 B 时，
+        // 若 dist(B) < dist(A) / 2 + 5 则切换至 B，不受威胁等级限制
         if (current != null && current != entity
+                && current instanceof Player && entity instanceof Player) {
+            double distToA = this.mob.distanceToSqr(current);
+            double distToB = this.mob.distanceToSqr(entity);
+            double threshold = Math.sqrt(distToA) / 2.0 + 5.0;
+            if (Math.sqrt(distToB) >= threshold) {
+                return;  // B 不够近，不切换
+            }
+            // B 足够近，跳过威胁等级检查，直接切换
+        } else if (current != null && current != entity
                 && ZombieUtils.threatLevel(entity) >= ZombieUtils.threatLevel(current)) {
             return;
         }

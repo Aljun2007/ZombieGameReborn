@@ -43,7 +43,7 @@ public class GamePropertyPresentUtils {
                     "enable_piglin_collision_anger": false,
                     "piglin_angry_mode": false,
                     "break_light_sources": false,
-                    "can_swim_probability": 0.2,
+                    "can_swim_probability": 0,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 0.0,
@@ -65,13 +65,16 @@ public class GamePropertyPresentUtils {
                     "equipment_enchantment_factor": 1.0,
                     "musket_mod_gun_damage_modify": 0.5,
                     "block_stab_immune_probability": 0.0,
-                                                            "ladder_climb_probability": 0.0
+                    "ladder_climb_probability": 0.0
                   },
                   "zombie_spawn_chooser": {
                     "zombie_types": [
                       { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
-                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:drowned_trident" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 3.0, "zombie_type": "zombiegamereborn:drowned_trident" }
                     ]
                   },
                   "replace_chance": 1.0,
@@ -102,8 +105,9 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": false,
                     "enable_piglin_collision_anger": false,
                     "piglin_angry_mode": false,
+                    "piglin_collision_anger_chance": 0.5,
                     "break_light_sources": false,
-                    "can_swim_probability": 0.22,
+                    "can_swim_probability": 0,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 0.01,
@@ -125,13 +129,16 @@ public class GamePropertyPresentUtils {
                     "equipment_enchantment_factor": 1.05,
                     "musket_mod_gun_damage_modify": 0.5,
                     "block_stab_immune_probability": 0.0,
-                                                            "ladder_climb_probability": 0.3
+                    "ladder_climb_probability": 0.3
                   },
                   "zombie_spawn_chooser": {
                     "zombie_types": [
                       { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
-                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 3.0, "zombie_type": "zombiegamereborn:drowned_trident" }
                     ]
                   },
                   "replace_chance": 1.0,
@@ -162,8 +169,9 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": false,
                     "enable_piglin_collision_anger": true,
                     "piglin_angry_mode": false,
+                    "piglin_collision_anger_chance": 0.5,
                     "break_light_sources": false,
-                    "can_swim_probability": 0.24,
+                    "can_swim_probability": 0.2,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 0.02,
@@ -185,13 +193,16 @@ public class GamePropertyPresentUtils {
                     "equipment_enchantment_factor": 1.1,
                     "musket_mod_gun_damage_modify": 0.5,
                     "block_stab_immune_probability": 0.0,
-                                                            "ladder_climb_probability": 0.7
+                    "ladder_climb_probability": 0.7
                   },
                   "zombie_spawn_chooser": {
                     "zombie_types": [
                       { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
-                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 3.0, "zombie_type": "zombiegamereborn:drowned_trident" }
                     ]
                   },
                   "replace_chance": 1.0,
@@ -222,8 +233,9 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": false,
                     "enable_piglin_collision_anger": true,
                     "piglin_angry_mode": false,
+                    "piglin_collision_anger_chance": 1.0,
                     "break_light_sources": false,
-                    "can_swim_probability": 0.26,
+                    "can_swim_probability": 0.2,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 0.05,
@@ -245,13 +257,16 @@ public class GamePropertyPresentUtils {
                     "equipment_enchantment_factor": 1.15,
                     "musket_mod_gun_damage_modify": 0.5,
                     "block_stab_immune_probability": 0.0,
-                                                            "ladder_climb_probability": 1.0
+                    "ladder_climb_probability": 1.0
                   },
                   "zombie_spawn_chooser": {
                     "zombie_types": [
                       { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
-                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 3.0, "zombie_type": "zombiegamereborn:drowned_trident" }
                     ]
                   },
                   "replace_chance": 1.0,
@@ -282,6 +297,7 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": false,
                     "enable_piglin_collision_anger": true,
                     "piglin_angry_mode": false,
+                    "piglin_collision_anger_chance": 1.0,
                     "break_light_sources": false,
                     "can_swim_probability": 0.3,
                     "zombie_swim_speed_modify": 1.0,
@@ -305,13 +321,16 @@ public class GamePropertyPresentUtils {
                     "equipment_enchantment_factor": 1.2,
                     "musket_mod_gun_damage_modify": 0.5,
                     "block_stab_immune_probability": 0.0,
-                                                            "ladder_climb_probability": 1.0
+                    "ladder_climb_probability": 1.0
                   },
                   "zombie_spawn_chooser": {
                     "zombie_types": [
                       { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
-                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
+                      { "spawn_type": "blood_moon", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 3.0, "zombie_type": "zombiegamereborn:drowned_trident" }
                     ]
                   },
                   "replace_chance": 1.0,
@@ -342,8 +361,9 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": false,
                     "enable_piglin_collision_anger": true,
                     "piglin_angry_mode": false,
+                    "piglin_collision_anger_chance": 1.0,
                     "break_light_sources": true,
-                    "can_swim_probability": 0.35,
+                    "can_swim_probability": 0.3,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 0.2,
@@ -365,13 +385,16 @@ public class GamePropertyPresentUtils {
                     "equipment_enchantment_factor": 1.25,
                     "musket_mod_gun_damage_modify": 0.5,
                     "block_stab_immune_probability": 0.0,
-                                                            "ladder_climb_probability": 1.0
+                    "ladder_climb_probability": 1.0
                   },
                   "zombie_spawn_chooser": {
                     "zombie_types": [
                       { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
-                      { "spawn_type": "blood_moon", "chance": 5, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
+                      { "spawn_type": "blood_moon", "chance": 5, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 3.0, "zombie_type": "zombiegamereborn:drowned_trident" }
                     ]
                   },
                   "replace_chance": 1.0,
@@ -402,8 +425,9 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": false,
                     "enable_piglin_collision_anger": true,
                     "piglin_angry_mode": true,
+                    "piglin_collision_anger_chance": 1.0,
                     "break_light_sources": true,
-                    "can_swim_probability": 0.4,
+                    "can_swim_probability": 0.3,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 0.3,
@@ -430,8 +454,11 @@ public class GamePropertyPresentUtils {
                   "zombie_spawn_chooser": {
                     "zombie_types": [
                       { "spawn_type": "normal", "chance": 1.0, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
-                      { "spawn_type": "blood_moon", "chance": 5, "zombie_type": "zombiegamereborn:enhanced_vanilla" }
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
+                      { "spawn_type": "blood_moon", "chance": 5, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 3.0, "zombie_type": "zombiegamereborn:drowned_trident" }
                     ]
                   },
                   "replace_chance": 1.0,
@@ -462,8 +489,9 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": true,
                     "enable_piglin_collision_anger": true,
                     "piglin_angry_mode": true,
+                    "piglin_collision_anger_chance": 1.0,
                     "break_light_sources": true,
-                    "can_swim_probability": 0.45,
+                    "can_swim_probability": 0.3,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 0.4,
@@ -490,14 +518,17 @@ public class GamePropertyPresentUtils {
                   "zombie_spawn_chooser": {
                     "zombie_types": [
                       { "spawn_type": "normal", "chance": 80, "zombie_type": "zombiegamereborn:enhanced_vanilla" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
                       { "spawn_type": "blood_moon", "chance": 50, "zombie_type": "zombiegamereborn:miner" },
                       { "spawn_type": "blood_moon", "chance": 30, "zombie_type": "zombiegamereborn:builder" },
                       { "spawn_type": "blood_moon", "chance": 3, "zombie_type": "zombiegamereborn:shield_user" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
-                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" }
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 5.0, "zombie_type": "zombiegamereborn:drowned_trident" }
             
                     ]
                   },
@@ -529,8 +560,9 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": true,
                     "enable_piglin_collision_anger": true,
                     "piglin_angry_mode": true,
+                    "piglin_collision_anger_chance": 1.0,
                     "break_light_sources": true,
-                    "can_swim_probability": 0.5,
+                    "can_swim_probability": 0.3,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 0.5,
@@ -561,14 +593,18 @@ public class GamePropertyPresentUtils {
                       { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
                       { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
                       { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
                       { "spawn_type": "blood_moon", "chance": 50, "zombie_type": "zombiegamereborn:miner" },
                       { "spawn_type": "blood_moon", "chance": 30, "zombie_type": "zombiegamereborn:builder" },
                       { "spawn_type": "blood_moon", "chance": 3, "zombie_type": "zombiegamereborn:shield_user" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
-                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" }
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 10.0, "zombie_type": "zombiegamereborn:drowned_miner" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 6.0, "zombie_type": "zombiegamereborn:drowned_builder" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 5.0, "zombie_type": "zombiegamereborn:drowned_trident" }
             
                     ]
                   },
@@ -600,8 +636,9 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": true,
                     "enable_piglin_collision_anger": true,
                     "piglin_angry_mode": true,
+                    "piglin_collision_anger_chance": 1.0,
                     "break_light_sources": true,
-                    "can_swim_probability": 0.6,
+                    "can_swim_probability": 0.3,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 1.0,
@@ -632,14 +669,18 @@ public class GamePropertyPresentUtils {
                       { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
                       { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
                       { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
                       { "spawn_type": "blood_moon", "chance": 50, "zombie_type": "zombiegamereborn:miner" },
                       { "spawn_type": "blood_moon", "chance": 30, "zombie_type": "zombiegamereborn:builder" },
                       { "spawn_type": "blood_moon", "chance": 3, "zombie_type": "zombiegamereborn:shield_user" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
-                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" }
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 10.0, "zombie_type": "zombiegamereborn:drowned_miner" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 6.0, "zombie_type": "zombiegamereborn:drowned_builder" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 5.0, "zombie_type": "zombiegamereborn:drowned_trident" }
             
                     ]
                   },
@@ -670,8 +711,9 @@ public class GamePropertyPresentUtils {
                     "can_zombie_guard_continue_use_weapons": true,
                     "enable_piglin_collision_anger": true,
                     "piglin_angry_mode": true,
+                    "piglin_collision_anger_chance": 1.0,
                     "break_light_sources": true,
-                    "can_swim_probability": 0.6,
+                    "can_swim_probability": 0.3,
                     "zombie_swim_speed_modify": 1.0,
                     "drowned_swim_speed_modify": 1.0,
                     "sun_immunity_probability": 1.0,
@@ -702,14 +744,18 @@ public class GamePropertyPresentUtils {
                       { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
                       { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
                       { "spawn_type": "normal", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
-                      { "spawn_type": "drowned", "chance": 1.0, "zombie_type": "zombiegamereborn:vanilla" },
+                      { "spawn_type": "drowned", "chance": 15.0, "zombie_type": "zombiegamereborn:drowned_enhanced_vanilla" },
+                      { "spawn_type": "drowned", "chance": 2.0, "zombie_type": "zombiegamereborn:drowned_trident" },
                       { "spawn_type": "blood_moon", "chance": 50, "zombie_type": "zombiegamereborn:miner" },
                       { "spawn_type": "blood_moon", "chance": 30, "zombie_type": "zombiegamereborn:builder" },
                       { "spawn_type": "blood_moon", "chance": 3, "zombie_type": "zombiegamereborn:shield_user" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:musket_mod_gunner" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:bow_attacker" },
                       { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:crossbow_attacker" },
-                                            { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" }
+                      { "spawn_type": "blood_moon", "chance": 1, "zombie_type": "zombiegamereborn:tnt_attacker" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 10.0, "zombie_type": "zombiegamereborn:drowned_miner" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 6.0, "zombie_type": "zombiegamereborn:drowned_builder" },
+                      { "spawn_type": "blood_moon_drowned", "chance": 5.0, "zombie_type": "zombiegamereborn:drowned_trident" }
             
                     ]
                   },
@@ -729,7 +775,12 @@ public class GamePropertyPresentUtils {
               "keep_mob_loot_table": true,
               "max_empowered_builder_count": 30,
               "max_empowered_miner_count": 30,
-              "disable_turtle_egg_seeking": false
+              "max_pathfinding_per_tick": 10,
+              "max_zombie_count": 200,
+              "disable_turtle_egg_seeking": false,
+              "simplified_builder_movement": true,
+              "rough_pathfinding_threshold": 10,
+              "rough_pathfinding_interval": 400
             }
             """;
     public static GameProperty initialDefault = null;

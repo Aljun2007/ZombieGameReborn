@@ -4,6 +4,8 @@ import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
 import com.aljun.zombiegamereborn.common.config.MobReplacement;
 import com.aljun.zombiegamereborn.common.config.StageProperty;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
+import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
+import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieTypeManager;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.utils.RandomUtils;
 import net.minecraft.core.Holder;
@@ -15,8 +17,10 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.Zoglin;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -24,7 +28,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import static net.minecraft.world.level.Level.END;
-import static net.minecraft.world.level.Level.NETHER;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class MobReplaceHandler {
@@ -34,7 +37,7 @@ public class MobReplaceHandler {
         if (event.getEntity().level().isClientSide) return;
         if (event.getLevel().dimension().equals(END)) return;
         if (!(event.getEntity() instanceof Mob mob)) return;
-        if (event.getEntity() instanceof Zombie ) return;
+        if (event.getEntity() instanceof Zombie) return;
         if (event.getEntity() instanceof Zoglin) return;
         if (event.getEntity() instanceof Player) return;
         if (mob.getSpawnType() != MobSpawnType.NATURAL) return;
@@ -86,11 +89,21 @@ public class MobReplaceHandler {
         if (entity != null) {
             entity.moveTo(original.getX(), original.getY(), original.getZ(),
                     original.getYRot(), original.getXRot());
+
             if (entity instanceof Zombie zombie) {
-                if (ZGRGame.getGameProperty().keepMobLootTable) {
-                    IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
-                    if (data != null) {
+                IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
+                if (data != null) {
+                    if (ZGRGame.getGameProperty().keepMobLootTable) {
+
                         data.setCustomLootTable(lootTable);
+                    }
+                    if (original instanceof Piglin piglin) {
+                        if (original.getMainHandItem().getItem() instanceof CrossbowItem) {
+                            if (!data.isTypeInitialized()) {
+                                ZombieTypeManager.initializeZombie(
+                                        zombie, ZGRZombieTypes.CROSSBOW_ATTACKER.getId());
+                            }
+                        }
                     }
                 }
             }
