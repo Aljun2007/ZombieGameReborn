@@ -159,7 +159,9 @@ public class ZGRZombieAttributesAPI {
             sendErrorToPlayers("Max health must be greater than 0.0, current value: " + health);
             throw new IllegalArgumentException("Max health must be greater than 0.0, but got: " + health);
         }
+        boolean flag = zombie.getHealth() + 1d > zombie.getMaxHealth();
         setVanillaAttribute(zombie, Attributes.MAX_HEALTH, health);
+        if (flag) zombie.setHealth((float) health);
     }
 
     /**

@@ -1,5 +1,7 @@
 ZombieGame:Reborn Changelog
 =============================
+2.0.1 - Hotfix
+- 修复 MaxHealth 修改后初始生命没有回复的问题
 
 2.0.0 - Optimization
 - 更加激进地减少僵尸寻路调用，使得寻路算力占比仅次于实体碰撞
