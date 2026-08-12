@@ -162,6 +162,15 @@ dependencies {
     compileOnly fg.deobf("blank:corgilib:4.0.3.4")
     compileOnly fg.deobf("blank:data_anchor:1.0.0.20")
     compileOnly fg.deobf("blank:enhanced_celestials:5.0.3.2")
+
+    compileOnly fg.deobf("blank:enhanced_elestials_2_core:1.0.0.1")
+
+    // 用于测试 Enhanced-Celestials-2
+//    implementation fg.deobf("blank:corgilib:4.0.3.5-dev")
+//    implementation fg.deobf("blank:data_anchor:1.0.0.22")
+//    implementation fg.deobf("blank:Enhanced-Celestials-2-Core-Forge-1.20.1:1.0.0.1")
+//    runtimeOnly fg.deobf("blank:Enhanced-Celestials-2-Default-Lunar-Events-Forge-1.20.1:1.0.0.1")
+
 //    implementation fg.deobf("blank:entity_model_features:3.0.7")
 //    implementation fg.deobf("blank:entity_sound_features:0.8.1")
 //    implementation fg.deobf("blank:entity_texture_features:7.0.6")

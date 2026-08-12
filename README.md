@@ -24,6 +24,7 @@
 | CorgiLib 4.0.3.4 | Compile-only | Utility library |
 | Data Anchor 1.0.0.20 | Compile-only | Data persistence |
 | Enhanced Celestials 5.0.3.2 | Compile-only | Blood moon integration |
+| Enhanced Celestials 2: Default Lunar Events 1.0.0.1 | Compile-only | Blood moon integration |
 | Guard Villagers 1.6.18 | Compile-only | Guard infection system |
 | Musket Mod 1.5.4 | Compile-only | Musket gunner zombie + sound sensing |
 | Spartan Shields 3.1.1 | Compile-only | Shield compatibility |
