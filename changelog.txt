@@ -1,5 +1,8 @@
 ZombieGame:Reborn Changelog
 =============================
+2.1.0 - Development version
+- 添加 Enhanced Celestials 2: Default Lunar Events 的支持
+
 2.0.1 - Hotfix
 - 修复 MaxHealth 修改后初始生命没有回复的问题
 

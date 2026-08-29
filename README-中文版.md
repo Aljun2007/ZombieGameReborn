@@ -24,6 +24,7 @@
 | CorgiLib 4.0.3.4 | 编译期 | 工具库 |
 | Data Anchor 1.0.0.20 | 编译期 | 数据锚点 |
 | Enhanced Celestials 5.0.3.2 | 编译期 | 血月联动 |
+| Enhanced Celestials 2: Default Lunar Events 1.0.0.1 | 编译期 | 血月联动 |
 | Guard Villagers 1.6.18 | 编译期 | 警卫感染系统 |
 | Musket Mod 1.5.4 | 编译期 | 火枪手僵尸 + 枪声感知 |
 | Spartan Shields 3.1.1 | 编译期 | 盾牌适配 |
