@@ -241,8 +241,9 @@ of the AI tick to avoid chunk-lock stalls. Event signatures were updated to the 
 
 ### Compile-only jars
 
-This branch does **not** ship the third-party jars used at compile time (`build.gradle` references
-them with `compileOnly` + `flatDir libs/`). To rebuild, put these jars into `libs/`:
+The third-party jars this project compiles against are **vendored in `libs/`** (referenced by
+`build.gradle` as `compileOnly` + `flatDir libs/`), so a fresh clone can build without extra setup.
+Versions, upstream sources and sha512 checksums are recorded in `libs/SOURCES.md`:
 
 ```
 tacz-neoforge-1.21.1-1.1.8-hotfix-r7.jar
@@ -250,9 +251,12 @@ pointblank-neoforge-1.21-1.11.1.jar
 musketmod-1.21.1-neoforge-1.5.4.jar
 Enhanced-Celestials-NeoForge-1.21.1-6.0.2.6.jar
 Enhanced-Celestials-2-Core-NeoForge-1.21.1-2.0.3.3.jar
-data-anchor-neoforge-1.21.1.jar
+data-anchor-neoforge-1.21.1-2.0.0.17.jar
 geckolib-neoforge-1.21.1-4.9.3.jar
 ```
+
+The file names must match exactly: `build.gradle` uses a `flatDir` repository, which only resolves
+`<name>-<version>.jar`.
 
 ### Build
 
@@ -320,3 +324,7 @@ All Rights Reserved (inherited from the original work).
 Original repository: https://github.com/Aljun2007/ZombieGameReborn
 
 This branch only adapts the mod to the 1.21.1 loader; gameplay values and art assets are unchanged.
+
+The third-party jars vendored in `libs/` remain the property of their respective authors. They are
+included only as compile-time references, under their own licenses (see `libs/SOURCES.md` for the
+version, upstream source and sha512 checksum of each one).

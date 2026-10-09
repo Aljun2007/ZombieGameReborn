@@ -65,8 +65,8 @@ Minecraft **1.21.1 / NeoForge** 版，从 1.20.1 Forge 版 `ZombieGame:Reborn` 2
 ./gradlew jar        # 需要 JDK 21，产物 build/libs/zombiegamereborn-2.1.0.jar
 ```
 
-本仓库**不含**编译期用到的第三方 jar（`build.gradle` 里以 `compileOnly` + `flatDir libs/` 引用）。
-要重新编译，请把下面这些 jar 放进 `libs/`：
+本仓库**已含**编译期用到的第三方 jar，就在 `libs/`（`build.gradle` 里以 `compileOnly` + `flatDir libs/` 引用），
+克隆下来直接 `gradlew build` 即可，不需要自备。7 个 jar 的版本、来源与 sha512 见 `libs/SOURCES.md`：
 
 ```
 tacz-neoforge-1.21.1-1.1.8-hotfix-r7.jar
@@ -74,12 +74,17 @@ pointblank-neoforge-1.21-1.11.1.jar
 musketmod-1.21.1-neoforge-1.5.4.jar
 Enhanced-Celestials-NeoForge-1.21.1-6.0.2.6.jar
 Enhanced-Celestials-2-Core-NeoForge-1.21.1-2.0.3.3.jar
-data-anchor-neoforge-1.21.1.jar
+data-anchor-neoforge-1.21.1-2.0.0.17.jar
 geckolib-neoforge-1.21.1-4.9.3.jar
 ```
+
+文件名必须和上面完全一致：`build.gradle` 用的是 `flatDir`，Gradle 只会按 `<name>-<version>.jar` 去找文件。
 
 ## 许可
 
 All Rights Reserved（沿用原作）。原作仓库：https://github.com/Aljun2007/ZombieGameReborn
+
+`libs/` 里的第三方 jar 版权归各自作者，仓库中仅作编译期引用，遵循各自的开源许可
+（每个 jar 的版本、上游来源与 sha512 见 `libs/SOURCES.md`）。
 
 移植改动清单与验证状态见 `移植说明.md`；API 迁移对照表见 `MIGRATION_NOTES.md`。
