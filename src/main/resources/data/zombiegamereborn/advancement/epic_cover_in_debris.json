@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:netherite_chestplate"
+    },
+    "title": {
+      "translate": "advancements.zombiegamereborn.epic_cover_in_debris.title"
+    },
+    "description": {
+      "translate": "advancements.zombiegamereborn.epic_cover_in_debris.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "cover_in_debris": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

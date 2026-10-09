@@ -1,0 +1,32 @@
+{
+  "required": true,
+  "package": "com.aljun.zombiegamereborn.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "minecraft.entity.DrownedMixin",
+    "minecraft.entity.EntityMixin",
+    "minecraft.entity.LivingEntityMixin",
+    "minecraft.entity.MobCategoryMixin",
+    "minecraft.entity.MobMixin",
+    "minecraft.entity.ZombieMixin",
+    "minecraft.entity.goal.DrownedGoToBeachGoalMixin",
+    "minecraft.entity.goal.DrownedGoToWaterGoalMixin",
+    "minecraft.entity.goal.DrownedSwimUpGoalMixin",
+    "minecraft.entity.goal.NearestAttackableTargetGoalMixin",
+    "minecraft.entity.goal.TargetGoalMixin",
+    "minecraft.entity.goal.ZombieAttackTurtleEggGoalMixin",
+    "minecraft.item.ItemMixin",
+    "minecraft.pathfinding.PathNavigationMixin",
+    "minecraft.pathfinding.WalkNodeEvaluatorMixin",
+    "musketmod.BulletEntityMixin",
+    "musketmod.GunItemFireMixin",
+    "pointblank.MainHeldSimplifiedStateSyncRequestMixin"
+  ],
+  "client": [
+    "client.AbstractZombieModelMixin",
+    "client.HumanoidModelMixin",
+    "client.ZombieVillagerModelMixin",
+    "client.PiglinModelMixin"
+  ],
+  "minVersion": "0.8"
+}

@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": {
+      "item": "musketmod:musket"
+    },
+    "title": {
+      "translate": "advancements.zombiegamereborn.epic_musket_hit.title"
+    },
+    "description": {
+      "translate": "advancements.zombiegamereborn.epic_musket_hit.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "musket_hit": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

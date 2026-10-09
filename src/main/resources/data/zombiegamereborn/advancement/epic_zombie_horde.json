@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:zombie_head"
+    },
+    "title": {
+      "translate": "advancements.zombiegamereborn.epic_zombie_horde.title"
+    },
+    "description": {
+      "translate": "advancements.zombiegamereborn.epic_zombie_horde.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombie_horde": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

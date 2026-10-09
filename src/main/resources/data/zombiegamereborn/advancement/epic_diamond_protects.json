@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:diamond_chestplate"
+    },
+    "title": {
+      "translate": "advancements.zombiegamereborn.epic_diamond_protects.title"
+    },
+    "description": {
+      "translate": "advancements.zombiegamereborn.epic_diamond_protects.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "diamond_protects": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

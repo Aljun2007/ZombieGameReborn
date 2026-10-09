@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="All Rights Reserved"
+issueTrackerURL="https://github.com/Aljun2007/ZombieGameReborn/issues"
+
+[[mods]]
+modId="zombiegamereborn"
+version="2.1.0"
+displayName="ZombieGame:Reborn"
+updateJSONURL="https://raw.githubusercontent.com/Aljun2007/ZombieGameReborn/neoforge-1.21.1/updates.json"
+logoFile="logo.png"
+authors="Aljun2007, DeepSeek"
+description='''The rebirth of ZombieGame [Mod] which enhances zombie AI to create apocalypse experience'''
+
+[[mixins]]
+config="mixins.zombiegamereborn.json"
+
+[[dependencies.zombiegamereborn]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1.150,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.zombiegamereborn]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1]"
+    ordering="NONE"
+    side="BOTH"

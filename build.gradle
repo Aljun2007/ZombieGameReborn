@@ -1,0 +1,85 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.148'
+    id 'idea'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+repositories {
+    flatDir { dirs 'libs' }
+}
+
+dependencies {
+    // Mixin: provided at runtime by FML, needed here for compiling mixins
+    compileOnly "org.spongepowered:mixin:0.8.5"
+    // NOTE: no mixin AP / refmap — NeoForge 1.21.1 runs with official (mojmap) names at runtime,
+    // so mixin targets resolve by name without a refmap.
+
+    // External mods referenced by the Diplomat layer (compile-time only; soft deps at runtime)
+    compileOnly "blank:tacz-neoforge-1.21.1:1.1.8-hotfix-r7"
+    compileOnly "blank:pointblank-neoforge-1.21:1.11.1"
+    compileOnly "blank:musketmod-1.21.1-neoforge:1.5.4"
+    compileOnly "blank:Enhanced-Celestials-NeoForge-1.21.1:6.0.2.6"
+    compileOnly "blank:Enhanced-Celestials-2-Core-NeoForge-1.21.1:2.0.3.3"
+    compileOnly "blank:data-anchor-neoforge-1.21.1:2.0.0.17"
+    compileOnly "blank:geckolib-neoforge-1.21.1:4.9.3"
+}
+
+// TACZ integration compiles against the community NeoForge 1.21.1 port jar in libs/
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

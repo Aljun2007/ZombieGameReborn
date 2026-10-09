@@ -1,0 +1,303 @@
+package com.aljun.zombiegamereborn.common.entity.capability;
+
+import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombiePlaceBlockGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieShieldGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
+import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
+import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import org.jetbrains.annotations.Nullable;
+
+public class ZombieData implements IZombieData, INBTSerializable<CompoundTag> {
+    private boolean isSunSensitive = true;
+    private ResourceLocation type = null;
+    private ZombieType zombieType = null;
+    private double miningSpeed = 1.0;
+    private boolean canSwim = false;
+    private boolean typeInitialized = false;
+    private int tickCount = 0;
+    private boolean fireImmune = false;
+    private boolean isEmpowered = true;
+    private double movementSpeedModify = 1.0d;
+    private boolean canJumpAttack = false;
+    private boolean canThrowTNT = false;
+    private boolean followMustSee = false;
+    private @Nullable ZombieSenseTargetGoal zombieSenseTargetGoal = null;
+    private @Nullable ZombieBreakBlockGoal zombieBreakBlockGoal = null;
+    private @Nullable ZombiePlaceBlockGoal zombiePlaceBlockGoal = null;
+    private @Nullable ZombieShieldGoal zombieShieldGoal = null;
+    private boolean enhancedSense = false;
+    private boolean fleeSun = false;
+    private boolean blockStabImmune = false;
+    private boolean ladderClimb = false;
+    private ResourceLocation customLootTable = null;
+
+    @Override @Nullable
+    public ResourceLocation getCustomLootTable() { return customLootTable; }
+
+    @Override
+    public void setCustomLootTable(@Nullable ResourceLocation lootTable) { this.customLootTable = lootTable; }
+
+    @Override
+    public @Nullable ZombieSenseTargetGoal getZombieSenseTargetGoalGoal() {
+        return this.zombieSenseTargetGoal;
+    }
+
+    @Override
+    public void setZombieSenseTargetGoalGoal(ZombieSenseTargetGoal zombieSenseTargetGoalGoal) {
+        this.zombieSenseTargetGoal = zombieSenseTargetGoalGoal;
+    }
+
+    @Override
+    public @Nullable ZombieBreakBlockGoal getZombieBreakBlockGoal() {
+        return this.zombieBreakBlockGoal;
+    }
+
+    @Override
+    public void setZombieBreakBlockGoal(ZombieBreakBlockGoal goal) {
+        this.zombieBreakBlockGoal = goal;
+    }
+
+    @Override
+    public @Nullable ZombiePlaceBlockGoal getZombiePlaceBlockGoal() {
+        return this.zombiePlaceBlockGoal;
+    }
+
+    @Override
+    public void setZombiePlaceBlockGoal(ZombiePlaceBlockGoal goal) {
+        this.zombiePlaceBlockGoal = goal;
+    }
+
+    @Override
+    public @Nullable ZombieShieldGoal getZombieShieldGoal() {
+        return this.zombieShieldGoal;
+    }
+
+    @Override
+    public void setZombieShieldGoal(ZombieShieldGoal goal) {
+        this.zombieShieldGoal = goal;
+    }
+
+    @Override
+    public boolean enhancedSense() {
+        return this.enhancedSense;
+    }
+
+    @Override
+    public void setEnhancedSense(boolean value) {
+        this.enhancedSense = value;
+    }
+
+    @Override
+    public boolean isSunSensitive() {
+        return isSunSensitive;
+    }
+
+    @Override
+    public void setSunSensitive(boolean value) {
+        this.isSunSensitive = value;
+    }
+
+    @Override
+    public boolean fireImmune() {
+        return fireImmune;
+    }
+
+    @Override
+    public void setFireImmune(boolean value) {
+        fireImmune = value;
+    }
+
+    @Override
+    public ResourceLocation getTypeID() {
+        if (this.type == null) {
+            this.type = ZGRZombieTypes.DUMMY.getId();
+        }
+        return type;
+    }
+
+    @Override
+    public void setTypeID(ResourceLocation type) {
+        this.zombieType = ZombieType.getById(type);
+        if (this.zombieType == null) {
+            this.zombieType = ZGRZombieTypes.DUMMY;
+        }
+        this.type = type;
+    }
+
+    @Override
+    public ZombieType getType() {
+        return this.zombieType;
+    }
+
+    @Override
+    public double getMiningSpeed() {
+        return miningSpeed;
+    }
+
+    @Override
+    public void setMiningSpeed(double speed) {
+        this.miningSpeed = speed;
+    }
+
+    @Override
+    public boolean canSwim() {
+        return canSwim;
+    }
+
+    @Override
+    public void enableSwim(boolean canSwim) {
+        this.canSwim = canSwim;
+    }
+
+    @Override
+    public boolean isTypeInitialized() {
+        return typeInitialized;
+    }
+
+    @Override
+    public void setTypeInitialized(boolean initialized) {
+        this.typeInitialized = initialized;
+    }
+
+    @Override
+    public int getTickCount() {
+        return tickCount;
+    }
+
+    @Override
+    public void incrementTick() {
+        this.tickCount++;
+    }
+
+    @Override
+    public boolean isEmpowered() {
+        return this.isEmpowered;
+    }
+
+    @Override
+    public void setEmpowered(boolean value) {
+        this.isEmpowered = value;
+    }
+
+    @Override
+    public void setAttributesMovementSpeedModify(double modify) {
+        this.movementSpeedModify = modify;
+    }
+
+    @Override
+    public double getTotalMovementSpeedModify() {
+        return this.movementSpeedModify;
+    }
+
+    @Override
+    public boolean canJumpAttack() {
+        return this.canJumpAttack;
+    }
+
+    @Override
+    public void enableJumpAttack(boolean value) {
+        this.canJumpAttack = value;
+    }
+
+    @Override
+    public boolean canThrowTNT() {
+        return this.canThrowTNT;
+    }
+
+    @Override
+    public void enableThrowTNT(boolean value) {
+        this.canThrowTNT = value;
+    }
+
+    @Override
+    public boolean followMustSee() {
+        return this.followMustSee;
+    }
+
+    @Override
+    public void setFollowMustSee(boolean value) {
+        this.followMustSee = value;
+    }
+
+    private boolean canZombieContinueUseWeaponsInHand = false;
+
+    @Override
+    public boolean canZombieContinueUseWeaponsInHand() {
+        return canZombieContinueUseWeaponsInHand;
+    }
+
+    @Override
+    public void setZombieContinueUseWeaponsInHand(boolean value) {
+        this.canZombieContinueUseWeaponsInHand = value;
+    }
+
+    @Override
+    public boolean fleeSun() {
+        return this.fleeSun;
+    }
+
+    @Override
+    public void setFleeSun(boolean value) {
+        this.fleeSun = value;
+    }
+
+    @Override
+    public boolean isBlockStabImmune() {
+        return this.blockStabImmune;
+    }
+
+    @Override
+    public void setBlockStabImmune(boolean value) {
+        this.blockStabImmune = value;
+    }
+
+    @Override
+    public boolean canLadderClimb() {
+        return this.ladderClimb;
+    }
+
+    @Override
+    public void setLadderClimb(boolean value) {
+        this.ladderClimb = value;
+    }
+
+    private double ambientVolumeModify = 1.0d;
+    private double stepVolumeModify = 1.0d;
+
+    @Override
+    public double getAmbientVolumeModify() {
+        return this.ambientVolumeModify;
+    }
+
+    @Override
+    public void setAmbientVolumeModify(double modify) {
+        this.ambientVolumeModify = modify;
+    }
+
+    @Override
+    public double getStepVolumeModify() {
+        return this.stepVolumeModify;
+    }
+
+    @Override
+    public void setStepVolumeModify(double modify) {
+        this.stepVolumeModify = modify;
+    }
+
+    // ==================== INBTSerializable（原 ZombieDataProvider 的 NBT 逻辑） ====================
+
+    @Override
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        return ZombieDataProvider.serializeNBT(this);
+    }
+
+    @Override
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+        ZombieDataProvider.applyData(this, tag);
+    }
+}

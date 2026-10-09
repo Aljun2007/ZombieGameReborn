@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:golden_sword"
+    },
+    "title": {
+      "translate": "advancements.zombiegamereborn.epic_piglin_collision.title"
+    },
+    "description": {
+      "translate": "advancements.zombiegamereborn.epic_piglin_collision.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "piglin_collision": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

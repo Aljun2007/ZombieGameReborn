@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:shield"
+    },
+    "title": {
+      "translate": "advancements.zombiegamereborn.epic_shield_block.title"
+    },
+    "description": {
+      "translate": "advancements.zombiegamereborn.epic_shield_block.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "shield_block": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:iron_sword"
+    },
+    "title": {
+      "translate": "advancements.zombiegamereborn.epic_guard_betrayal.title"
+    },
+    "description": {
+      "translate": "advancements.zombiegamereborn.epic_guard_betrayal.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "guard_betrayal": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

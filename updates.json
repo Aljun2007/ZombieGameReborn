@@ -1,0 +1,10 @@
+{
+  "homepage": "https://github.com/Aljun2007/ZombieGameReborn",
+  "promos": {
+    "1.21.1-latest": "2.1.0",
+    "1.21.1-recommended": "2.1.0"
+  },
+  "1.21.1": {
+    "2.1.0": "NeoForge 1.21.1 port - Development release"
+  }
+}

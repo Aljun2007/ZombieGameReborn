@@ -1,0 +1,194 @@
+package com.aljun.zombiegamereborn.common.client.gui.config.stage;
+
+import com.aljun.zombiegamereborn.common.client.gui.config.core.AbstractConfigScreen;
+import com.aljun.zombiegamereborn.common.client.gui.config.core.ListEditScreen;
+import com.aljun.zombiegamereborn.common.client.gui.config.core.SimpleSettingsPanel;
+import com.aljun.zombiegamereborn.common.config.GameProperty;
+import com.aljun.zombiegamereborn.common.config.MobReplacement;
+import com.aljun.zombiegamereborn.common.config.StageProperty;
+import com.aljun.zombiegamereborn.utils.GamePropertyPresentUtils;
+import com.google.gson.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@OnlyIn(Dist.CLIENT)
+public abstract class AbstractGamePropertyScreen extends AbstractConfigScreen {
+
+    protected static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .registerTypeAdapter(GameProperty.class, new GameProperty.GamePropertyAdapter())
+            .registerTypeAdapter(StageProperty.class, new StageProperty.StagePropertyAdapter())
+            .create();
+
+    public AbstractGamePropertyScreen(String title, JsonObject initSettings) {
+        super(title, initSettings);
+    }
+
+    @Override
+    protected void loadDefaultSettings() {
+        this.localJson = GSON.toJsonTree(GamePropertyPresentUtils.initialDefault()).getAsJsonObject();
+    }
+
+    @Override
+    protected void initializeTabs() {
+        ConfigTab ruleTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.gameproperty.tab.rules"), this::initializeRuleTab);
+        ConfigTab stageTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.gameproperty.tab.stages"), this::initializeStageTab);
+        ConfigTab performanceTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.zombieproperty.tab.performance"), this::initializePerformanceTab);
+        ConfigTab mobReplaceTab = new ConfigTab(Component.translatable("gui.zombiegamereborn.mobreplacement.settings"), this::initializeMobReplaceTab);
+        this.tabs.add(ruleTab);
+        this.tabs.add(stageTab);
+        this.tabs.add(performanceTab);
+        this.tabs.add(mobReplaceTab);
+    }
+
+    private void initializePerformanceTab(SimpleSettingsPanel panel) {
+        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.performance");
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_zombie_count", "max_zombie_count", 200, 0, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_miner_count", "max_empowered_miner_count", 30, 0, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.max_empowered_builder_count", "max_empowered_builder_count", 30, 0, Integer.MAX_VALUE);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.disable_turtle_egg_seeking", "disable_turtle_egg_seeking", false);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.simplified_builder_movement", "simplified_builder_movement", true);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.rough_pathfinding_threshold", "rough_pathfinding_threshold", 10, 1, Integer.MAX_VALUE);
+        panel.addIntEditBox("gui.zombiegamereborn.gameproperty.rough_pathfinding_interval", "rough_pathfinding_interval", 400, 1, Integer.MAX_VALUE);
+        panel.setOnValueChanged((key, value) -> {
+            if (!isInitializing) {
+                localJson.add(key, value);
+                hasUnsavedChanges = true;
+                hasInteracted = true;
+            }
+        });
+    }
+
+    private void initializeMobReplaceTab(SimpleSettingsPanel panel) {
+        panel.addCallbackabeScreen(
+                "gui.zombiegamereborn.mobreplacement.mobs",
+                this,
+                "mob_replacement",
+                (parentScreen, saveCallback) -> {
+                    JsonObject mobReplaceJson = localJson.has("mob_replacement") && localJson.get("mob_replacement").isJsonObject()
+                            ? localJson.getAsJsonObject("mob_replacement")
+                            : MobReplacement.getDefault().toJsonObject();
+                    return new MobReplacementScreen(
+                            "gui.zombiegamereborn.mobreplacement.settings",
+                            mobReplaceJson,
+                            updated -> {
+                                saveCallback.accept(updated);
+                                hasUnsavedChanges = true;
+                                hasInteracted = true;
+                            },
+                            parentScreen
+                    );
+                }
+        );
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.keep_mob_loot_table", "keep_mob_loot_table", true);
+    }
+
+    private void initializeRuleTab(SimpleSettingsPanel panel) {
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_break", "can_zombie_break_block", true);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_place", "can_zombie_place_block", true);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.can_piglin_infection", "can_piglin_infection", false);
+        panel.addCheckBox("gui.zombiegamereborn.gameproperty.infected_villager_can_break_blocks", "infected_villager_can_break_blocks", false);
+
+        panel.setOnValueChanged((key, value) -> {
+            if (!isInitializing) {
+                localJson.add(key, value);
+                hasUnsavedChanges = true;
+                hasInteracted = true;
+            }
+        });
+    }
+
+    @Override
+    public void applyValue(String key, JsonElement jsonObject) {
+        super.applyValue(key, jsonObject);
+        hasUnsavedChanges = true;
+        hasInteracted = true;
+    }
+
+    protected void initializeStageTab(SimpleSettingsPanel panel) {
+        panel.addCallbackabeScreen(
+                "gui.zombiegamereborn.gameproperty.stage_list",
+                this,
+                "stage_properties",
+                (parentScreen, saveCallback) -> {
+                    ListEditScreen<JsonElement> screen = new ListEditScreen<JsonElement>(
+                            "gui.zombiegamereborn.gameproperty.stage_list_edit_title",
+                            parentScreen,
+                            this.localJson.has("stage_properties") && this.localJson.get("stage_properties").isJsonArray()
+                                ? this.localJson.getAsJsonArray("stage_properties").asList()
+                                : java.util.Collections.emptyList(),
+
+                            (updatedList) -> {
+                                JsonArray jsonArray = GSON.toJsonTree(updatedList).getAsJsonArray();
+                                saveCallback.accept((JsonElement)jsonArray);
+                            },
+
+                            (jsonElement) -> I18n.get("gui.zombiegamereborn.gameproperty.stage_day_prefix") + GSON.fromJson(jsonElement, StageProperty.class).day + I18n.get("gui.zombiegamereborn.gameproperty.stage_day_suffix"),
+
+                            (lastScreen1, jsonElement1, itemSaveCallback) -> {
+                                StageProperty stageProperty =
+                                        GSON.fromJson(jsonElement1, StageProperty.class);
+
+                                JsonObject initialData = GSON.toJsonTree(stageProperty).getAsJsonObject();
+
+                                Minecraft.getInstance().setScreen(new StagePropertyScreen(
+                                        "gui.zombiegamereborn.gameproperty.stage_edit_title",
+                                        initialData,
+                                        (updatedElement) -> {
+                                            itemSaveCallback.accept(updatedElement);
+                                            hasUnsavedChanges = true;
+                                            hasInteracted = true;
+                                        },
+                                        lastScreen1
+                                ));
+                            },
+
+                            () -> GSON.toJsonTree(new StageProperty())
+                    );
+                    screen.setComparator((o1, o2) -> {
+                        return ((JsonObject) o1).get("day").getAsDouble() > ((JsonObject) o2).get("day").getAsDouble();
+                    });
+                    return screen;
+                }
+        );
+        panel.setOnValueChanged((key, value) -> {
+            if (!isInitializing) {
+                localJson.add(key, value);
+                hasUnsavedChanges = true;
+                hasInteracted = true;
+            }
+        });
+    }
+
+    @Override
+    protected List<ButtonInfo> getCustomButtons() {
+        List<ButtonInfo> buttons = new ArrayList<>();
+        buttons.add(new ButtonInfo("gui.zombiegamereborn.gameproperty.import_export", this::importScreen));
+        return buttons;
+    }
+
+    protected void importScreen() {
+        JsonObject configCopy = this.localJson.deepCopy();
+        Minecraft.getInstance().setScreen(new GamePropertyImportExportScreen(
+                configCopy,
+                loadedJson -> {
+                    this.localJson = loadedJson.deepCopy();
+                    this.hasUnsavedChanges = true;
+                    this.hasInteracted = true;
+                    if (Minecraft.getInstance().player != null) {
+                        Minecraft.getInstance().player.displayClientMessage(
+                                Component.translatable("gui.zombiegamereborn.gameproperty.import_success"), false
+                        );
+                    }
+                },
+                this
+        ));
+    }
+}

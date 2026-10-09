@@ -1,0 +1,69 @@
+package com.aljun.zombiegamereborn.common.entity.zombieType.type;
+
+import com.aljun.zombiegamereborn.api.ZGRZombieControlAPI;
+import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
+import com.aljun.zombiegamereborn.common.entity.equipement.ZombieEquipmentHelper;
+import com.aljun.zombiegamereborn.common.entity.goal.attack.EnhancedZombieAttackGoal;
+import com.aljun.zombiegamereborn.common.entity.goal.attack.ZombieSmartBreakAttackGoal;
+import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
+import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
+import com.aljun.zombiegamereborn.common.optimizer.ZombieGoalOptimizer;
+import com.aljun.zombiegamereborn.utils.RandomUtils;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+
+public class MinerType extends ZombieType {
+
+
+    public MinerType() {
+        super(ZGRZombieTypes.IDs.MINER_ID);
+    }
+
+    @Override
+    public void onInitializeZombieEquipment(Zombie zombie, IZombieData data) {
+        if (RandomUtils.booleanByChance(0.4d)) {
+            ZombieEquipmentHelper.applyFullEquipmentWithPickaxe(zombie);
+        } else {
+            ZombieEquipmentHelper.applyFullEquipment(zombie);
+        }
+    }
+
+    @Override
+    public void onInitializeZombieAttributes(Zombie zombie, IZombieData data) {
+        data.setEmpowered(false);
+    }
+
+    @Override
+    public void onInitializeZombieGoals(Zombie zombie,IZombieData data) {
+        ZombieType.replaceGoal(zombie.goalSelector,goal-> goal instanceof ZombieAttackGoal, ()->new ZombieSmartBreakAttackGoal(zombie,data),2);
+        zombie.goalSelector.addGoal(3,new EnhancedZombieAttackGoal(zombie));
+    }
+
+    @Override
+    public void onTick(Zombie zombie, IZombieData data, int tickCount) {
+        if (!data.isEmpowered()) {
+            ZombieGoalOptimizer.requestForEmpowerment(data);
+        }
+        super.onTick(zombie, data, tickCount);
+    }
+
+    @Override
+    public boolean canBreakBlocks() {
+        return true;
+    }
+
+    @SuppressWarnings("all")
+    @Override
+    public void onZombieHurt(LivingIncomingDamageEvent event, Zombie zombie, IZombieData data) {
+        Entity entity = event.getSource().getEntity();
+        if (entity instanceof Player player) {
+            ZombieSmartBreakAttackGoal goal = (ZombieSmartBreakAttackGoal) ZGRZombieControlAPI.getGoal(zombie, (goa1l) -> goa1l instanceof ZombieSmartBreakAttackGoal);
+            if (goal != null) {
+                goal.onZombieHurt();
+            }
+        }
+    }
+}
