@@ -1,10 +1,12 @@
 package com.aljun.zombiegamereborn.common.entity.awareness;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * 这条纪律是整套性能设计成立的前提。
  */
 public final class AwarenessManager {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /** 维度 → 状态。按 {@link ResourceKey} 存，避免强引用 Level 造成跨存档泄漏。 */
     private static final Map<ResourceKey<Level>, LevelAwareness> LEVELS = new ConcurrentHashMap<>();
@@ -86,6 +90,15 @@ public final class AwarenessManager {
         if (awareness == null) return;
         awareness.emit(channel, x, y, z, radius, strength, defaultLifespan(channel), generation, source,
                 level.getGameTime());
+        if (AwarenessTuning.debugLog()) {
+            LOGGER.info("[ZGR awareness] EMIT {} at ({}, {}, {}) r={} strength={} gen={} source={}",
+                    channel, fmt(x), fmt(y), fmt(z), fmt(radius), strength, generation,
+                    source == null ? "none" : source.getName().getString());
+        }
+    }
+
+    private static String fmt(double value) {
+        return String.format("%.1f", value);
     }
 
     private static int defaultLifespan(AwarenessChannel channel) {

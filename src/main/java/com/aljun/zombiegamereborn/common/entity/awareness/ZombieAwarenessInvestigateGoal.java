@@ -3,7 +3,9 @@ package com.aljun.zombiegamereborn.common.entity.awareness;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
+import com.mojang.logging.LogUtils;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.EnumSet;
 
@@ -26,8 +28,14 @@ import java.util.EnumSet;
  */
 public class ZombieAwarenessInvestigateGoal extends Goal {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private final Zombie zombie;
     private final int phaseSeed;
+
+    /** 当前调查是由哪个通道触发的，只用于调试日志。 */
+    @Nullable
+    private AwarenessChannel channel;
 
     private double targetX;
     private double targetY;
@@ -37,6 +45,8 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
     private long investigateUntil;
     private long lookAroundUntil;
     private long lastRepathTick;
+    /** 调试用：上次打印“推进中”日志的 tick。 */
+    private long lastProgressLogTick;
     /** 上次寻路的目标格，只有换格才重新寻路。 */
     private long lastPathCell = Long.MIN_VALUE;
 
@@ -73,6 +83,7 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
             this.targetY = stimulus.y;
             this.targetZ = stimulus.z;
             this.scentMode = false;
+            this.channel = stimulus.channel;
             return true;
         }
 
@@ -86,6 +97,7 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
             this.targetY = cell.centerY();
             this.targetZ = cell.centerZ();
             this.scentMode = true;
+            this.channel = AwarenessChannel.SCENT;
             return true;
         }
         return false;
@@ -101,6 +113,11 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
         this.lastRepathTick = 0L;
         this.lastPathCell = Long.MIN_VALUE;
         this.repath(now, true);
+        if (AwarenessTuning.debugLog()) {
+            LOGGER.info("[ZGR awareness] zombie#{} starts investigating {} -> target {} | zombie {}",
+                    this.zombie.getId(), this.channel, fmt(this.targetX, this.targetY, this.targetZ),
+                    fmt(this.zombie.getX(), this.zombie.getY(), this.zombie.getZ()));
+        }
     }
 
     @Override
@@ -122,6 +139,19 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
     public void tick() {
         long now = this.zombie.level().getGameTime();
 
+        if (AwarenessTuning.debugLog() && now - this.lastProgressLogTick >= 40L) {
+            this.lastProgressLogTick = now;
+            LOGGER.info("[ZGR awareness] zombie#{} investigating {} | zombie {} | distance={} | navDone={} hasPath={} delta={} noAi={}",
+                    this.zombie.getId(), this.channel,
+                    fmt(this.zombie.getX(), this.zombie.getY(), this.zombie.getZ()),
+                    String.format("%.1f", Math.sqrt(
+                            this.zombie.distanceToSqr(this.targetX, this.targetY, this.targetZ))),
+                    this.zombie.getNavigation().isDone(),
+                    this.zombie.getNavigation().getPath() != null,
+                    String.format("%.4f", this.zombie.getDeltaMovement().horizontalDistance()),
+                    this.zombie.isNoAi());
+        }
+
         if (this.arrived) {
             // 到达后原地环视，模拟“找了一圈”
             this.zombie.getLookControl().setLookAt(
@@ -131,11 +161,18 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
             return;
         }
 
+        // 注意：distanceToSqr 返回的是平方距离，必须和半径的平方比较。
+        // 之前误与原始半径比较（等价于要求实际距离 ≤ 1.58 格），导致"到达后环视"从不触发。
+        double arriveDistance = AwarenessTuning.settings().investigateArriveDistance;
         if (this.zombie.distanceToSqr(this.targetX, this.targetY, this.targetZ)
-                <= AwarenessTuning.settings().investigateArriveDistance) {
+                <= arriveDistance * arriveDistance) {
             this.arrived = true;
             this.lookAroundUntil = now + AwarenessTuning.settings().investigateLookAroundTicks;
             this.zombie.getNavigation().stop();
+            if (AwarenessTuning.debugLog()) {
+                LOGGER.info("[ZGR awareness] zombie#{} ARRIVED at target {} (channel {})",
+                        this.zombie.getId(), fmt(this.targetX, this.targetY, this.targetZ), this.channel);
+            }
             return;
         }
 
@@ -148,6 +185,12 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
 
     @Override
     public void stop() {
+        if (AwarenessTuning.debugLog()) {
+            LOGGER.info("[ZGR awareness] zombie#{} STOPPED investigating {} at {} | target was {}",
+                    this.zombie.getId(), this.channel,
+                    fmt(this.zombie.getX(), this.zombie.getY(), this.zombie.getZ()),
+                    fmt(this.targetX, this.targetY, this.targetZ));
+        }
         this.zombie.getNavigation().stop();
         this.scentMode = false;
         this.arrived = false;
@@ -202,5 +245,9 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
 
     private static long packCell(double x, double y, double z) {
         return net.minecraft.core.BlockPos.asLong((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
+    }
+
+    private static String fmt(double x, double y, double z) {
+        return String.format("(%.1f, %.1f, %.1f)", x, y, z);
     }
 }

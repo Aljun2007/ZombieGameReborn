@@ -1,12 +1,14 @@
 package com.aljun.zombiegamereborn.common.entity.awareness;
 
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
+import com.mojang.logging.LogUtils;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 /**
  * 感知 → 锁定目标。
@@ -23,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public class ZombieAwarenessTargetGoal extends TargetGoal {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final Zombie zombie;
     /** 相位种子：用实体 id 打散，避免全场僵尸挤在同一 tick 轮询。 */
@@ -104,6 +108,14 @@ public class ZombieAwarenessTargetGoal extends TargetGoal {
     @Override
     public void start() {
         this.zombie.setTarget(this.sensedTarget);
+        if (AwarenessTuning.debugLog()) {
+            LOGGER.info("[ZGR awareness] zombie#{} acquired target {} via awareness | zombie ({}, {}, {})",
+                    this.zombie.getId(),
+                    this.sensedTarget == null ? "null" : this.sensedTarget.getName().getString(),
+                    String.format("%.1f", this.zombie.getX()),
+                    String.format("%.1f", this.zombie.getY()),
+                    String.format("%.1f", this.zombie.getZ()));
+        }
         this.emitAlert();
     }
 

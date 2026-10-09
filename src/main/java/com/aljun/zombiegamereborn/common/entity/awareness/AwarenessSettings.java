@@ -55,8 +55,15 @@ public final class AwarenessSettings {
     public boolean scentRevealsTarget = true;
 
     // ---- 调查行为 ----
-    public int investigateTimeoutTicks = 200;
-    public double investigateArriveDistance = 2.0D;
+    /** 调查一个位置点最长持续 tick，超时放弃（僵尸速度约 2 格/秒，22 格约 11 秒，故留 15 秒余量）。 */
+    public int investigateTimeoutTicks = 300;
+    /**
+     * 到达判定距离（格）。
+     * <p>
+     * 必须大于寻路末节点与目标点的固有偏差：实测寻路走完时僵尸会停在距目标约 2.3 格处，
+     * 定成 2.0 会导致“到达后原地环视”这一步永远不触发，僵尸走到附近就直接放弃。
+     */
+    public double investigateArriveDistance = 2.5D;
     public double investigateSpeed = 1.0D;
     /** 调查途中重新寻路的间隔（tick），避免每 tick 触发寻路。 */
     public int investigateRepathIntervalTicks = 20;

@@ -63,8 +63,15 @@ public final class SoundAwareness {
         }
 
         ResourceLocation id = soundHolder == null ? null : soundHolder.value().getLocation();
-        if (id != null && isFootstep(id)) {
-            return;
+        if (id != null) {
+            if (isFootstep(id)) {
+                return;
+            }
+            // 同类叫声：原版是按“位置”播放的（playSound(null, x, y, z, ...)），拿不到实体来源，
+            // 所以只能在 ID 上过滤。不过滤的话，几百只僵尸每 6~8 秒一次的环境音会把刺激池刷屏。
+            if (!settings.hearOwnKind && isOwnKindVocalization(id)) {
+                return;
+            }
         }
 
         double baseRadius;
@@ -114,5 +121,26 @@ public final class SoundAwareness {
     private static boolean isFootstep(ResourceLocation id) {
         String path = id.getPath();
         return path.endsWith(".step") || path.endsWith(".step_") || path.equals("step");
+    }
+
+    /** 同类生物的命名空间前缀。{@code entity.zombified_piglin} 已被 {@code entity.zombie} 覆盖。 */
+    private static final String[] OWN_KIND_PREFIXES = {
+            "entity.zombie", "entity.drowned", "entity.husk", "entity.giant"
+    };
+
+    /** 只过滤“叫唤”类声音（环境音 / 受伤 / 死亡），门被撞破这类声音仍然算有效刺激。 */
+    private static boolean isOwnKindVocalization(ResourceLocation id) {
+        String path = id.getPath();
+        boolean ownKind = false;
+        for (String prefix : OWN_KIND_PREFIXES) {
+            if (path.startsWith(prefix)) {
+                ownKind = true;
+                break;
+            }
+        }
+        if (!ownKind) {
+            return false;
+        }
+        return path.endsWith(".ambient") || path.endsWith(".hurt") || path.endsWith(".death");
     }
 }

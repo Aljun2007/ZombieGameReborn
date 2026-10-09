@@ -9,6 +9,7 @@ import com.aljun.zombiegamereborn.common.entity.awareness.SoundAwareness;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -29,6 +30,7 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -41,6 +43,8 @@ import java.util.List;
  */
 @EventBusSubscriber(modid = ZombieGameReborn.MOD_ID)
 public final class ZombieAwarenessEvents {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /** 维度维护间隔（tick）。只负责回收，不参与感知判定。 */
     private static final int MAINTENANCE_INTERVAL = 20;
@@ -174,12 +178,31 @@ public final class ZombieAwarenessEvents {
             AwarenessManager.depositScent(player.level(), player.getX(), player.getY(), player.getZ(), amount);
         }
 
+        // 光照感知：亮处更容易被发现，黑暗里则被隐藏。
+        // 这是「僵尸意识」光照感知的原意 —— 不是把僵尸吸到火把上，而是改变你被发现的难度。
+        // 放在玩家侧计算，因此同样是 O(1)，不需要在任何地方搜索实体。
+        if (Math.floorMod(gameTime + player.getId(), LIGHT_CHECK_INTERVAL) == 0) {
+            int brightness = player.level().getMaxLocalRawBrightness(player.blockPosition());
+            if (brightness >= LIGHT_MIN_BRIGHTNESS) {
+                double radius = settings.lightRadius * (brightness / 15.0D) * LIGHT_RADIUS_SCALE;
+                AwarenessManager.emitLight(player.level(), player.getX(), player.getY(), player.getZ(),
+                        radius, settings.lightStrength, player);
+            }
+        }
+
         // 原版「无限追猎」游戏规则：周期性把玩家位置作为超大半径刺激广播出去。
         // 走的是同一套感知通道，因此依然受僵尸错峰轮询的节流保护，不会退化成全服扫描。
         if (gameTime % 100L == 0L) {
             broadcastBoundlessHunting(player);
         }
     }
+
+    /** 光照检查间隔（tick）。与气味沉积分开节流：光照变化慢，不需要那么频繁。 */
+    private static final int LIGHT_CHECK_INTERVAL = 20;
+    /** 低于这个亮度视为"藏在暗处"，不产生光照刺激。 */
+    private static final int LIGHT_MIN_BRIGHTNESS = 8;
+    /** 满亮度时的半径倍率（配合 awareness_light_radius 使用）。 */
+    private static final double LIGHT_RADIUS_SCALE = 1.5D;
 
     private static void broadcastBoundlessHunting(Player player) {
         if (!(player.level() instanceof ServerLevel serverLevel)) {
@@ -218,6 +241,32 @@ public final class ZombieAwarenessEvents {
         }
         for (ServerLevel level : event.getServer().getAllLevels()) {
             AwarenessManager.maintenance(level, level.getGameTime());
+        }
+        // 调试用：周期性打印僵尸的实际状态，排查"感知到了但走不过去"这类问题
+        if (AwarenessTuning.debugLog() && gameTime % 100L == 0L) {
+            dumpZombieState(event.getServer());
+        }
+    }
+
+    private static void dumpZombieState(net.minecraft.server.MinecraftServer server) {
+        for (ServerLevel level : server.getAllLevels()) {
+            for (Entity entity : level.getAllEntities()) {
+                if (!(entity instanceof net.minecraft.world.entity.monster.Zombie zombie)) {
+                    continue;
+                }
+                LOGGER.info("[ZGR awareness] DEBUG zombie#{} at ({}, {}, {}) onGround={} inWall={} "
+                                + "blockAt={} blockBelow={} target={} navDone={}",
+                        zombie.getId(),
+                        String.format("%.1f", zombie.getX()),
+                        String.format("%.1f", zombie.getY()),
+                        String.format("%.1f", zombie.getZ()),
+                        zombie.onGround(),
+                        zombie.isInWall(),
+                        level.getBlockState(zombie.blockPosition()).getBlock(),
+                        level.getBlockState(zombie.blockPosition().below()).getBlock(),
+                        zombie.getTarget(),
+                        zombie.getNavigation().isDone());
+            }
         }
     }
 

@@ -248,5 +248,6 @@
   "gui.zombiegamereborn.zombieproperty.awareness_impact_radius": "冲击半径(格)",
   "gui.zombiegamereborn.zombieproperty.awareness_alert_radius": "警报半径(格)",
   "gui.zombiegamereborn.zombieproperty.awareness_scent_decay_ticks": "气味存留时间(tick)",
-  "gui.zombiegamereborn.zombieproperty.section.boundless_hunting": "§6§l无限追猎"
+  "gui.zombiegamereborn.zombieproperty.section.boundless_hunting": "§6§l无限追猎",
+  "gui.zombiegamereborn.zombieproperty.awareness_light_radius": "光照感知半径(格)"
 }

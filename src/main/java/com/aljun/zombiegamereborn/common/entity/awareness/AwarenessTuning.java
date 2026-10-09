@@ -13,7 +13,19 @@ public final class AwarenessTuning {
 
     private static volatile AwarenessSettings current = DEFAULT;
 
+    /**
+     * 感知链路调试日志开关。
+     * <p>
+     * 用系统属性而不是游戏配置：这是排查工具，不是玩法参数，不应该出现在玩家的配置界面里。
+     * 开发环境用法：{@code gradlew runServer -Dzgr.awareness.debug=true}
+     */
+    private static final boolean DEBUG_LOG = Boolean.getBoolean("zgr.awareness.debug");
+
     private AwarenessTuning() {
+    }
+
+    public static boolean debugLog() {
+        return DEBUG_LOG;
     }
 
     public static AwarenessSettings settings() {

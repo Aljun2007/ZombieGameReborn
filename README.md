@@ -226,7 +226,7 @@ staggered schedule — whether anything nearby is worth investigating.
 | Scent | players leave a decaying trail (stronger when sprinting or wounded, fainter when crouching) | follow the gradient; when the trail runs out, check the last position |
 | Impact | block breaking, explosions | larger radius and higher priority than ordinary noise |
 | Alert | a zombie that acquires a target calls nearby kin | position only, rate limited (cooldown + per-tick budget + hop limit) |
-| Light | reserved | brightness-based visibility |
+| Light | the player's brightness, sampled every 20 ticks | spotted from further away in the light, hidden in the dark |
 
 The important property is that an idle world costs nothing: with no active stimuli the per-zombie
 per-tick cost is two integer comparisons, events are O(1) writes that never scan for entities, and

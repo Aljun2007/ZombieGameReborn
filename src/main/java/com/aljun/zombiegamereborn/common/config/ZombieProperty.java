@@ -73,6 +73,8 @@ public class ZombieProperty {
     public double awarenessImpactRadius = 64.0d;
     @SerializedName("awareness_alert_radius")
     public double awarenessAlertRadius = 24.0d;
+    @SerializedName("awareness_light_radius")
+    public double awarenessLightRadius = 24.0d;
     @SerializedName("awareness_scent_decay_ticks")
     public int awarenessScentDecayTicks = 600;
     @SerializedName("boundless_hunting")
@@ -149,6 +151,7 @@ public class ZombieProperty {
         property.awarenessSoundStrength = getIntOrDefault(obj, "awareness_sound_strength", 10);
         property.awarenessImpactRadius = getDoubleOrDefault(obj, "awareness_impact_radius", 64.0d);
         property.awarenessAlertRadius = getDoubleOrDefault(obj, "awareness_alert_radius", 24.0d);
+        property.awarenessLightRadius = getDoubleOrDefault(obj, "awareness_light_radius", 24.0d);
         property.awarenessScentDecayTicks = getIntOrDefault(obj, "awareness_scent_decay_ticks", 600);
         property.boundlessHunting = getBooleanOrDefault(obj, "boundless_hunting", false);
         property.bloodMoonBoundlessHunting = getBooleanOrDefault(obj, "blood_moon_boundless_hunting", false);
@@ -203,6 +206,7 @@ public class ZombieProperty {
         obj.addProperty("awareness_sound_strength", awarenessSoundStrength);
         obj.addProperty("awareness_impact_radius", awarenessImpactRadius);
         obj.addProperty("awareness_alert_radius", awarenessAlertRadius);
+        obj.addProperty("awareness_light_radius", awarenessLightRadius);
         obj.addProperty("awareness_scent_decay_ticks", awarenessScentDecayTicks);
         obj.addProperty("boundless_hunting", boundlessHunting);
         obj.addProperty("blood_moon_boundless_hunting", bloodMoonBoundlessHunting);
@@ -240,6 +244,7 @@ public class ZombieProperty {
         settings.soundStrength = this.awarenessSoundStrength;
         settings.impactRadius = this.awarenessImpactRadius;
         settings.alertRadius = this.awarenessAlertRadius;
+        settings.lightRadius = this.awarenessLightRadius;
         settings.scentDecayTicks = this.awarenessScentDecayTicks;
         return settings;
     }

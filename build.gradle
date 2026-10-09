@@ -36,6 +36,8 @@ neoForge {
 
         configureEach {
             systemProperty 'forge.logging.markers', 'REGISTRIES'
+            // 感知链路调试日志开关：设置环境变量 ZGR_AWARENESS_DEBUG=true 后运行 runServer
+            systemProperty 'zgr.awareness.debug', System.getenv('ZGR_AWARENESS_DEBUG') ?: 'false'
             logLevel = org.slf4j.event.Level.DEBUG
         }
     }

@@ -100,6 +100,7 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
         panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.awareness_sound_strength", "awareness_sound_strength", 10, 0, 100);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.awareness_impact_radius", "awareness_impact_radius", 64.0, 0.0, 512.0);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.awareness_alert_radius", "awareness_alert_radius", 24.0, 0.0, 512.0);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.awareness_light_radius", "awareness_light_radius", 24.0, 0.0, 512.0);
         panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.awareness_scent_decay_ticks", "awareness_scent_decay_ticks", 600, 20, 24000);
 
         panel.addLabel("gui.zombiegamereborn.zombieproperty.section.boundless_hunting");
