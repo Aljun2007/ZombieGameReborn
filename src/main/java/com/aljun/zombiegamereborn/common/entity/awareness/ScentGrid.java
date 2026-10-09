@@ -35,8 +35,18 @@ public final class ScentGrid {
     /** 压缩间隔（tick）。 */
     private static final int COMPACT_INTERVAL = 200;
 
-    /** 跟随时的滞回系数：邻居要明显更浓才值得转向，避免原地抖动。 */
-    private static final float FOLLOW_HYSTERESIS = 1.15F;
+    /**
+     * 方向判据：邻居必须比当前格<b>新</b>这么多 tick 才值得转向。
+     * <p>
+     * 这里刻意<b>不用浓度大小</b>判断方向。轨迹上相邻两格的浓度差恒为
+     * “沉积间隔 / 衰减时长”（玩家约 10/600，生物约 40/2400，都是 ~1.7%），
+     * 任何像样的浓度滞回阈值（试过 ×1.15）都会把它整个滤掉，导致僵尸永远不前进。
+     * 而“哪一格更新”才是轨迹真正的方向信息，且与沉积频率、衰减配置都无关。
+     */
+    private static final long MIN_RECENCY_GAIN = 5L;
+
+    /** 低于这个强度的格子视为没味道（用于判断轨迹是否还存在）。 */
+    private static final float MIN_INTENSITY = 0.02F;
 
     private final Long2ObjectOpenHashMap<ScentCell> cells = new Long2ObjectOpenHashMap<>();
     private long nextCompactTick;
@@ -84,9 +94,9 @@ public final class ScentGrid {
     }
 
     /**
-     * 找出“下一格该往哪走”：在当前位置周围 10 个邻格里挑有效强度最高的一格。
+     * 找出“下一格该往哪走”：在当前位置周围 10 个邻格里挑<b>最近被写入</b>且还有味道的一格。
      * <p>
-     * 只有明显更浓（滞回）才返回，否则返回 null 表示“就地闻不到了”。
+     * 返回 null 表示“到此为止”（要么自己就是最新的一格，要么轨迹断了）。
      * <p>
      * 返回的 {@link ScentCell} 是网格内部对象，调用方<b>只读</b>，不要持有引用。
      */
@@ -107,11 +117,10 @@ public final class ScentGrid {
         int cz = cellCoord(z);
 
         ScentCell here = this.cells.get(BlockPos.asLong(cx, cy, cz));
-        float hereIntensity = here == null ? 0.0F : here.effective(now);
-        float threshold = hereIntensity * FOLLOW_HYSTERESIS + 0.05F;
+        long hereTick = here == null ? Long.MIN_VALUE : here.tick;
 
         ScentCell best = null;
-        float bestIntensity = threshold;
+        long bestTick = hereTick + MIN_RECENCY_GAIN;
         // 8 个水平邻格 + 上下两格：共 10 次哈希查找，覆盖“绕圈”和“爬梯子”两种情况
         for (int dy = -1; dy <= 1; dy++) {
             for (int dz = -1; dz <= 1; dz++) {
@@ -120,9 +129,9 @@ public final class ScentGrid {
                     if (dy != 0 && (dx != 0 || dz != 0)) continue; // 只取同层 8 邻 + 垂直 2
                     ScentCell candidate = this.cells.get(BlockPos.asLong(cx + dx, cy + dy, cz + dz));
                     if (candidate == null) continue;
-                    float intensity = candidate.effective(now);
-                    if (intensity > bestIntensity) {
-                        bestIntensity = intensity;
+                    if (candidate.effective(now) <= MIN_INTENSITY) continue;
+                    if (candidate.tick > bestTick) {
+                        bestTick = candidate.tick;
                         best = candidate;
                     }
                 }

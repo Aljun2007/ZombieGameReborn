@@ -155,6 +155,15 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
                     this.zombie.isNoAi());
         }
 
+        // 气味模式不参与“到达”判定：气味格边长 4 格，格心常常就在僵尸脚边，
+        // 用定点模式的到达判定会立刻判“已到达”，于是原地环视→停止→重新开始→又到达，
+        // 永远不沿着轨迹前进（实测就是死循环）。气味模式的终点由 followScent 自己决定：
+        // 找不到更新的邻格 = 走到轨迹最新的一端 = 结束。
+        if (this.scentMode) {
+            this.followScent(now);
+            return;
+        }
+
         if (this.arrived) {
             // 到达后原地环视，模拟“找了一圈”
             this.zombie.getLookControl().setLookAt(
@@ -194,11 +203,7 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
             this.stuckTicks = 0;
         }
 
-        if (this.scentMode) {
-            this.followScent(now);
-        } else {
-            this.repath(now, false);
-        }
+        this.repath(now, false);
     }
 
     @Override

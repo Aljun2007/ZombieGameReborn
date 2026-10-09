@@ -118,3 +118,29 @@ $env:ZGR_AWARENESS_DEBUG="true"
   否则服务端会以 `FAILED TO BIND TO PORT` 静默崩溃，你会读到上一轮的旧日志。
 
 实测数字与不确定性说明见 `感知系统设计.md` 的「压力测试」一节。
+
+## 气味轨迹跟随测试
+
+`gen-scent-datapack.py` 生成第三套数据包，专门验证**气味梯度跟随**。
+
+这条通道最难隔离：气味来源同时是合法攻击目标，僵尸会直接追人而不是跟轨迹。隔离办法是：
+
+1. 把配置里的 `awareness_sound_radius` 压到 **6** —— 受伤音半径 = `soundRadius × 0.5` = 3，
+   传不到僵尸身上，于是全世界只剩气味可感知（也就不会有目标可追）；
+2. 把 `awareness_scent_decay_ticks` 调到 **2400** —— 否则轨迹会在观察前衰减干净；
+3. 让一只村民沿 +X 每 40 tick 走 4 格并被打一下，共 13 格，留下带时间梯度的轨迹；
+4. 杀掉村民（消除任何目标可能），把僵尸传送回轨迹头部，等最后一个受伤音过期（约 100 tick）后再观察。
+
+```powershell
+$env:ZGR_RUN_DIR="$PWD\run\world"
+python tools\awareness-test\gen-scent-datapack.py
+$env:ZGR_AWARENESS_DEBUG="true"
+.\gradlew.bat runServer
+```
+
+判定：日志里应出现 `starts investigating SCENT`，并且僵尸的 x 坐标**持续增大**直到轨迹
+最新的一端（`ARRIVED ... (channel SCENT)`）。若它停在原地反复 `ARRIVED`/`STOPPED`，
+说明气味模式又被套上了定点模式的到达判定。
+
+> **注意**：这套测试依赖把 `awareness_sound_radius` 压到 6。跑完记得把配置改回来，
+> 或者直接删掉 `run\config\zombiegamereborn\` 让它按预设模板重新生成。
