@@ -51,6 +51,8 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
     private long lastPathCell = Long.MIN_VALUE;
     /** 连续“路径走完但没到达”的 tick 数，用于放弃不可达目标。 */
     private int stuckTicks;
+    /** 当前调查目标的强度，用于判断“有更响的事件时该不该改道”。 */
+    private int currentStrength;
 
     public ZombieAwarenessInvestigateGoal(Zombie zombie) {
         this.zombie = zombie;
@@ -86,6 +88,7 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
             this.targetZ = stimulus.z;
             this.scentMode = false;
             this.channel = stimulus.channel;
+            this.currentStrength = stimulus.strength;
             return true;
         }
 
@@ -100,6 +103,8 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
             this.targetZ = cell.centerZ();
             this.scentMode = true;
             this.channel = AwarenessChannel.SCENT;
+            // 气味轨迹的“强度”记 0：任何一次真正的声响都足以把僵尸从轨迹上拉走
+            this.currentStrength = 0;
             return true;
         }
         return false;
@@ -153,6 +158,13 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
                     this.zombie.getNavigation().getPath() != null,
                     String.format("%.4f", this.zombie.getDeltaMovement().horizontalDistance()),
                     this.zombie.isNoAi());
+        }
+
+        // 调查途中也要定期重新评估：Goal 只在“未运行”时才会被 canUse 重新挑选，
+        // 若不在这里补一次轮询，僵尸会固执地走完一个已经不重要的小动静 ——
+        // 于是“先被脚步声引开、再扔手雷”就完全不起作用（爆炸刺激 5 秒就过期了）。
+        if (Math.floorMod(now + this.phaseSeed, AwarenessTuning.pollIntervalTicks()) == 0) {
+            this.reconsider(now);
         }
 
         // 气味模式不参与“到达”判定：气味格边长 4 格，格心常常就在僵尸脚边，
@@ -227,6 +239,45 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
     }
 
     // ------------------------------------------------------------------
+
+    /**
+     * 途中重新评估：出现<b>更响</b>的事件（例如手雷）时改道过去。
+     * <p>
+     * 判据只看强度：更响才有资格把僵尸从当前目标上拉走。
+     * 这样两个同等强度的小动静（比如连续两次挖方块）不会让它来回横跳，
+     * 而爆炸（强度 40）能压过枪声/挖矿（20）和普通声响（5~10）。
+     */
+    private void reconsider(long now) {
+        LevelAwareness awareness = AwarenessManager.of(this.zombie.level());
+        if (awareness == null) {
+            return;
+        }
+        Stimulus best = awareness.findStrongest(this.zombie.getX(), this.zombie.getY(),
+                this.zombie.getZ(), now, AwarenessManager.MASK_SOUND | AwarenessManager.MASK_IMPACT
+                        | AwarenessManager.MASK_ALERT | AwarenessManager.MASK_LIGHT);
+        if (best == null || best.strength <= this.currentStrength) {
+            return;
+        }
+        this.targetX = best.x;
+        this.targetY = best.y;
+        this.targetZ = best.z;
+        this.channel = best.channel;
+        this.currentStrength = best.strength;
+        this.scentMode = false;
+        this.arrived = false;
+        this.lookAroundUntil = 0L;
+        this.stuckTicks = 0;
+        this.lastPathCell = Long.MIN_VALUE;
+        // 换了个新目标，给它一整段新的调查时间
+        this.investigateUntil = now + AwarenessTuning.settings().investigateTimeoutTicks;
+        this.repath(now, true);
+        if (AwarenessTuning.debugLog()) {
+            LOGGER.info("[ZGR awareness] zombie#{} SWITCHED investigation to {} (strength {}) at {} | zombie {}",
+                    this.zombie.getId(), best.channel, best.strength,
+                    fmt(best.x, best.y, best.z),
+                    fmt(this.zombie.getX(), this.zombie.getY(), this.zombie.getZ()));
+        }
+    }
 
     /** 定点模式：仅在“目标格变了”或“超过重寻路间隔”时才真的调用寻路。 */
     private void repath(long now, boolean force) {

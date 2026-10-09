@@ -106,8 +106,12 @@ public final class AwarenessManager {
     private static int defaultLifespan(AwarenessChannel channel) {
         return switch (channel) {
             case SCENT -> AwarenessTuning.scentDecayTicks();
-            // 声音/冲击只作为“去调查”的触发点，几十 tick 内有效即可，不需要长期驻留
-            case SOUND, IMPACT, LIGHT -> 100;
+            // 声音只作为“去调查”的触发点，几秒的有效期够了
+            case SOUND -> 100;
+            // 爆炸是最响的事件，留更长的“记忆”：正在调查别处的僵尸赶完手上的事，
+            // 还来得及回头去爆炸点（否则手雷等于白炸 —— 实测暴露的缺口）
+            case IMPACT -> 200;
+            case LIGHT -> 100;
             case ALERT -> 60;
         };
     }

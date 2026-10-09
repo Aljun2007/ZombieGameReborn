@@ -144,3 +144,17 @@ $env:ZGR_AWARENESS_DEBUG="true"
 
 > **注意**：这套测试依赖把 `awareness_sound_radius` 压到 6。跑完记得把配置改回来，
 > 或者直接删掉 `run\config\zombiegamereborn\` 让它按预设模板重新生成。
+
+## 写测试时必踩的坑（省你半小时）
+
+1. **函数文件名必须全小写**。`noiseA.mcfunction` / `bombB.mcfunction` 这种带大写字母的名字，
+   Minecraft 1.21 会直接判为非法路径：
+   ```
+   Invalid path in pack: zgrsb:function/bombB.mcfunction, ignoring
+   Failed to load function zgrsb:tick
+   ```
+   表现是**数据包看着加载了、但 tick 函数整条失效、什么都不会发生**（而且日志里的报错在启动阶段，
+   很容易被后面几千行日志冲掉）。用 `noisea` / `bombb`。
+2. **每轮之间清掉 `run\world`**，否则上一轮的僵尸/弹坑还在，结果对不上。
+3. **确认 25565 没被占用**，否则服务端静默崩溃，你读到的是上一轮的旧日志。
+4. **读日志前先确认 `latest.log` 的修改时间晚于本轮开始时间**，否则会把上一轮的结果当成这一轮的。
