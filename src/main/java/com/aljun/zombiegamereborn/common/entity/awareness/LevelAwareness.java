@@ -96,6 +96,7 @@ public final class LevelAwareness {
             }
             if (s.free) {
                 slot = s;
+                this.allocated = Math.max(this.allocated, i + 1);
                 break;
             }
             if (s.bornTick < oldestBorn) {
@@ -128,7 +129,7 @@ public final class LevelAwareness {
      */
     @Nullable
     public Stimulus findStrongest(double x, double y, double z, long now, long channelFilterMask) {
-        if (this.allocated == 0 || this.live == 0) {
+        if (this.live == 0) {
             return null;    // 空载快速通道
         }
         if (now >= this.nextSweepTick) {
@@ -172,9 +173,10 @@ public final class LevelAwareness {
         }
         this.live = alive;
         this.nextSweepTick = now + SWEEP_INTERVAL;
-        if (alive == 0) {
-            this.allocated = 0;     // 全部回收，后续 emit 从 0 号槽重新开始
-        }
+        // 注意：allocated 是“已创建槽位的高水位”，绝不在这里归零。
+        // 归零会造成【永久失明】：槽位对象仍然存在（只是 free=true），下一次 emit 会直接复用 0 号槽，
+        // 走不到“s == null 就新建”那条分支，allocated 再也涨不回来；
+        // 而空载判据一旦依赖 allocated == 0，感知就彻底失效了（历史上确实踩过这个坑）。
     }
 
     /** 申请一次警报配额；超限返回 false（该 tick 不再传播警报）。 */
@@ -205,5 +207,26 @@ public final class LevelAwareness {
     /** 调试用：当前存活刺激数。 */
     public int liveCount() {
         return this.live;
+    }
+
+    /** 调试用：已创建槽位的高水位。 */
+    public int allocatedCount() {
+        return this.allocated;
+    }
+
+    /**
+     * 状态自检。
+     * <p>
+     * 不变式：只要有存活刺激，allocated 必须大于 0；
+     * 否则 {@link #findStrongest} 会在空载快速通道里直接返回 null，感知永久失明。
+     */
+    public boolean isStateConsistent() {
+        return this.live == 0 || this.allocated > 0;
+    }
+
+    /** 调试用：一行状态摘要。 */
+    public String debugStats() {
+        return "live=" + this.live + " allocated=" + this.allocated
+                + " scentCells=" + this.scent.cellCount();
     }
 }

@@ -5,6 +5,7 @@ import com.aljun.zombiegamereborn.common.config.StageProperty;
 import com.aljun.zombiegamereborn.common.entity.awareness.AwarenessManager;
 import com.aljun.zombiegamereborn.common.entity.awareness.AwarenessSettings;
 import com.aljun.zombiegamereborn.common.entity.awareness.AwarenessTuning;
+import com.aljun.zombiegamereborn.common.entity.awareness.LevelAwareness;
 import com.aljun.zombiegamereborn.common.entity.awareness.SoundAwareness;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
@@ -231,7 +232,50 @@ public final class ZombieAwarenessEvents {
     // ------------------------------------------------------------------
 
     @SubscribeEvent
+    public static void onServerTickPre(ServerTickEvent.Pre event) {
+        if (AwarenessTuning.debugLog()) {
+            tickStartNanos = System.nanoTime();
+        }
+    }
+
+    /**
+     * 真实 MSPT 采样（仅调试模式）。
+     * <p>
+     * 注意必须用 Pre→Post 的墙钟差：两次 Post 之间的间隔包含服务端的空闲睡眠，
+     * 服务端不卡时恒为 50ms，量不出任何东西。只有 tick 内部耗时才是有效数字。
+     * 每 200 tick 打印一次平均值与峰值。
+     */
+    private static long tickStartNanos;
+    private static long tickNanosSum;
+    private static long tickNanosMax;
+    private static int tickSamples;
+
+    private static void sampleMspt() {
+        if (tickStartNanos == 0L) {
+            return;
+        }
+        long cost = System.nanoTime() - tickStartNanos;
+        tickStartNanos = 0L;
+        tickNanosSum += cost;
+        if (cost > tickNanosMax) {
+            tickNanosMax = cost;
+        }
+        if (++tickSamples >= 200) {
+            LOGGER.info("[ZGR awareness] MSPT avg={} ms, max={} ms over {} ticks",
+                    String.format("%.2f", tickNanosSum / (double) tickSamples / 1_000_000.0D),
+                    String.format("%.2f", tickNanosMax / 1_000_000.0D),
+                    tickSamples);
+            tickNanosSum = 0L;
+            tickNanosMax = 0L;
+            tickSamples = 0;
+        }
+    }
+
+    @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
+        if (AwarenessTuning.debugLog()) {
+            sampleMspt();
+        }
         if (!AwarenessTuning.enabled()) {
             return;
         }
@@ -250,6 +294,16 @@ public final class ZombieAwarenessEvents {
 
     private static void dumpZombieState(net.minecraft.server.MinecraftServer server) {
         for (ServerLevel level : server.getAllLevels()) {
+            // 先打印感知表自身状态，并对不变式做一次自检（曾因 allocated 归零导致永久失明）
+            LevelAwareness awareness = AwarenessManager.of(level);
+            if (awareness != null) {
+                LOGGER.info("[ZGR awareness] DEBUG state[{}] {}", level.dimension().location(),
+                        awareness.debugStats());
+                if (!awareness.isStateConsistent()) {
+                    LOGGER.warn("[ZGR awareness] STATE INCONSISTENT in {}: {}",
+                            level.dimension().location(), awareness.debugStats());
+                }
+            }
             for (Entity entity : level.getAllEntities()) {
                 if (!(entity instanceof net.minecraft.world.entity.monster.Zombie zombie)) {
                     continue;

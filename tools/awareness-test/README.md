@@ -37,12 +37,31 @@
 
 | tick | 动作 |
 |---|---|
-| 40 | `setup`：forceload 测试区、关刷怪/昼夜/天气、在 y=249 铺平台、在 (8.5, 250, 8.5) 生成一只僵尸 |
-| 240 | 打印基线标记 |
-| 260 | `impact`：在 (30.5, 250, 8.5) 生成 TNT —— **距僵尸 22 格**，约 4 秒后爆炸 |
-| 760 | 打印标记 |
-| 1160 | `bait`：在爆炸点放一只村民（观察有目标时的行为） |
-| 1400 / 2400 | 打印标记 / 结束 |
+| 40 | `setup`：forceload 测试区、关刷怪/昼夜/天气、**杀掉所有会发声的生物**、在 y=249 铺平台、在 (8.5, 250, 8.5) 生成一只僵尸 |
+| 40~400 | **完全安静期（18 秒）**——见下方说明 |
+| 400 | 打印基线标记 |
+| 420 | `impact`：在 (30.5, 250, 8.5) 生成 TNT —— **距僵尸 22 格**，约 4 秒后爆炸 |
+| 800 | 打印标记 |
+| 1400 | `finish`：结束 |
+
+### 为什么要留 18 秒安静期
+
+这是一条**回归测试**，专门覆盖曾经的一个严重 bug：
+
+> `sweep()` 在“所有刺激都过期”时把内部高水位 `allocated` 归零，
+> 但 `emit()` 复用空闲槽位时没有恢复它 —— 下一次写入停在 0 号槽、永远走不到“新建槽位”分支，
+> `allocated` 再也涨不回来；而空载判据依赖 `allocated == 0`，
+> **从此所有查询都返回 null，感知永久失效**。玩家只要安静十秒钟就无法再被感知到。
+
+所以测试**故意**先制造一段没有任何声源的安静期，让所有刺激过期、触发那次 sweep，
+然后再引爆 TNT。用调试日志里的 `DEBUG state[...]` 行判定：
+
+```
+DEBUG state[minecraft:overworld] live=0 allocated=3   ← 正确：allocated 保住了
+DEBUG state[minecraft:overworld] live=0 allocated=0   ← 错误：感知已永久失明
+```
+
+`allocated` 在安静期后仍大于 0、且日志里没有 `STATE INCONSISTENT` 告警，才算通过。
 
 > **平台必须建在空气里。** 第一次把平台建在 y=100，而世界出生点是一座 y≈136 的山 ——
 > 僵尸被直接砌在石头里（`inWall=true blockAt=stone`），一步都走不动，看起来像模组坏了。
@@ -52,15 +71,14 @@
 
 ```
 [ZGR awareness] EMIT IMPACT at (30.5, 250.0, 8.5) r=96.0 strength=40 gen=0 source=Primed TNT
-[ZGR awareness] zombie#39 starts investigating IMPACT -> target (30.5, 250.0, 8.5) | zombie (8.5, 250.0, 8.5)
-[ZGR awareness] zombie#39 investigating IMPACT | zombie (12.9, 250.0, 8.5) | distance=17.6 | navDone=false hasPath=true delta=0.0623
+[ZGR awareness] zombie#32 starts investigating IMPACT -> target (30.5, 250.0, 8.5) | zombie (8.5, 250.0, 8.5)
+[ZGR awareness] zombie#32 investigating IMPACT | zombie (12.9, 250.0, 8.5) | distance=17.6 | navDone=false hasPath=true delta=0.0623
 ...
-[ZGR awareness] zombie#39 investigating IMPACT | zombie (25.3, 250.0, 8.5) | distance=5.2
+[ZGR awareness] zombie#32 ARRIVED at target (30.5, 250.0, 8.5) (channel IMPACT)
+[ZGR awareness] zombie#32 STOPPED investigating IMPACT at (28.2, 250.0, 8.2) | target was (30.5, 250.0, 8.5)
 ```
 
-即：僵尸的 x 坐标从 8.5 一路涨到 28+，`distance` 单调下降。
-
-实测结果见 `感知系统设计.md` 的「验证」一节。
+即：僵尸的 x 坐标从 8.5 一路涨到 28+，`distance` 单调下降，最后 `ARRIVED`。
 
 ## 调试日志都打印什么
 
@@ -71,4 +89,9 @@
 | `investigating ... distance=... navDone=... hasPath=... delta=...` | 有没有在动。`hasPath=true` 但 `delta=0` 说明路径存在却走不动（多半是地形卡住） |
 | `ARRIVED at target ...` | 到达并开始原地环视 |
 | `STOPPED investigating ... \| target was ...` | 为什么结束（超时 / 转而战斗） |
+| `MSPT avg=.. ms, max=.. ms over 200 ticks` | 真实 tick 内部耗时（用 Pre→Post 的墙钟差，而不是含空闲睡眠的 Post 间隔） |
+| `DEBUG state[...] live=.. allocated=.. scentCells=..` | 感知表自身状态，用于回归判定与容量观察 |
+| `STATE INCONSISTENT` | **不变式被破坏**（`live > 0` 但 `allocated == 0`），一旦出现说明感知表逻辑有 bug |
 | `DEBUG zombie#... inWall=... blockAt=... blockBelow=...` | 僵尸所处环境，排查"卡在方块里"这类问题 |
+
+实测结果见 `感知系统设计.md` 的「验证」一节。
