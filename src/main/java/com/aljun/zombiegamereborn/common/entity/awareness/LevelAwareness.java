@@ -168,6 +168,10 @@ public final class LevelAwareness {
             if (s.isExpired(now)) {
                 s.reset();
             } else {
+                // 别让感知表长期强引用已经消失的实体（生命最长的是气味刺激，可达 600 tick）
+                if (s.source != null && (s.source.isRemoved() || !s.source.isAlive())) {
+                    s.source = null;
+                }
                 alive++;
             }
         }

@@ -69,4 +69,11 @@ public final class AwarenessSettings {
     public int investigateRepathIntervalTicks = 20;
     /** 到达后原地观察的时长（tick）。 */
     public int investigateLookAroundTicks = 60;
+    /**
+     * 连续“路径已走完但没到达”多少 tick 就放弃调查。
+     * <p>
+     * 用于目标不可达的情况（声音来自墙里、地底、被堵死的房间）：
+     * 没有这条规则，僵尸会攥着 MOVE 标志原地站到超时为止，看起来像卡死。
+     */
+    public int investigateGiveUpTicks = 100;
 }

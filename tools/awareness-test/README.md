@@ -95,3 +95,26 @@ DEBUG state[minecraft:overworld] live=0 allocated=0   ← 错误：感知已永�
 | `DEBUG zombie#... inWall=... blockAt=... blockBelow=...` | 僵尸所处环境，排查"卡在方块里"这类问题 |
 
 实测结果见 `感知系统设计.md` 的「验证」一节。
+
+## 压力测试（MSPT）
+
+`gen-stress-datapack.py` 生成另一套数据包：300 只僵尸站在 y=249 的开阔平台上，
+可选地每 20 tick 引爆一次 TNT，用来测 tick 耗时。
+
+```powershell
+python tools\awareness-test\gen-stress-datapack.py     # 写进 <repo>/run/world/datapacks/zgrstress
+$env:ZGR_AWARENESS_DEBUG="true"
+.\gradlew.bat runServer
+```
+
+跑完从 `run\logs\latest.log` 里抓 `MSPT avg` 行。要做「感知开 / 关」对比，
+就把 `run\config\zombiegamereborn\default_game_property.json` 里 11 处
+`"awareness_enabled"` 一起改成 `false`，重置 `run\world` 后原样再跑一遍。
+
+注意两个坑：
+
+- **每轮之间必须清掉 `run\world`**，否则上一轮死掉的僵尸不算数，实体数对不上；
+- **必须杀干净占着 25565 的进程**（`netstat -ano | Select-String ":25565"` 拿 PID 再 `Stop-Process`），
+  否则服务端会以 `FAILED TO BIND TO PORT` 静默崩溃，你会读到上一轮的旧日志。
+
+实测数字与不确定性说明见 `感知系统设计.md` 的「压力测试」一节。

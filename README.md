@@ -83,7 +83,10 @@ src/main/java/com/aljun/zombiegamereborn/
 │   │   ├── goal/attack/drowned/        # Drowned variants
 │   │   ├── goal/behavior/              # Break block, place block, bridge, float, flee sun, shield
 │   │   ├── goal/target/                # Target selection goals
-│   │   ├── sense/                      # ZombieSenseManager / SenseType / PointblankCallback
+│   │   ├── sense/                      # PointblankCallback (gun-sync callback; the old sense
+│   │   │                               # system was replaced by entity/awareness/)
+│   │   ├── awareness/                  # Event-driven awareness: stimulus pool, scent grid,
+│   │   │                               # investigate/target goals, sound + light hooks
 │   │   └── zombieType/                 # Zombie type registry + per-type implementations
 │   ├── events/handler/                 # Gameplay / lifecycle event handlers
 │   ├── game/                           # DayTime / ZGRGame / ZombieStatic

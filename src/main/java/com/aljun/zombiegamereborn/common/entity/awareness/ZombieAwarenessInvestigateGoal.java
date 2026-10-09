@@ -49,6 +49,8 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
     private long lastProgressLogTick;
     /** 上次寻路的目标格，只有换格才重新寻路。 */
     private long lastPathCell = Long.MIN_VALUE;
+    /** 连续“路径走完但没到达”的 tick 数，用于放弃不可达目标。 */
+    private int stuckTicks;
 
     public ZombieAwarenessInvestigateGoal(Zombie zombie) {
         this.zombie = zombie;
@@ -112,6 +114,7 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
         this.investigateUntil = now + settings.investigateTimeoutTicks;
         this.lastRepathTick = 0L;
         this.lastPathCell = Long.MIN_VALUE;
+        this.stuckTicks = 0;
         this.repath(now, true);
         if (AwarenessTuning.debugLog()) {
             LOGGER.info("[ZGR awareness] zombie#{} starts investigating {} -> target {} | zombie {}",
@@ -168,12 +171,27 @@ public class ZombieAwarenessInvestigateGoal extends Goal {
                 <= arriveDistance * arriveDistance) {
             this.arrived = true;
             this.lookAroundUntil = now + AwarenessTuning.settings().investigateLookAroundTicks;
+            // 保证环视能完整进行：到达得晚时，环视不能被总超时提前掐断
+            this.investigateUntil = Math.max(this.investigateUntil, this.lookAroundUntil);
             this.zombie.getNavigation().stop();
             if (AwarenessTuning.debugLog()) {
                 LOGGER.info("[ZGR awareness] zombie#{} ARRIVED at target {} (channel {})",
                         this.zombie.getId(), fmt(this.targetX, this.targetY, this.targetZ), this.channel);
             }
             return;
+        }
+
+        // 路径已经走完【且确实没在动】（目标不可达，比如声音来自墙里/地底）：
+        // 连续卡住够久就放弃，别把 MOVE 一直攥着让僵尸站着发呆。
+        // 必须带“没在动”这个条件：正常接近途中路径也会短暂走完，此时僵尸仍在移动，不能算卡住。
+        boolean notMoving = this.zombie.getDeltaMovement().horizontalDistanceSqr() < 1.0E-4D;
+        if (this.zombie.getNavigation().isDone() && notMoving) {
+            if (++this.stuckTicks >= AwarenessTuning.settings().investigateGiveUpTicks) {
+                this.investigateUntil = now;
+                return;
+            }
+        } else {
+            this.stuckTicks = 0;
         }
 
         if (this.scentMode) {
