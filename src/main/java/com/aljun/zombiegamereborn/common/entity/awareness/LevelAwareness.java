@@ -129,6 +129,19 @@ public final class LevelAwareness {
      */
     @Nullable
     public Stimulus findStrongest(double x, double y, double z, long now, long channelFilterMask) {
+        return findStrongest(x, y, z, now, channelFilterMask, false);
+    }
+
+    /**
+     * @param requireSource 只考虑带实体来源的刺激。
+     *                      <p>
+     *                      “锁定目标”那条链路必须传 true：否则会出现这样一种真实情况 ——
+     *                      目标生物自己发出的环境音（无来源、评分略高）把它的受伤音（有来源）挤掉，
+     *                      于是僵尸感知到了动静却永远锁不上目标。
+     */
+    @Nullable
+    public Stimulus findStrongest(double x, double y, double z, long now, long channelFilterMask,
+                                  boolean requireSource) {
         if (this.live == 0) {
             return null;    // 空载快速通道
         }
@@ -145,6 +158,7 @@ public final class LevelAwareness {
             Stimulus s = this.stimuli[i];
             if (s == null || s.free || s.isExpired(now)) continue;
             if ((channelFilterMask & (1L << s.channel.ordinal())) == 0L) continue;
+            if (requireSource && s.source == null) continue;
             double dx = s.x - x;
             double dy = s.y - y;
             double dz = s.z - z;

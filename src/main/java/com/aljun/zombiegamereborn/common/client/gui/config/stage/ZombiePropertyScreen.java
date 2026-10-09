@@ -95,6 +95,7 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.piglin_angry_mode", "piglin_angry_mode", false);
         panel.addLabel("gui.zombiegamereborn.zombieproperty.section.awareness");
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.awareness_enabled", "awareness_enabled", true);
+        panel.addCheckBox("gui.zombiegamereborn.zombieproperty.awareness_feedback_sounds", "awareness_feedback_sounds", true);
         panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.awareness_poll_interval", "awareness_poll_interval", 10, 1, 200);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.awareness_sound_radius", "awareness_sound_radius", 48.0, 0.0, 512.0);
         panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.awareness_sound_strength", "awareness_sound_strength", 10, 0, 100);

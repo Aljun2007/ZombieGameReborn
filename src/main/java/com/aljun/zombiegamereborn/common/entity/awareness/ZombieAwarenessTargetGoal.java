@@ -2,6 +2,7 @@ package com.aljun.zombiegamereborn.common.entity.awareness;
 
 import com.aljun.zombiegamereborn.utils.ZombieUtils;
 import com.mojang.logging.LogUtils;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
@@ -36,7 +37,15 @@ public class ZombieAwarenessTargetGoal extends TargetGoal {
     private LivingEntity sensedTarget;
     private long senseUntil;
     private int sensedGeneration;
-    private long lastAlertTick = Long.MIN_VALUE;
+    private long lastAlertTick = NEVER;
+    /**
+     * “从未发生过”的哨兵值。
+     * <p>
+     * <b>绝对不能用 {@code Long.MIN_VALUE}</b>：这里要做的是减法比较，
+     * {@code now - Long.MIN_VALUE} 会溢出成负数，于是永远小于冷却时间，
+     * 整个警报链路（以及跟着它走的反馈音）会静默失效 —— 这个坑真踩过一次。
+     */
+    private static final long NEVER = -1_000_000L;
 
     private boolean piglinAngryMode;
 
@@ -72,10 +81,11 @@ public class ZombieAwarenessTargetGoal extends TargetGoal {
         if (awareness == null) {
             return false;
         }
-        // 只关心“有实体来源、且能打”的通道；警报只提供位置，不作为攻击目标
+        // 只关心“有实体来源、且能打”的通道；警报只提供位置，不作为攻击目标。
+        // requireSource = true：必须跳过无来源的刺激，否则目标生物自己的环境音会把它的受伤音挤掉。
         Stimulus stimulus = awareness.findStrongest(this.zombie.getX(), this.zombie.getY(),
                 this.zombie.getZ(), now, AwarenessManager.MASK_SOUND | AwarenessManager.MASK_IMPACT
-                        | AwarenessManager.MASK_LIGHT | AwarenessManager.MASK_SCENT);
+                        | AwarenessManager.MASK_LIGHT | AwarenessManager.MASK_SCENT, true);
         if (stimulus == null || stimulus.source == null) {
             return false;
         }
@@ -150,6 +160,11 @@ public class ZombieAwarenessTargetGoal extends TargetGoal {
             return;
         }
         this.lastAlertTick = now;
+        // 听觉反馈：玩家能听见“它们注意到我了”。跟着警报冷却走，所以不会变成刷屏。
+        // 用原版僵尸环境音压低音高 —— 不需要任何外部素材。
+        AwarenessManager.playFeedbackSound(this.zombie.level(), this.zombie.getX(),
+                this.zombie.getY() + 0.6D, this.zombie.getZ(),
+                SoundEvents.ZOMBIE_AMBIENT, 1.0F, 0.7F);
         AwarenessSettings settings = AwarenessTuning.settings();
         AwarenessManager.emitAlert(this.zombie.level(), this.zombie.getX(), this.zombie.getY(),
                 this.zombie.getZ(), settings.alertRadius,

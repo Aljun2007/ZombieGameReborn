@@ -236,6 +236,16 @@ per-tick cost is two integer comparisons, events are O(1) writes that never scan
 scent trails are a lazily decayed sparse grid rather than entities. The previous implementation
 scanned every entity inside a 512-block box on *every* noise, block break, gunshot and explosion.
 
+Measured cost (300 zombies, real dedicated server, MSPT sampled inside the tick): awareness adds
+**under 1 ms/tick** while idle, and an idle horde of 300 zombies costs ~6.9 ms/tick with it versus
+~6.0 ms/tick without it. Zombies standing still after investigating are *cheaper* than zombies
+wandering — pathfinding, not awareness, dominates the load. See `感知系统设计.md` for the raw
+numbers and their error bars.
+
+Zombies also **growl when they lock onto you** (vanilla zombie sound, configurable via
+`awareness_feedback_sounds`), so you can hear that you have been noticed. The mod's own feedback
+sound is filtered out of its own awareness system, so it cannot cascade.
+
 Full design notes and the complexity comparison: `感知系统设计.md`.
 
 ---

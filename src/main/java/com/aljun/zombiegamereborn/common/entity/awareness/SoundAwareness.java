@@ -8,6 +8,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 /**
  * 把“世界里播放了一次声音”翻译成一条感知刺激。
@@ -24,6 +26,8 @@ import org.jetbrains.annotations.Nullable;
  * </ol>
  */
 public final class SoundAwareness {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /** 低于这个音量视为听不见（原版静音/极轻的循环音）。 */
     private static final float MIN_VOLUME = 0.05F;
@@ -48,6 +52,13 @@ public final class SoundAwareness {
                                @Nullable Holder<SoundEvent> soundHolder, SoundSource category,
                                float volume) {
         if (level.isClientSide()) {
+            return;
+        }
+        // 模组自己播的反馈音绝不能反过来变成刺激（否则是正反馈雪崩）
+        if (AwarenessManager.isInternalSound()) {
+            if (AwarenessTuning.debugLog()) {
+                LOGGER.info("[ZGR awareness] feedback sound suppressed (internal re-entrancy guard)");
+            }
             return;
         }
         AwarenessSettings settings = AwarenessTuning.settings();

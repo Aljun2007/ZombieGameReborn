@@ -63,6 +63,8 @@ public class ZombieProperty {
     // 现在统一由一份不可变设置快照驱动，见 AwarenessSettings / AwarenessTuning。
     @SerializedName("awareness_enabled")
     public boolean awarenessEnabled = true;
+    @SerializedName("awareness_feedback_sounds")
+    public boolean awarenessFeedbackSounds = true;
     @SerializedName("awareness_poll_interval")
     public int awarenessPollInterval = 10;
     @SerializedName("awareness_sound_radius")
@@ -146,6 +148,7 @@ public class ZombieProperty {
         property.canJumpAttack = getBooleanOrDefault(obj, "can_jump_attack", false);
         property.followMustSee = getBooleanOrDefault(obj, "follow_must_see", true);
         property.awarenessEnabled = getBooleanOrDefault(obj, "awareness_enabled", true);
+        property.awarenessFeedbackSounds = getBooleanOrDefault(obj, "awareness_feedback_sounds", true);
         property.awarenessPollInterval = getIntOrDefault(obj, "awareness_poll_interval", 10);
         property.awarenessSoundRadius = getDoubleOrDefault(obj, "awareness_sound_radius", 48.0d);
         property.awarenessSoundStrength = getIntOrDefault(obj, "awareness_sound_strength", 10);
@@ -201,6 +204,7 @@ public class ZombieProperty {
         obj.addProperty("can_jump_attack", canJumpAttack);
         obj.addProperty("follow_must_see", followMustSee);
         obj.addProperty("awareness_enabled", awarenessEnabled);
+        obj.addProperty("awareness_feedback_sounds", awarenessFeedbackSounds);
         obj.addProperty("awareness_poll_interval", awarenessPollInterval);
         obj.addProperty("awareness_sound_radius", awarenessSoundRadius);
         obj.addProperty("awareness_sound_strength", awarenessSoundStrength);
@@ -239,6 +243,7 @@ public class ZombieProperty {
     public AwarenessSettings toAwarenessSettings() {
         AwarenessSettings settings = new AwarenessSettings();
         settings.enabled = this.awarenessEnabled;
+        settings.feedbackSounds = this.awarenessFeedbackSounds;
         settings.pollIntervalTicks = this.awarenessPollInterval;
         settings.soundRadius = this.awarenessSoundRadius;
         settings.soundStrength = this.awarenessSoundStrength;

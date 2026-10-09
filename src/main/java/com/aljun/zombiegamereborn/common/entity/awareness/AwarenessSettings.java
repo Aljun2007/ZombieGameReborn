@@ -28,6 +28,14 @@ public final class AwarenessSettings {
     /** 是否把僵尸自身发出的声音也算作刺激（默认关，否则僵尸群会互相“听到”彼此而暴走）。 */
     public boolean hearOwnKind = false;
 
+    /**
+     * 感知反馈音：僵尸锁定目标时发出一声低吼。
+     * <p>
+     * 这是「僵尸意识」手感的一部分 —— 玩家能<b>听见</b>“它们注意到我了”，
+     * 而不是无声无息地被锁定。用原版音效，不引入任何外部素材。
+     */
+    public boolean feedbackSounds = true;
+
     // ---- 通道：冲击（爆炸 / 方块破碎） ----
     public double impactRadius = 64.0D;
     public int impactStrength = 20;

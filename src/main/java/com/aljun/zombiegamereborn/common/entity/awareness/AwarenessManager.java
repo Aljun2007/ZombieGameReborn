@@ -2,6 +2,8 @@ package com.aljun.zombiegamereborn.common.entity.awareness;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -116,6 +118,35 @@ public final class AwarenessManager {
         LevelAwareness awareness = of(level);
         if (awareness == null) return;
         awareness.scent().deposit(x, y, z, amount, level.getGameTime());
+    }
+
+    // ------------------------------------------------------------------
+    // 感知反馈音
+    // ------------------------------------------------------------------
+
+    /**
+     * 重入标记：模组自己播放的音效不能被自己的感知系统听见。
+     * <p>
+     * 否则会形成正反馈：僵尸 A 因为发现玩家而低吼 → 这声低吼被 B 听见 → B 也低吼 →
+     * C 听见 B …… 没有这层保护，再加多少限流都只是把雪崩推迟几秒。
+     * 服务端音效播放发生在 tick 线程内且是同步的，所以一个普通字段就够了。
+     */
+    private static boolean internalSound;
+
+    public static boolean isInternalSound() {
+        return internalSound;
+    }
+
+    /** 播放感知反馈音（带重入保护）。玩家能听见，但不会产生任何刺激。 */
+    public static void playFeedbackSound(Level level, double x, double y, double z,
+                                         SoundEvent sound, float volume, float pitch) {
+        if (!AwarenessTuning.settings().feedbackSounds) return;
+        internalSound = true;
+        try {
+            level.playSound(null, x, y, z, sound, SoundSource.HOSTILE, volume, pitch);
+        } finally {
+            internalSound = false;
+        }
     }
 
     // ------------------------------------------------------------------
