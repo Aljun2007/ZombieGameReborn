@@ -93,26 +93,18 @@ public class ZombiePropertyScreen extends AbstractBranchConfigScreen {
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.enable_piglin_collision_anger", "enable_piglin_collision_anger", false);
         panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.piglin_collision_anger_chance","piglin_collision_anger_chance", 1.0, 0.0, 1.0);
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.piglin_angry_mode", "piglin_angry_mode", false);
-        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.enhanced_sense");
-        panel.addCheckBox("gui.zombiegamereborn.zombieproperty.enhanced_sense_enabled", "enhanced_sense", false);
+        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.awareness");
+        panel.addCheckBox("gui.zombiegamereborn.zombieproperty.awareness_enabled", "awareness_enabled", true);
+        panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.awareness_poll_interval", "awareness_poll_interval", 10, 1, 200);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.awareness_sound_radius", "awareness_sound_radius", 48.0, 0.0, 512.0);
+        panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.awareness_sound_strength", "awareness_sound_strength", 10, 0, 100);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.awareness_impact_radius", "awareness_impact_radius", 64.0, 0.0, 512.0);
+        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.awareness_alert_radius", "awareness_alert_radius", 24.0, 0.0, 512.0);
+        panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.awareness_scent_decay_ticks", "awareness_scent_decay_ticks", 600, 20, 24000);
+
+        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.boundless_hunting");
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.blood_moon_boundless_hunting", "blood_moon_boundless_hunting", false);
         panel.addCheckBox("gui.zombiegamereborn.zombieproperty.boundless_hunting", "boundless_hunting", false);
-
-        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.bleeding_sense");
-        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.sense_radius", "sense_bleeding_radius", 64.0, 0.0, Double.MAX_VALUE);
-        panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.sense_lifespan", "sense_bleeding_lifespan", 400, 1, Integer.MAX_VALUE);
-
-        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.block_sense");
-        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.sense_radius", "sense_block_radius", 16.0, 0.0, Double.MAX_VALUE);
-        panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.sense_lifespan", "sense_block_lifespan", 100, 1, Integer.MAX_VALUE);
-
-        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.gun_shot_sense");
-        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.sense_radius", "sense_gun_shot_radius", 64.0, 0.0, Double.MAX_VALUE);
-        panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.sense_lifespan", "sense_gun_shot_lifespan", 400, 1, Integer.MAX_VALUE);
-
-        panel.addLabel("gui.zombiegamereborn.zombieproperty.section.gun_shot_silenced_sense");
-        panel.addDoubleEditBox("gui.zombiegamereborn.zombieproperty.sense_radius", "sense_gun_shot_silenced_radius", 16.0, 0.0, Double.MAX_VALUE);
-        panel.addIntEditBox("gui.zombiegamereborn.zombieproperty.sense_lifespan", "sense_gun_shot_silenced_lifespan", 100, 1, Integer.MAX_VALUE);
     }
 
     private void initModCompatTab(SimpleSettingsPanel panel) {

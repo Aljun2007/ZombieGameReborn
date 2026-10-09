@@ -1,8 +1,7 @@
 package com.aljun.zombiegamereborn.diplomat.pointblank;
 
+import com.aljun.zombiegamereborn.common.entity.awareness.AwarenessManager;
 import com.aljun.zombiegamereborn.common.entity.sense.PointblankCallback;
-import com.aljun.zombiegamereborn.common.entity.sense.SenseType;
-import com.aljun.zombiegamereborn.common.entity.sense.ZombieSenseManager;
 import com.vicmatskiv.pointblank.client.GunClientState;
 import com.vicmatskiv.pointblank.feature.SoundFeature;
 import com.vicmatskiv.pointblank.item.AmmoCount;
@@ -75,8 +74,7 @@ public class PointblankProviderImpl implements IPointblankProvider {
 
         ItemStack gun = sender.getMainHandItem();
         boolean isSilenced = isSilencedShot(gun);
-        SenseType senseType = isSilenced ? SenseType.GUN_SHOT_SILENCED : SenseType.GUN_SHOT;
-        ZombieSenseManager.broadcastSense(sender, sender.level(), senseType);
+        AwarenessManager.emitGunShot(sender.level(), sender.getX(), sender.getY(), sender.getZ(), isSilenced, sender);
     }
 
     private boolean isSilencedShot(ItemStack gun) {

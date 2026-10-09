@@ -1,6 +1,7 @@
 package com.aljun.zombiegamereborn.common.config;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
+import com.aljun.zombiegamereborn.common.entity.awareness.AwarenessSettings;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
 import com.aljun.zombiegamereborn.utils.RandomUtils;
@@ -57,24 +58,23 @@ public class ZombieProperty {
     public double followRange = 40.0d;
     @SerializedName("follow_must_see")
     public boolean followMustSee = true;
-    @SerializedName("sense_bleeding_radius")
-    public double senseBleedingRadius = 64d;
-    @SerializedName("sense_bleeding_lifespan")
-    public int senseBleedingLifespan = 400;
-    @SerializedName("sense_block_radius")
-    public double senseBlockRadius = 16.0d;
-    @SerializedName("sense_block_lifespan")
-    public int senseBlockLifespan = 100;
-    @SerializedName("sense_gun_shot_radius")
-    public double senseGunShotRadius = 64.0d;
-    @SerializedName("sense_gun_shot_lifespan")
-    public int senseGunShotLifespan = 400;
-    @SerializedName("sense_gun_shot_silenced_radius")
-    public double senseGunShotSilencedRadius = 16.0d;
-    @SerializedName("sense_gun_shot_silenced_lifespan")
-    public int senseGunShotSilencedLifespan = 100;
-    @SerializedName("enhanced_sense")
-    public boolean enhancedSense = false;
+    // ---- 感知系统（声音 / 气味 / 冲击 / 警报）----
+    // 取代旧的 sense_* 常量组：旧实现把半径写死在静态字段上再靠 refresh 回写，
+    // 现在统一由一份不可变设置快照驱动，见 AwarenessSettings / AwarenessTuning。
+    @SerializedName("awareness_enabled")
+    public boolean awarenessEnabled = true;
+    @SerializedName("awareness_poll_interval")
+    public int awarenessPollInterval = 10;
+    @SerializedName("awareness_sound_radius")
+    public double awarenessSoundRadius = 48.0d;
+    @SerializedName("awareness_sound_strength")
+    public int awarenessSoundStrength = 10;
+    @SerializedName("awareness_impact_radius")
+    public double awarenessImpactRadius = 64.0d;
+    @SerializedName("awareness_alert_radius")
+    public double awarenessAlertRadius = 24.0d;
+    @SerializedName("awareness_scent_decay_ticks")
+    public int awarenessScentDecayTicks = 600;
     @SerializedName("boundless_hunting")
     public boolean boundlessHunting = false;
     @SerializedName("blood_moon_boundless_hunting")
@@ -143,15 +143,13 @@ public class ZombieProperty {
         property.doSwimmingZombieConvert = getBooleanOrDefault(obj, "do_swimming_zombie_convert", false);
         property.canJumpAttack = getBooleanOrDefault(obj, "can_jump_attack", false);
         property.followMustSee = getBooleanOrDefault(obj, "follow_must_see", true);
-        property.senseBleedingRadius = getDoubleOrDefault(obj, "sense_bleeding_radius", 16.0d);
-        property.senseBleedingLifespan = getIntOrDefault(obj, "sense_bleeding_lifespan", 400);
-        property.senseBlockRadius = getDoubleOrDefault(obj, "sense_block_radius", 16.0d);
-        property.senseBlockLifespan = getIntOrDefault(obj, "sense_block_lifespan", 100);
-        property.senseGunShotRadius = getDoubleOrDefault(obj, "sense_gun_shot_radius", 64.0d);
-        property.senseGunShotLifespan = getIntOrDefault(obj, "sense_gun_shot_lifespan", 400);
-        property.senseGunShotSilencedRadius = getDoubleOrDefault(obj, "sense_gun_shot_silenced_radius", 16.0d);
-        property.senseGunShotSilencedLifespan = getIntOrDefault(obj, "sense_gun_shot_silenced_lifespan", 100);
-        property.enhancedSense = getBooleanOrDefault(obj, "enhanced_sense", false);
+        property.awarenessEnabled = getBooleanOrDefault(obj, "awareness_enabled", true);
+        property.awarenessPollInterval = getIntOrDefault(obj, "awareness_poll_interval", 10);
+        property.awarenessSoundRadius = getDoubleOrDefault(obj, "awareness_sound_radius", 48.0d);
+        property.awarenessSoundStrength = getIntOrDefault(obj, "awareness_sound_strength", 10);
+        property.awarenessImpactRadius = getDoubleOrDefault(obj, "awareness_impact_radius", 64.0d);
+        property.awarenessAlertRadius = getDoubleOrDefault(obj, "awareness_alert_radius", 24.0d);
+        property.awarenessScentDecayTicks = getIntOrDefault(obj, "awareness_scent_decay_ticks", 600);
         property.boundlessHunting = getBooleanOrDefault(obj, "boundless_hunting", false);
         property.bloodMoonBoundlessHunting = getBooleanOrDefault(obj, "blood_moon_boundless_hunting", false);
         property.musketModGunDamageModify = getDoubleOrDefault(obj, "musket_mod_gun_damage_modify", 0.5d);
@@ -199,15 +197,13 @@ public class ZombieProperty {
         obj.addProperty("do_swimming_zombie_convert", doSwimmingZombieConvert);
         obj.addProperty("can_jump_attack", canJumpAttack);
         obj.addProperty("follow_must_see", followMustSee);
-        obj.addProperty("sense_bleeding_radius", senseBleedingRadius);
-        obj.addProperty("sense_bleeding_lifespan", senseBleedingLifespan);
-        obj.addProperty("sense_block_radius", senseBlockRadius);
-        obj.addProperty("sense_block_lifespan", senseBlockLifespan);
-        obj.addProperty("sense_gun_shot_radius", senseGunShotRadius);
-        obj.addProperty("sense_gun_shot_lifespan", senseGunShotLifespan);
-        obj.addProperty("sense_gun_shot_silenced_radius", senseGunShotSilencedRadius);
-        obj.addProperty("sense_gun_shot_silenced_lifespan", senseGunShotSilencedLifespan);
-        obj.addProperty("enhanced_sense", enhancedSense);
+        obj.addProperty("awareness_enabled", awarenessEnabled);
+        obj.addProperty("awareness_poll_interval", awarenessPollInterval);
+        obj.addProperty("awareness_sound_radius", awarenessSoundRadius);
+        obj.addProperty("awareness_sound_strength", awarenessSoundStrength);
+        obj.addProperty("awareness_impact_radius", awarenessImpactRadius);
+        obj.addProperty("awareness_alert_radius", awarenessAlertRadius);
+        obj.addProperty("awareness_scent_decay_ticks", awarenessScentDecayTicks);
         obj.addProperty("boundless_hunting", boundlessHunting);
         obj.addProperty("blood_moon_boundless_hunting", bloodMoonBoundlessHunting);
         obj.addProperty("musket_mod_gun_damage_modify", musketModGunDamageModify);
@@ -230,6 +226,24 @@ public class ZombieProperty {
 
     }
 
+    /**
+     * 把阶段配置翻译成感知系统的参数快照。
+     * <p>
+     * 由 {@code GamePropertyRefresher} 在阶段推进时调用一次，整体替换全局快照 ——
+     * 热路径（僵尸轮询、事件写入）因此只读一个 volatile 引用，不需要每次查配置。
+     */
+    public AwarenessSettings toAwarenessSettings() {
+        AwarenessSettings settings = new AwarenessSettings();
+        settings.enabled = this.awarenessEnabled;
+        settings.pollIntervalTicks = this.awarenessPollInterval;
+        settings.soundRadius = this.awarenessSoundRadius;
+        settings.soundStrength = this.awarenessSoundStrength;
+        settings.impactRadius = this.awarenessImpactRadius;
+        settings.alertRadius = this.awarenessAlertRadius;
+        settings.scentDecayTicks = this.awarenessScentDecayTicks;
+        return settings;
+    }
+
     @SuppressWarnings("all")
     public void loadZombieAttributes(Zombie zombie) {
         IZombieData data = ZGRZombieAttributesAPI.getZombieData(zombie);
@@ -243,7 +257,7 @@ public class ZombieProperty {
         ZGRZombieAttributesAPI.setSunSensitive(data, !RandomUtils.booleanByChance(this.sunImmunityProbability));
         ZGRZombieAttributesAPI.setFireImmune(data, RandomUtils.booleanByChance(this.fireImmuneProbability));
 
-        ZGRZombieAttributesAPI.setEnhancedSense(data,this.enhancedSense);
+        // 感知系统不再按僵尸逐个开关：所有僵尸共用同一套由阶段配置驱动的感知参数
         ZGRZombieAttributesAPI.setFleeSun(data,this.fleeSun);
 
         ZGRZombieAttributesAPI.setAmbientVolumeModify(data,this.ambientVolumeModify);

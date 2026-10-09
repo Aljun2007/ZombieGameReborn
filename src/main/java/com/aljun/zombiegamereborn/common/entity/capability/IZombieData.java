@@ -3,18 +3,12 @@ package com.aljun.zombiegamereborn.common.entity.capability;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombiePlaceBlockGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieShieldGoal;
-import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 
 public interface IZombieData {
-
-    @Nullable
-    ZombieSenseTargetGoal getZombieSenseTargetGoalGoal();
-
-    void setZombieSenseTargetGoalGoal(ZombieSenseTargetGoal zombieSenseTargetGoalGoal);
 
     @Nullable
     ZombieBreakBlockGoal getZombieBreakBlockGoal();
@@ -30,9 +24,6 @@ public interface IZombieData {
     ZombieShieldGoal getZombieShieldGoal();
 
     void setZombieShieldGoal(ZombieShieldGoal goal);
-
-    boolean enhancedSense();
-    void setEnhancedSense(boolean value);
 
     boolean isSunSensitive();
     void setSunSensitive(boolean value);

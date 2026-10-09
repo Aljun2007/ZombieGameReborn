@@ -6,8 +6,9 @@ import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.capability.ZombieDataProvider;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.*;
 import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieNearestAttackableTargetGoal;
+import com.aljun.zombiegamereborn.common.entity.awareness.ZombieAwarenessInvestigateGoal;
+import com.aljun.zombiegamereborn.common.entity.awareness.ZombieAwarenessTargetGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.target.ZombiePiglinCollisionTargetGoal;
-import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.common.game.ZombieStatic;
 import com.aljun.zombiegamereborn.network.ZGRNetwork;
@@ -108,11 +109,6 @@ public class ZombieTypeManager {
             }
             ZombieStatic.incrementZombieCount(zombie, data);
 
-            ZombieSenseTargetGoal senseGoal = data.getZombieSenseTargetGoalGoal();
-            if (senseGoal != null) {
-                senseGoal.tickDecay();
-            }
-
             type.onTick(zombie, data, tickCount);
 
             // 每 tick 重建 Empower 计数（onTick 中授权可能刚生效，getAndSet(0) 在下个 START 清零）
@@ -169,14 +165,16 @@ public class ZombieTypeManager {
                 piglinAngry = true;
             }
         }
-        if (data.enhancedSense()) {
-            ZombieSenseTargetGoal senseGoal = new ZombieSenseTargetGoal(zombie);
-            data.setZombieSenseTargetGoalGoal(senseGoal);
-            if (zombie instanceof ZombifiedPiglin && piglinAngry) {
-                senseGoal.setPiglinAngryMode();
-            }
-            zombie.targetSelector.addGoal(4, senseGoal);
+        // 感知系统（所有僵尸默认启用，不再是可选开关）：
+        //   goalSelector  → 去调查某个“位置”（声音传来的地方、气味浓的方向）
+        //   targetSelector → 顺着刺激锁定实体目标
+        // 两个 Goal 都只在自己相位命中时轮询一次，不需要外部每 tick 驱动。
+        zombie.goalSelector.addGoal(4, new ZombieAwarenessInvestigateGoal(zombie));
+        ZombieAwarenessTargetGoal awarenessTargetGoal = new ZombieAwarenessTargetGoal(zombie);
+        if (zombie instanceof ZombifiedPiglin && piglinAngry) {
+            awarenessTargetGoal.setPiglinAngryMode();
         }
+        zombie.targetSelector.addGoal(4, awarenessTargetGoal);
         if (data.fleeSun()&& !(zombie instanceof Drowned)) {
             zombie.goalSelector.addGoal(2, new ZombieRestrictSunGoal(zombie, data));
             zombie.goalSelector.addGoal(3, new ZombieFleeSunGoal(zombie));

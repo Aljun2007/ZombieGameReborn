@@ -214,6 +214,27 @@ of the AI tick to avoid chunk-lock stalls. Event signatures were updated to the 
 (`PlayerTickEvent.Post`, `LevelTickEvent.Pre/Post`, `ServerTickEvent.Pre/Post`,
 `ClientTickEvent.Pre/Post`, `ICancellableEvent`).
 
+## Awareness System
+
+Zombies do not simply chase whatever made a noise. The awareness layer is an event-driven stimulus
+system: the world writes *what happened and where*, and every zombie decides for itself — on a
+staggered schedule — whether anything nearby is worth investigating.
+
+| Channel | Source | Reaction |
+|---|---|---|
+| Sound | every server-side sound, minus ambient noise and footsteps | walk to the noise; if it has an attackable source, engage it |
+| Scent | players leave a decaying trail (stronger when sprinting or wounded, fainter when crouching) | follow the gradient; when the trail runs out, check the last position |
+| Impact | block breaking, explosions | larger radius and higher priority than ordinary noise |
+| Alert | a zombie that acquires a target calls nearby kin | position only, rate limited (cooldown + per-tick budget + hop limit) |
+| Light | reserved | brightness-based visibility |
+
+The important property is that an idle world costs nothing: with no active stimuli the per-zombie
+per-tick cost is two integer comparisons, events are O(1) writes that never scan for entities, and
+scent trails are a lazily decayed sparse grid rather than entities. The previous implementation
+scanned every entity inside a 512-block box on *every* noise, block break, gunshot and explosion.
+
+Full design notes and the complexity comparison: `感知系统设计.md`.
+
 ---
 
 ## Port Notes (1.20.1 Forge → 1.21.1 NeoForge)

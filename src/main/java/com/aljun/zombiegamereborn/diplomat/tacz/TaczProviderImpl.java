@@ -1,10 +1,9 @@
 package com.aljun.zombiegamereborn.diplomat.tacz;
 
 import com.aljun.zombiegamereborn.api.ZGRZombieAttributesAPI;
+import com.aljun.zombiegamereborn.common.entity.awareness.AwarenessManager;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieShieldGoal;
-import com.aljun.zombiegamereborn.common.entity.sense.SenseType;
-import com.aljun.zombiegamereborn.common.entity.sense.ZombieSenseManager;
 import com.tacz.guns.api.entity.IGunOperator;
 import com.tacz.guns.api.event.common.EntityHurtByGunEvent;
 import com.tacz.guns.api.event.common.GunFireEvent;
@@ -47,8 +46,7 @@ public class TaczProviderImpl implements ITaczProvider {
         boolean isSilenced = isSilencedShot(event);
 
         // 广播枪声感知
-        SenseType senseType = isSilenced ? SenseType.GUN_SHOT_SILENCED : SenseType.GUN_SHOT;
-        ZombieSenseManager.broadcastSense(shooter, level, senseType);
+        AwarenessManager.emitGunShot(level, shooter.getX(), shooter.getY(), shooter.getZ(), isSilenced, shooter);
     }
 
     /**

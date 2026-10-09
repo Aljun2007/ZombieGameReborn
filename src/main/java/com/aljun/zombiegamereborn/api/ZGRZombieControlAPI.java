@@ -3,7 +3,6 @@ package com.aljun.zombiegamereborn.api;
 import com.aljun.zombiegamereborn.common.entity.capability.IZombieData;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombiePlaceBlockGoal;
-import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
@@ -26,11 +25,6 @@ public class ZGRZombieControlAPI {
     @Nullable
     public static ZombiePlaceBlockGoal getPlaceBlockGoal(IZombieData data) {
         return data.getZombiePlaceBlockGoal();
-    }
-
-    @Nullable
-    public static ZombieSenseTargetGoal getZombieSenseTargetGoal(IZombieData data) {
-        return data.getZombieSenseTargetGoalGoal();
     }
 
     public static boolean startBreakBlock(IZombieData data, BlockPos pos) {

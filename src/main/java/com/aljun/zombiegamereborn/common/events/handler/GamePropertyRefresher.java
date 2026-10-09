@@ -1,7 +1,8 @@
 package com.aljun.zombiegamereborn.common.events.handler;
 
 import com.aljun.zombiegamereborn.common.config.StageProperty;
-import com.aljun.zombiegamereborn.common.entity.sense.ZombieSenseManager;
+import com.aljun.zombiegamereborn.common.config.ZombieProperty;
+import com.aljun.zombiegamereborn.common.entity.awareness.AwarenessTuning;
 import com.aljun.zombiegamereborn.common.game.DayTime;
 import com.aljun.zombiegamereborn.common.game.ZGRGame;
 import com.aljun.zombiegamereborn.diplomat.ZGRDiplomacyCenter;
@@ -18,6 +19,8 @@ import org.slf4j.Logger;
 public class GamePropertyRefresher {
 
     private static long lastDayChecked = -1;
+    /** 上一次已应用感知参数的阶段对象，用于避免每 tick 重建设置快照。 */
+    private static ZombieProperty lastAwarenessSource;
     public static boolean bloodMoonTriggeredThisDay = false;
     public static boolean bloodMoonActive = false;
 
@@ -43,7 +46,7 @@ public class GamePropertyRefresher {
         }
 
         StageProperty stageProperty = ZGRGame.getGameProperty().getGlobalStage(event.getServer());
-        ZombieSenseManager.refresh(stageProperty.zombieProperty);
+        refreshAwareness(stageProperty.zombieProperty);
         ZGRDiplomacyCenter.MUSKETMOD_DIPLOMAT.setMobDamageMultiplier(stageProperty.zombieProperty.musketModGunDamageModify);
         long t1 = System.nanoTime();
         // === 血月重载 ===
@@ -80,11 +83,25 @@ public class GamePropertyRefresher {
         }
         long elapsed = System.nanoTime() - nanos;
         if (elapsed > 5_000_000) { // > 5ms
-            LOGGER.warn("ZGR tick took {}ms (getStageProperty: {}µs, sense: {}µs)",
+            LOGGER.warn("ZGR tick took {}ms (getStageProperty: {}µs, awareness: {}µs)",
                     elapsed / 1_000_000,
                     (t1 - nanos) / 1_000,
                     (System.nanoTime() - t1) / 1_000);
         }
+    }
+
+    /**
+     * 感知参数快照刷新。
+     * <p>
+     * 只在<b>阶段对象变化时</b>才重建快照：这个方法每 tick 都会被调用，而阶段通常几十分钟才推进一次，
+     * 用引用比较挡住重复构建，避免每秒产生 20 个没必要的设置对象。
+     */
+    private static void refreshAwareness(ZombieProperty property) {
+        if (property == null || property == lastAwarenessSource) {
+            return;
+        }
+        lastAwarenessSource = property;
+        AwarenessTuning.apply(property.toAwarenessSettings());
     }
 
     /**

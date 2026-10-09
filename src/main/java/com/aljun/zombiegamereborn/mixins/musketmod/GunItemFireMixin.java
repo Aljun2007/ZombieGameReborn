@@ -1,7 +1,6 @@
 package com.aljun.zombiegamereborn.mixins.musketmod;
 
-import com.aljun.zombiegamereborn.common.entity.sense.SenseType;
-import com.aljun.zombiegamereborn.common.entity.sense.ZombieSenseManager;
+import com.aljun.zombiegamereborn.common.entity.awareness.AwarenessManager;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -20,6 +19,6 @@ public class GunItemFireMixin {
     )
     private void on_fire(LivingEntity entity, ItemStack stack, Vec3 direction, Vec3 smokeOffset, CallbackInfo ci) {
         if (entity.level().isClientSide()) return;
-        ZombieSenseManager.broadcastSense(entity, entity.level(), SenseType.GUN_SHOT);
+        AwarenessManager.emitGunShot(entity.level(), entity.getX(), entity.getY(), entity.getZ(), false, entity);
     }
 }

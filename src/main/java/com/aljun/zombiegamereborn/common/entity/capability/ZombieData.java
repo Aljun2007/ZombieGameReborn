@@ -3,7 +3,6 @@ package com.aljun.zombiegamereborn.common.entity.capability;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieBreakBlockGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombiePlaceBlockGoal;
 import com.aljun.zombiegamereborn.common.entity.goal.behavior.ZombieShieldGoal;
-import com.aljun.zombiegamereborn.common.entity.goal.target.ZombieSenseTargetGoal;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZGRZombieTypes;
 import com.aljun.zombiegamereborn.common.entity.zombieType.ZombieType;
 import net.minecraft.core.HolderLookup;
@@ -26,11 +25,9 @@ public class ZombieData implements IZombieData, INBTSerializable<CompoundTag> {
     private boolean canJumpAttack = false;
     private boolean canThrowTNT = false;
     private boolean followMustSee = false;
-    private @Nullable ZombieSenseTargetGoal zombieSenseTargetGoal = null;
     private @Nullable ZombieBreakBlockGoal zombieBreakBlockGoal = null;
     private @Nullable ZombiePlaceBlockGoal zombiePlaceBlockGoal = null;
     private @Nullable ZombieShieldGoal zombieShieldGoal = null;
-    private boolean enhancedSense = false;
     private boolean fleeSun = false;
     private boolean blockStabImmune = false;
     private boolean ladderClimb = false;
@@ -41,16 +38,6 @@ public class ZombieData implements IZombieData, INBTSerializable<CompoundTag> {
 
     @Override
     public void setCustomLootTable(@Nullable ResourceLocation lootTable) { this.customLootTable = lootTable; }
-
-    @Override
-    public @Nullable ZombieSenseTargetGoal getZombieSenseTargetGoalGoal() {
-        return this.zombieSenseTargetGoal;
-    }
-
-    @Override
-    public void setZombieSenseTargetGoalGoal(ZombieSenseTargetGoal zombieSenseTargetGoalGoal) {
-        this.zombieSenseTargetGoal = zombieSenseTargetGoalGoal;
-    }
 
     @Override
     public @Nullable ZombieBreakBlockGoal getZombieBreakBlockGoal() {
@@ -80,16 +67,6 @@ public class ZombieData implements IZombieData, INBTSerializable<CompoundTag> {
     @Override
     public void setZombieShieldGoal(ZombieShieldGoal goal) {
         this.zombieShieldGoal = goal;
-    }
-
-    @Override
-    public boolean enhancedSense() {
-        return this.enhancedSense;
-    }
-
-    @Override
-    public void setEnhancedSense(boolean value) {
-        this.enhancedSense = value;
     }
 
     @Override

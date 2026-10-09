@@ -22,7 +22,6 @@ public class ZombieDataProvider {
         tag.putDouble("movement_speed_modify", data.getTotalMovementSpeedModify());
         tag.putBoolean("canJumpAttack", data.canJumpAttack());
         tag.putBoolean("canThrowTNT", data.canThrowTNT());
-        tag.putBoolean("enhancedSense", data.enhancedSense());
         tag.putBoolean("followMustSee", data.followMustSee());
         tag.putBoolean("canZombieContinueUseWeaponsInHand", data.canZombieContinueUseWeaponsInHand());
         tag.putBoolean("fleeSun",data.fleeSun());
@@ -45,7 +44,6 @@ public class ZombieDataProvider {
         data.setAttributesMovementSpeedModify(tag.getDouble("movementSpeedModify"));
         data.enableJumpAttack(tag.getBoolean("canJumpAttack"));
         data.enableThrowTNT(tag.getBoolean("canThrowTNT"));
-        data.setEnhancedSense(tag.getBoolean("enhancedSense"));
         data.setFollowMustSee(tag.getBoolean("followMustSee"));
         data.setZombieContinueUseWeaponsInHand(tag.getBoolean("canZombieContinueUseWeaponsInHand"));
         data.setFleeSun(tag.getBoolean("fleeSun"));
