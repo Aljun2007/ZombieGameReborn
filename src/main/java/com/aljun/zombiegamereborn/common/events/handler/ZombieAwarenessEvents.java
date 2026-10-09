@@ -309,7 +309,7 @@ public final class ZombieAwarenessEvents {
                     continue;
                 }
                 LOGGER.info("[ZGR awareness] DEBUG zombie#{} at ({}, {}, {}) onGround={} inWall={} "
-                                + "blockAt={} blockBelow={} target={} navDone={}",
+                                + "blockAt={} blockBelow={} light={} target={} navDone={}",
                         zombie.getId(),
                         String.format("%.1f", zombie.getX()),
                         String.format("%.1f", zombie.getY()),
@@ -318,6 +318,8 @@ public final class ZombieAwarenessEvents {
                         zombie.isInWall(),
                         level.getBlockState(zombie.blockPosition()).getBlock(),
                         level.getBlockState(zombie.blockPosition().below()).getBlock(),
+                        // 与光照通道用的是同一个 API，用来核对“午夜露天 / 火把旁 / 有顶棚”各是什么值
+                        level.getMaxLocalRawBrightness(zombie.blockPosition()),
                         zombie.getTarget(),
                         zombie.getNavigation().isDone());
             }
